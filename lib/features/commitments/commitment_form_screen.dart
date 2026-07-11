@@ -112,7 +112,7 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
             );
         if (mounted) {
           showAppSnackBar(
-              context, 'signed & sealed — we\'re watching out for you');
+              context, 'signed & sealed and we\'re watching out for you');
           context.pop();
         }
       }

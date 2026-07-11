@@ -34,7 +34,7 @@ class CommitmentsScreen extends ConsumerWidget {
               return EmptyState(
                 title: 'write your first commitment',
                 subtitle:
-                    'a signed promise to yourself — we\'ll help you keep it',
+                    'a signed promise to yourself and we\'ll help you keep it',
                 action: ElevatedButton(
                   onPressed: () => context.push('/commitments/new'),
                   child: const LowercaseText('create goal'),
