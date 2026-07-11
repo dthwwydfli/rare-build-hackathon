@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/providers/repository_providers.dart';
+import '../../core/utils/onboarding_prefs.dart';
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/signup_screen.dart';
 import '../../features/commitments/commitment_form_screen.dart';
@@ -14,9 +16,10 @@ import '../../features/home/home_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/settings/permissions_screen.dart';
 import '../../features/support/breach_detail_screen.dart';
+import '../../features/support/my_breaches_screen.dart';
 import '../../features/support/support_inbox_screen.dart';
 import '../notifications/notification_service.dart';
-import '../providers/repository_providers.dart';
+import 'app_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(currentUserProvider);
@@ -24,16 +27,26 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: '/onboarding',
-    redirect: (context, state) {
+    redirect: (context, state) async {
       final isLoading = authState.isLoading;
       final user = authState.valueOrNull;
-      final isAuthRoute = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/signup' ||
-          state.matchedLocation == '/onboarding';
+      final location = state.matchedLocation;
+      final isAuthRoute = location == '/login' ||
+          location == '/signup' ||
+          location == '/onboarding';
 
       if (isLoading) return null;
-      if (user == null && !isAuthRoute) return '/login';
-      if (user != null && isAuthRoute) return '/home';
+
+      if (user == null) {
+        if (location == '/onboarding') {
+          final seen = await hasSeenOnboarding();
+          if (seen) return '/login';
+        }
+        if (!isAuthRoute) return '/login';
+        return null;
+      }
+
+      if (isAuthRoute) return '/home';
       return null;
     },
     routes: [
@@ -50,20 +63,40 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SignupScreen(),
       ),
       GoRoute(
-        path: '/home',
-        builder: (context, state) => const HomeScreen(),
+        path: '/permissions',
+        builder: (context, state) => const PermissionsScreen(),
       ),
-      GoRoute(
-        path: '/commitments',
-        builder: (context, state) => const CommitmentsScreen(),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/home',
+            builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: '/commitments',
+            builder: (context, state) => const CommitmentsScreen(),
+          ),
+          GoRoute(
+            path: '/groups',
+            builder: (context, state) => const GroupsScreen(),
+          ),
+          GoRoute(
+            path: '/support',
+            builder: (context, state) => const SupportInboxScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: '/commitments/new',
         builder: (context, state) => const CommitmentFormScreen(),
       ),
       GoRoute(
-        path: '/groups',
-        builder: (context, state) => const GroupsScreen(),
+        path: '/commitments/:id/edit',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return CommitmentFormScreen(commitmentId: id);
+        },
       ),
       GoRoute(
         path: '/groups/new',
@@ -74,8 +107,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const JoinGroupScreen(),
       ),
       GoRoute(
-        path: '/support',
-        builder: (context, state) => const SupportInboxScreen(),
+        path: '/my-breaches',
+        builder: (context, state) => const MyBreachesScreen(),
       ),
       GoRoute(
         path: '/breach/:eventId',
@@ -84,10 +117,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           final groupId = state.uri.queryParameters['groupId'] ?? '';
           return BreachDetailScreen(eventId: eventId, groupId: groupId);
         },
-      ),
-      GoRoute(
-        path: '/permissions',
-        builder: (context, state) => const PermissionsScreen(),
       ),
       GoRoute(
         path: '/dev/simulator',

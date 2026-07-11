@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,11 +30,22 @@ class DetectionCoordinator {
   Timer? _timer;
   final Map<String, DateTime> _cooldowns = {};
   static const _cooldownDuration = Duration(minutes: 15);
+  List<String> _defaultGamblingPackages = [];
 
   void start() {
+    _loadDefaultPackages();
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(minutes: 2), (_) => _runChecks());
     _runChecks();
+  }
+
+  Future<void> _loadDefaultPackages() async {
+    try {
+      final apps = await UsageMonitorFactory.loadGamblingApps();
+      _defaultGamblingPackages = apps.map((a) => a.packageName).toList();
+    } catch (e) {
+      debugPrint('Failed to load gambling apps: $e');
+    }
   }
 
   void stop() {
@@ -68,13 +80,13 @@ class DetectionCoordinator {
           .first;
       if (groups.isEmpty) return;
 
-      final groupId = groups.first.id;
-
       for (final commitment in active) {
-        await _checkLocation(commitment, user.id, user.displayName, groupId);
-        await _checkAppUsage(commitment, user.id, user.displayName, groupId);
-        await _checkUrl(commitment, user.id, user.displayName, groupId);
-        await _checkPayment(commitment, user.id, user.displayName, groupId);
+        for (final group in groups) {
+          await _checkLocation(commitment, user.id, user.displayName, group.id);
+          await _checkAppUsage(commitment, user.id, user.displayName, group.id);
+          await _checkUrl(commitment, user.id, user.displayName, group.id);
+          await _checkPayment(commitment, user.id, user.displayName, group.id);
+        }
       }
     } catch (e) {
       debugPrint('Detection check error: $e');
@@ -88,7 +100,7 @@ class DetectionCoordinator {
     String groupId,
   ) async {
     if (commitment.type != CommitmentType.location) return;
-    final key = 'location-$userId';
+    final key = 'location-$userId-$groupId';
     if (_isOnCooldown(key)) return;
 
     final result = await locationService.checkNearbyGamblingLocations(
@@ -120,11 +132,22 @@ class DetectionCoordinator {
     String groupId,
   ) async {
     if (commitment.type != CommitmentType.online) return;
-    final key = 'app-$userId';
+    final key = 'app-$userId-$groupId';
     if (_isOnCooldown(key)) return;
 
     final result = await usageMonitor.checkActiveApp();
-    if (!result.isGamblingAppActive) return;
+    if (result.packageName == null && result.appName == null) return;
+
+    final blockedApps = commitment.rules.blockedApps;
+    final packageName = result.packageName ?? '';
+    final appName = result.appName ?? '';
+
+    final isBlocked = _matchesBlockedApp(
+      packageName: packageName,
+      appName: appName,
+      blockedApps: blockedApps,
+    );
+    if (!isBlocked) return;
 
     await _emitBreach(
       userId: userId,
@@ -133,11 +156,26 @@ class DetectionCoordinator {
       groupId: groupId,
       signalType: BreachSignalType.app,
       metadata: {
-        'appName': result.appName,
-        'packageName': result.packageName,
+        'appName': appName,
+        'packageName': packageName,
       },
     );
     _setCooldown(key);
+  }
+
+  bool _matchesBlockedApp({
+    required String packageName,
+    required String appName,
+    required List<String> blockedApps,
+  }) {
+    final targets = blockedApps.isNotEmpty ? blockedApps : _defaultGamblingPackages;
+    final lowerPackage = packageName.toLowerCase();
+    final lowerApp = appName.toLowerCase();
+    for (final target in targets) {
+      final t = target.toLowerCase();
+      if (lowerPackage.contains(t) || lowerApp.contains(t)) return true;
+    }
+    return false;
   }
 
   Future<void> _checkUrl(
@@ -147,11 +185,17 @@ class DetectionCoordinator {
     String groupId,
   ) async {
     if (commitment.type != CommitmentType.online) return;
-    final key = 'url-$userId';
+    final key = 'url-$userId-$groupId';
     if (_isOnCooldown(key)) return;
 
     final result = await urlMonitor.checkRecentUrl();
-    if (!result.isGamblingUrl) return;
+    if (!result.isGamblingUrl || result.url == null) return;
+
+    final domains = commitment.rules.blockedDomains;
+    final isBlocked = domains.isEmpty
+        ? urlMonitor.isBlockedDomain(result.url!)
+        : domains.any((d) => result.url!.toLowerCase().contains(d.toLowerCase()));
+    if (!isBlocked) return;
 
     await _emitBreach(
       userId: userId,
@@ -171,11 +215,17 @@ class DetectionCoordinator {
     String groupId,
   ) async {
     if (commitment.type != CommitmentType.spending) return;
-    final key = 'payment-$userId';
+    final key = 'payment-$userId-$groupId';
     if (_isOnCooldown(key)) return;
 
     final result = await paymentMonitor.checkRecentPayment();
     if (!result.isSuspiciousGamblingPayment) return;
+
+    if (commitment.rules.maxSpend != null &&
+        result.amount != null &&
+        result.amount! < commitment.rules.maxSpend!) {
+      return;
+    }
 
     await _emitBreach(
       userId: userId,
@@ -185,7 +235,6 @@ class DetectionCoordinator {
       signalType: BreachSignalType.payment,
       metadata: {
         'merchant': result.merchant,
-        // Do not expose exact amount in notifications — stored for demo only
         'amountRange': result.amount != null ? 'under_100' : null,
       },
       severity: 'high',
@@ -193,7 +242,7 @@ class DetectionCoordinator {
     _setCooldown(key);
   }
 
-  Future<BreachEvent> emitManualBreach({
+  Future<List<BreachEvent>> emitManualBreach({
     required BreachSignalType signalType,
     Map<String, dynamic>? metadata,
   }) async {
@@ -212,13 +261,43 @@ class DetectionCoordinator {
     if (commitments.isEmpty) throw Exception('Create a commitment first');
     if (groups.isEmpty) throw Exception('Join a group first');
 
-    return _emitBreach(
-      userId: user.id,
-      userName: user.displayName,
-      commitmentId: commitments.first.id,
-      groupId: groups.first.id,
-      signalType: signalType,
-      metadata: metadata ?? {},
+    final commitment = _commitmentForSignal(commitments, signalType);
+    final events = <BreachEvent>[];
+
+    for (final group in groups) {
+      final event = await _emitBreach(
+        userId: user.id,
+        userName: user.displayName,
+        commitmentId: commitment.id,
+        groupId: group.id,
+        signalType: signalType,
+        metadata: metadata ?? {},
+      );
+      events.add(event);
+    }
+
+    return events;
+  }
+
+  Commitment _commitmentForSignal(
+    List<Commitment> commitments,
+    BreachSignalType signalType,
+  ) {
+    CommitmentType? targetType;
+    switch (signalType) {
+      case BreachSignalType.location:
+        targetType = CommitmentType.location;
+      case BreachSignalType.app:
+      case BreachSignalType.url:
+        targetType = CommitmentType.online;
+      case BreachSignalType.payment:
+        targetType = CommitmentType.spending;
+      case BreachSignalType.manual:
+        return commitments.first;
+    }
+    return commitments.firstWhere(
+      (c) => c.type == targetType && c.active,
+      orElse: () => commitments.first,
     );
   }
 

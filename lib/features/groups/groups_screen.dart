@@ -80,8 +80,18 @@ class GroupsScreen extends ConsumerWidget {
                               Clipboard.setData(
                                 ClipboardData(text: group.inviteCode),
                               );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Code copied')),
+                              showAppSnackBar(context, 'Code copied');
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.share_outlined),
+                            onPressed: () {
+                              final shareText =
+                                  'Join my accountability group "${group.name}" with code: ${group.inviteCode}';
+                              Clipboard.setData(ClipboardData(text: shareText));
+                              showAppSnackBar(
+                                context,
+                                'Invite message copied — paste in Messages or WhatsApp',
                               );
                             },
                           ),
@@ -95,7 +105,9 @@ class GroupsScreen extends ConsumerWidget {
           );
         },
         loading: () => const LoadingView(),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(
+          child: ErrorBanner(message: 'Could not load groups'),
+        ),
       ),
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,

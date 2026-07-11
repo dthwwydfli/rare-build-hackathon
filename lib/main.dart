@@ -6,6 +6,7 @@ import 'core/notifications/notification_service.dart';
 import 'core/providers/repository_providers.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/app_widgets.dart';
 import 'firebase_options.dart';
 import 'services/detection/detection_coordinator.dart';
 
@@ -40,12 +41,24 @@ class _AccountabilityAppState extends ConsumerState<AccountabilityApp> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(notificationAuthListenerProvider);
     final router = ref.watch(routerProvider);
+    final authState = ref.watch(currentUserProvider);
+
     return MaterialApp.router(
       title: 'Accountability',
       theme: AppTheme.light,
+      scaffoldMessengerKey: scaffoldMessengerKey,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        if (authState.isLoading && authState.valueOrNull == null) {
+          return const Material(
+            child: LoadingView(message: 'Loading...'),
+          );
+        }
+        return child ?? const SizedBox.shrink();
+      },
     );
   }
 }

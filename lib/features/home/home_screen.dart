@@ -101,7 +101,16 @@ class HomeScreen extends ConsumerWidget {
               error: (e, _) => ErrorBanner(message: 'Could not load groups'),
             ),
             const SizedBox(height: 24),
-            Text('Recent support', style: Theme.of(context).textTheme.titleMedium),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Recent support', style: Theme.of(context).textTheme.titleMedium),
+                TextButton(
+                  onPressed: () => context.push('/my-breaches'),
+                  child: const Text('My breaches'),
+                ),
+              ],
+            ),
             const SizedBox(height: 8),
             supportAsync.when(
               data: (messages) {

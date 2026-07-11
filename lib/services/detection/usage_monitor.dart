@@ -52,10 +52,12 @@ class AndroidUsageMonitor implements UsageMonitor {
       if (result == null) {
         return const AppUsageResult(isGamblingAppActive: false);
       }
+      final packageName = result['packageName'] as String? ?? '';
+      final appName = result['appName'] as String? ?? packageName;
       return AppUsageResult(
         isGamblingAppActive: result['isGambling'] as bool? ?? false,
-        appName: result['appName'] as String?,
-        packageName: result['packageName'] as String?,
+        appName: appName,
+        packageName: packageName,
       );
     } catch (e) {
       debugPrint('UsageStats error: $e');

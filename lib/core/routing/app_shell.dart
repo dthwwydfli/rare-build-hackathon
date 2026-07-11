@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/commitments/commitments_screen.dart';
-import '../../features/groups/groups_screen.dart';
-import '../../features/home/home_screen.dart';
-import '../../features/support/support_inbox_screen.dart';
-
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.child});
 
