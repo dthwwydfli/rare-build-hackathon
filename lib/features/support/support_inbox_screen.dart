@@ -118,11 +118,11 @@ final unreadAlertsCountProvider = Provider<int>((ref) {
   return count;
 });
 
-class _DemoPaddyPowerButton extends StatelessWidget {
+class _DemoPaddyPowerButton extends ConsumerWidget {
   const _DemoPaddyPowerButton();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return AppCard(
       child: ListTile(
         contentPadding: EdgeInsets.zero,
@@ -135,12 +135,12 @@ class _DemoPaddyPowerButton extends StatelessWidget {
         ),
         title: const LowercaseText('demo: paddy power alert'),
         subtitle: const LowercaseText(
-          'preview the notification you\'d get when entering paddy power.',
+          'sends a demo alert to your notification panel, like entering paddy power.',
           style: TextStyle(color: AppTheme.inkPlumSoft),
         ),
         trailing: FilledButton(
-          onPressed: () => showDemoPaddyPowerAlert(context),
-          child: const LowercaseText('show'),
+          onPressed: () => showDemoPaddyPowerAlert(context, ref),
+          child: const LowercaseText('send'),
         ),
       ),
     );

@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/notifications/local_notification_service.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/app_widgets.dart';
 import '../screening/screening_rescreen_prompt.dart';
 
-/// Demo notification-style alert for a Paddy Power breach.
-Future<void> showDemoPaddyPowerAlert(BuildContext context) {
+/// Posts a demo breach alert to the system notification panel.
+Future<void> showDemoPaddyPowerAlert(BuildContext context, WidgetRef ref) async {
+  final posted =
+      await ref.read(localNotificationServiceProvider).showDemoPaddyPowerNotification();
+  if (!context.mounted) return;
+
+  if (posted) {
+    showAppSnackBar(
+      context,
+      'demo alert sent — pull down to view in your notification panel',
+    );
+    return;
+  }
+
+  showAppSnackBar(
+    context,
+    'enable notifications in settings to preview the alert panel',
+  );
+  await showDemoPaddyPowerAlertDialog(context);
+}
+
+/// In-app follow-up when the user opens the demo notification.
+Future<void> showDemoPaddyPowerAlertDialog(BuildContext context) {
   return showGeneralDialog<void>(
     context: context,
     barrierDismissible: true,
