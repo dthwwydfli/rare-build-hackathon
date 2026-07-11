@@ -1,11 +1,11 @@
 {
-    "name": "accountability_app",
-    "short_name": "accountability_app",
+    "name": "lavender",
+    "short_name": "lavender",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F7F4F0",
+    "theme_color": "#B8A9C9",
+    "description": "Gambling accountability with points, streaks, and friend support.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
