@@ -18,17 +18,17 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-  runApp(const ProviderScope(child: AccountabilityApp()));
+  runApp(const ProviderScope(child: LavenderApp()));
 }
 
-class AccountabilityApp extends ConsumerStatefulWidget {
-  const AccountabilityApp({super.key});
+class LavenderApp extends ConsumerStatefulWidget {
+  const LavenderApp({super.key});
 
   @override
-  ConsumerState<AccountabilityApp> createState() => _AccountabilityAppState();
+  ConsumerState<LavenderApp> createState() => _LavenderAppState();
 }
 
-class _AccountabilityAppState extends ConsumerState<AccountabilityApp> {
+class _LavenderAppState extends ConsumerState<LavenderApp> {
   @override
   void initState() {
     super.initState();
@@ -47,11 +47,12 @@ class _AccountabilityAppState extends ConsumerState<AccountabilityApp> {
   @override
   Widget build(BuildContext context) {
     ref.watch(notificationAuthListenerProvider);
+    ref.watch(gamificationSyncProvider);
     final router = ref.watch(routerProvider);
     final authState = ref.watch(currentUserProvider);
 
     return MaterialApp.router(
-      title: 'Accountability',
+      title: 'lavender',
       theme: AppTheme.light,
       scaffoldMessengerKey: scaffoldMessengerKey,
       routerConfig: router,
@@ -59,7 +60,7 @@ class _AccountabilityAppState extends ConsumerState<AccountabilityApp> {
       builder: (context, child) {
         if (authState.isLoading && authState.valueOrNull == null) {
           return const Material(
-            child: LoadingView(message: 'Loading...'),
+            child: LoadingView(message: 'loading...'),
           );
         }
         return child ?? const SizedBox.shrink();
