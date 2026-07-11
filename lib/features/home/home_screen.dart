@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_motion.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/milestone_tracker.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/commitment.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/friend_group.dart';
@@ -85,23 +88,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(_userCommitmentsProvider(user.id));
-          ref.invalidate(_userGroupsProvider(user.id));
-          ref.invalidate(_userSupportProvider(user.id));
-          ref.invalidate(userStatsProvider(user.id));
-          if (firstGroup != null) {
-            ref.invalidate(groupLeaderboardProvider(firstGroup.id));
-          }
-        },
-        child: ListView(
+      body: PaperBackground(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(_userCommitmentsProvider(user.id));
+            ref.invalidate(_userGroupsProvider(user.id));
+            ref.invalidate(_userSupportProvider(user.id));
+            ref.invalidate(userStatsProvider(user.id));
+            if (firstGroup != null) {
+              ref.invalidate(groupLeaderboardProvider(firstGroup.id));
+            }
+          },
+          child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             statsAsync.when(
               data: (stats) => GamificationHeroCard(
                 points: stats.points,
                 streak: stats.currentStreak,
+                bestStreak: stats.bestStreak,
                 groupRank: groupRank,
                 groupName: firstGroup?.name,
                 onViewLeaderboard: () => context.go('/leaderboard'),
@@ -109,9 +114,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               loading: () => const LoadingView(),
               error: (_, __) => const SizedBox.shrink(),
             ),
-            const SizedBox(height: 16),
-            _QuickActions(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            const Center(child: OrnamentalDivider()),
+            const SizedBox(height: 20),
             commitmentsAsync.when(
               data: (commitments) {
                 final groups = groupsAsync.valueOrNull ?? [];
@@ -146,8 +151,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               loading: () => const SizedBox.shrink(),
               error: (_, __) => const SizedBox.shrink(),
             ),
-            const LowercaseText('active goals', style: TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
+            const LowercaseText(
+              'active goals',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            ),
+            const SizedBox(height: 10),
             commitmentsAsync.when(
               data: (commitments) => _CommitmentsSummary(
                 commitments: commitments,
@@ -156,22 +164,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               loading: () => const LoadingView(),
               error: (e, _) => const ErrorBanner(message: 'could not load goals'),
             ),
-            const SizedBox(height: 24),
-            const LowercaseText('your groups', style: TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 20),
+            const Center(child: OrnamentalDivider()),
+            const SizedBox(height: 20),
+            const LowercaseText(
+              'your groups',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            ),
+            const SizedBox(height: 10),
             groupsAsync.when(
               data: (groups) => _GroupsSummary(groups: groups, userId: user.id),
               loading: () => const LoadingView(),
               error: (e, _) => const ErrorBanner(message: 'could not load groups'),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+            const Center(child: OrnamentalDivider()),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const LowercaseText('recent support', style: TextStyle(fontWeight: FontWeight.w600)),
+                const LowercaseText(
+                  'notes from friends',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                ),
                 TextButton(
                   onPressed: () => context.push('/my-breaches'),
-                  child: const LowercaseText('my breaches'),
+                  child: const LowercaseText('my moments'),
                 ),
               ],
             ),
@@ -179,18 +197,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             supportAsync.when(
               data: (messages) {
                 if (messages.isEmpty) {
-                  return LowercaseText(
-                    'no support messages yet',
-                    style: TextStyle(color: AppTheme.granolaDark.withValues(alpha: 0.7)),
+                  return const LowercaseText(
+                    'no notes yet — when friends reach out, their words land here.',
+                    style: TextStyle(color: AppTheme.inkPlumSoft),
                   );
                 }
                 return Column(
                   children: messages.take(3).map((m) {
-                    return AppCard(
-                      child: ListTile(
-                        leading: const Icon(Icons.favorite, color: AppTheme.lavender),
-                        title: Text(m.message),
-                        subtitle: Text(m.fromUserName ?? 'a friend'),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: AppCard(
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.favorite,
+                              color: AppTheme.terracotta),
+                          title: Text(m.message),
+                          subtitle: LowercaseText(
+                            m.fromUserName ?? 'a friend',
+                            style: const TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: AppTheme.inkPlumSoft,
+                            ),
+                          ),
+                        ),
                       ),
                     );
                   }).toList(),
@@ -199,7 +228,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               loading: () => const LoadingView(),
               error: (e, _) => const ErrorBanner(message: 'could not load support messages'),
             ),
-          ],
+          ].staggered(context),
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -226,66 +256,6 @@ final _userSupportProvider =
   return ref.watch(breachRepositoryProvider).watchSupportForUser(userId);
 });
 
-class _QuickActions extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _ActionCard(
-            icon: Icons.flag_outlined,
-            label: 'goals',
-            onTap: () => context.push('/commitments'),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _ActionCard(
-            icon: Icons.group_outlined,
-            label: 'groups',
-            onTap: () => context.push('/groups'),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _ActionCard(
-            icon: Icons.inbox_outlined,
-            label: 'alerts',
-            onTap: () => context.push('/support'),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ActionCard extends StatelessWidget {
-  const _ActionCard({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      onTap: onTap,
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Column(
-        children: [
-          Icon(icon, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(height: 8),
-          LowercaseText(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
-}
-
 class _CommitmentsSummary extends StatelessWidget {
   const _CommitmentsSummary({
     required this.commitments,
@@ -310,21 +280,23 @@ class _CommitmentsSummary extends StatelessWidget {
     }
     return Column(
       children: active.take(3).map((c) {
-        return AppCard(
-          child: ListTile(
-            leading: Icon(_iconForType(c.type)),
-            title: Text(c.title),
-            subtitle: Row(
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12, top: 6),
+          child: ContractCard(
+            title: c.title,
+            stamp: const StampBadge.active(size: 48),
+            onTap: () => context.push('/commitments/${c.id}/edit'),
+            child: Row(
               children: [
-                LowercaseText(c.type.label),
+                PatchChip(label: c.type.label, icon: _iconForType(c.type)),
                 if (streak > 0) ...[
                   const SizedBox(width: 8),
                   StreakFlame(streak: streak),
                 ],
+                const Spacer(),
+                const Icon(Icons.chevron_right, color: AppTheme.inkPlumSoft),
               ],
             ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/commitments/${c.id}/edit'),
           ),
         );
       }).toList(),
@@ -368,14 +340,20 @@ class _GroupsSummary extends ConsumerWidget {
             ?.where((e) => e.userId == userId)
             .map((e) => e.rank)
             .firstOrNull;
-        return AppCard(
-          child: ListTile(
-            leading: const Icon(Icons.group),
-            title: Text(g.name),
-            subtitle: LowercaseText(
-              '${g.memberIds.length} members · code: ${g.inviteCode}${rank != null ? ' · rank #$rank' : ''}',
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: AppCard(
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.group_outlined,
+                  color: AppTheme.lavenderDeep),
+              title: Text(g.name),
+              subtitle: LowercaseText(
+                '${g.memberIds.length} walking together${rank != null ? ' · you\'re #$rank' : ''}',
+                style: const TextStyle(color: AppTheme.inkPlumSoft),
+              ),
+              onTap: () => context.push('/groups'),
             ),
-            onTap: () => context.push('/groups'),
           ),
         );
       }).toList(),

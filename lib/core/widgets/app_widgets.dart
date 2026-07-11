@@ -40,7 +40,7 @@ class LoadingView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(color: AppTheme.lavender),
+          const CircularProgressIndicator(color: AppTheme.lavenderDeep),
           if (message != null) ...[
             const SizedBox(height: 16),
             LowercaseText(message!),
@@ -62,15 +62,20 @@ class ErrorBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.danger.withValues(alpha: 0.12),
+        color: AppTheme.dangerDeep.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.danger.withValues(alpha: 0.3)),
+        border: Border.all(color: AppTheme.dangerDeep.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: AppTheme.danger),
+          const Icon(Icons.error_outline, color: AppTheme.dangerDeep),
           const SizedBox(width: 8),
-          Expanded(child: LowercaseText(message)),
+          Expanded(
+            child: LowercaseText(
+              message,
+              style: const TextStyle(color: AppTheme.dangerDeep),
+            ),
+          ),
         ],
       ),
     );
@@ -106,7 +111,12 @@ Future<bool> showConfirmDialog(
 
 void showAppSnackBar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: LowercaseText(message, style: const TextStyle(color: AppTheme.white))),
+    SnackBar(
+      content: LowercaseText(
+        message,
+        style: const TextStyle(color: AppTheme.paperSurface),
+      ),
+    ),
   );
 }
 
@@ -130,20 +140,49 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.inbox_outlined, size: 64, color: AppTheme.lavender),
-            const SizedBox(height: 16),
+            const _BlankPaper(),
+            const SizedBox(height: 12),
+            const OrnamentalDivider(width: 90),
+            const SizedBox(height: 12),
             LowercaseText(title, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             LowercaseText(
               subtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.granolaDark.withValues(alpha: 0.7)),
+              style: const TextStyle(color: AppTheme.inkPlumSoft),
             ),
             if (action != null) ...[
               const SizedBox(height: 24),
               action!,
             ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A small blank sheet with a stitched border — the "nothing written here
+/// yet" mark used by [EmptyState].
+class _BlankPaper extends StatelessWidget {
+  const _BlankPaper();
+
+  @override
+  Widget build(BuildContext context) {
+    return StitchedBorder(
+      borderRadius: 10,
+      padding: const EdgeInsets.all(6),
+      child: Container(
+        width: 56,
+        height: 68,
+        decoration: BoxDecoration(
+          color: AppTheme.paperSurface,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: const Icon(
+          Icons.edit_outlined,
+          size: 22,
+          color: AppTheme.inkPlumSoft,
         ),
       ),
     );
@@ -176,7 +215,7 @@ class StatChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: AppTheme.granolaDark),
+          Icon(icon, size: 16, color: AppTheme.inkPlumSoft),
           const SizedBox(width: 6),
           LowercaseText(
             '$label $value',
@@ -196,13 +235,13 @@ class RankBadge extends StatelessWidget {
   Color get _color {
     switch (rank) {
       case 1:
-        return AppTheme.lavender;
+        return AppTheme.terracotta;
       case 2:
-        return AppTheme.granola;
+        return AppTheme.lavenderDeep;
       case 3:
-        return AppTheme.lavenderLight;
+        return AppTheme.lavenderDark;
       default:
-        return AppTheme.granolaLight;
+        return AppTheme.inkPlumSoft;
     }
   }
 
@@ -214,21 +253,23 @@ class RankBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: _color,
         shape: BoxShape.circle,
-        border: Border.all(color: AppTheme.white, width: 2),
+        border: Border.all(color: AppTheme.paperSurface, width: 2),
       ),
       alignment: Alignment.center,
       child: Text(
         '#$rank',
-        style: TextStyle(
+        style: const TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 12,
-          color: rank <= 2 ? AppTheme.white : AppTheme.granolaDark,
+          color: AppTheme.white,
         ),
       ),
     );
   }
 }
 
+/// Streak marker. Renders growth (a sprout and days reclaimed), not fire —
+/// heat/urgency metaphors are wrong for a recovery audience.
 class StreakFlame extends StatelessWidget {
   const StreakFlame({super.key, required this.streak});
 
@@ -236,32 +277,25 @@ class StreakFlame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hot = streak >= 7;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        gradient: hot
-            ? const LinearGradient(
-                colors: [AppTheme.granola, AppTheme.lavender],
-              )
-            : null,
-        color: hot ? null : AppTheme.lavenderLight,
+        color: AppTheme.granolaLight.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppTheme.sageDeep.withValues(alpha: 0.25),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.local_fire_department,
-            size: 18,
-            color: hot ? AppTheme.white : AppTheme.lavenderDark,
-          ),
+          const Icon(Icons.spa_outlined, size: 18, color: AppTheme.sageDeep),
           const SizedBox(width: 4),
           Text(
             '$streak',
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
-              color: hot ? AppTheme.white : AppTheme.granolaDark,
+              color: AppTheme.sageDeep,
             ),
           ),
         ],
@@ -285,35 +319,38 @@ class PointsCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(compact ? 12 : 16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppTheme.white,
-            AppTheme.lavenderLight.withValues(alpha: 0.4),
-          ],
-        ),
+        color: AppTheme.terracottaWash,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.lavenderLight),
+        border: Border.all(
+          color: AppTheme.terracotta.withValues(alpha: 0.3),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const LowercaseText('points', style: TextStyle(fontSize: 12)),
+          const LowercaseText(
+            'points',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.6,
+              color: AppTheme.terracottaDeep,
+            ),
+          ),
           Text(
             '$points',
             style: TextStyle(
               fontSize: compact ? 24 : 32,
               fontWeight: FontWeight.bold,
-              color: AppTheme.granola,
+              color: AppTheme.terracottaDeep,
             ),
           ),
           LowercaseText(
-            pointsTierLabel(points),
-            style: TextStyle(
+            softTierLabel(points),
+            style: const TextStyle(
               fontSize: 12,
-              color: AppTheme.lavenderDark,
+              color: AppTheme.inkPlumSoft,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -335,6 +372,8 @@ class PodiumRow extends StatelessWidget {
     final sorted = List.of(entries)..sort((a, b) => a.rank.compareTo(b.rank));
     final top3 = sorted.take(3).toList();
 
+    // A quilt of near-equal patches, not a podium — this leaderboard is
+    // about walking together, not towering over each other.
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
@@ -342,8 +381,8 @@ class PodiumRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (top3.length > 1) _PodiumSlot(entry: top3[1], height: 72),
-          if (top3.isNotEmpty) _PodiumSlot(entry: top3[0], height: 96),
-          if (top3.length > 2) _PodiumSlot(entry: top3[2], height: 56),
+          if (top3.isNotEmpty) _PodiumSlot(entry: top3[0], height: 80),
+          if (top3.length > 2) _PodiumSlot(entry: top3[2], height: 68),
         ],
       ),
     );
@@ -358,38 +397,43 @@ class _PodiumSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        RankBadge(rank: entry.rank),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: 80,
-          child: Text(
-            entry.name,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-          ),
+    return StitchedBorder(
+      borderRadius: 14,
+      padding: const EdgeInsets.all(6),
+      child: Container(
+        width: 92,
+        height: height + 52,
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppTheme.paperSurface,
+          borderRadius: BorderRadius.circular(10),
         ),
-        Text(
-          '${entry.points}',
-          style: TextStyle(fontSize: 11, color: AppTheme.granolaDark.withValues(alpha: 0.7)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            RankBadge(rank: entry.rank),
+            const SizedBox(height: 6),
+            Text(
+              entry.name,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.inkPlum,
+              ),
+            ),
+            Text(
+              '${entry.points}',
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppTheme.inkPlumSoft,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Container(
-          width: 72,
-          height: height,
-          decoration: BoxDecoration(
-            color: entry.rank == 1
-                ? AppTheme.lavender
-                : entry.rank == 2
-                    ? AppTheme.granola
-                    : AppTheme.lavenderLight,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -401,18 +445,27 @@ class TierBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppTheme.granola,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: LowercaseText(
-        pointsTierLabel(points),
-        style: const TextStyle(
-          color: AppTheme.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
+    // Mini ink-stamp look: paper fill, terracotta ring, slight tilt.
+    return Transform.rotate(
+      angle: -0.035,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppTheme.paperSurface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppTheme.terracotta.withValues(alpha: 0.7),
+            width: 1.5,
+          ),
+        ),
+        child: LowercaseText(
+          softTierLabel(points),
+          style: const TextStyle(
+            color: AppTheme.terracottaDeep,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.4,
+          ),
         ),
       ),
     );

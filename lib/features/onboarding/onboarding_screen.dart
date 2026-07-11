@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/theme/app_motion.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/onboarding_prefs.dart';
+import '../../core/widgets/craft_widgets.dart';
 import '../../core/widgets/tactile_widgets.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -28,7 +30,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _OnboardingPage(
       icon: Icons.location_on_outlined,
       title: 'location alerts',
-      subtitle: 'friends are notified when you are near casinos or betting shops.',
+      subtitle:
+          'your circle is quietly notified when you are near a trigger spot.',
     ),
     _OnboardingPage(
       icon: Icons.phone_android_outlined,
@@ -41,10 +44,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       subtitle: 'friends can send encouragement when you struggle.',
     ),
     _OnboardingPage(
-      icon: Icons.emoji_events_outlined,
-      title: 'earn your rank',
+      icon: Icons.spa_outlined,
+      title: 'grow together',
       subtitle:
-          'build points, keep streaks alive, and climb friend and global leaderboards.',
+          'reclaim days, collect milestones, and walk alongside your friends.',
     ),
   ];
 
@@ -86,27 +89,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               const BrandWordmark(size: 28),
                               const SizedBox(height: 24),
                             ],
-                            Icon(page.icon, size: 72, color: AppTheme.lavender),
+                            StampBadge(
+                              label: page.title.split(' ').first,
+                              icon: page.icon,
+                              size: 96,
+                              seed: page.title,
+                            ).stampIn(context),
                             const SizedBox(height: 16),
                             const OrnamentalDivider(),
                             const SizedBox(height: 16),
-                            LowercaseText(
-                              page.title,
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.lavenderDark,
-                                  ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-                            LowercaseText(
-                              page.subtitle,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: AppTheme.granolaDark.withValues(alpha: 0.8),
-                                fontSize: 16,
+                            ...[
+                              LowercaseText(
+                                page.title,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium,
+                                textAlign: TextAlign.center,
                               ),
-                            ),
+                              const SizedBox(height: 16),
+                              LowercaseText(
+                                page.subtitle,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: AppTheme.inkPlumSoft,
+                                  fontSize: 16,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ].staggered(context),
                           ],
                         ),
                       ),
@@ -114,20 +124,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   },
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  _pages.length,
-                  (i) => Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: i == _currentPage ? AppTheme.lavender : AppTheme.lavenderLight,
-                    ),
-                  ),
-                ),
+              StitchProgress.dots(
+                count: _pages.length,
+                index: _currentPage,
               ),
               Padding(
                 padding: const EdgeInsets.all(24),
