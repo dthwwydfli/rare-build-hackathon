@@ -93,6 +93,7 @@ class GroupsContent extends ConsumerWidget {
               );
             }
             final group = groups[index - 1];
+            final coverAsset = _coverAssetFor(group);
             final rankAsync = ref.watch(groupLeaderboardProvider(group.id));
             final rank = rankAsync.valueOrNull
                 ?.where((e) => e.userId == user.id)
@@ -104,6 +105,16 @@ class GroupsContent extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        coverAsset,
+                        height: 104,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     GroupSummaryTile(group: group, rank: rank),
                     _GroupMemberPreview(group: group),
                     const SizedBox(height: 12),
@@ -137,6 +148,20 @@ class GroupsContent extends ConsumerWidget {
           const Center(child: ErrorBanner(message: 'could not load groups')),
     );
   }
+}
+
+String _coverAssetFor(FriendGroup group) {
+  final coverAsset = group.coverAsset;
+  if (coverAsset != null && coverAsset.isNotEmpty) return coverAsset;
+
+  final key = '${group.id} ${group.name}'.toLowerCase();
+  if (key.contains('payday')) {
+    return 'assets/images/community/payday-plan.png';
+  }
+  if (key.contains('match') || key.contains('bet')) {
+    return 'assets/images/community/matchday.png';
+  }
+  return 'assets/images/community/weekend-reset.png';
 }
 
 class _GroupMemberPreview extends ConsumerWidget {

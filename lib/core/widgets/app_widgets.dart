@@ -470,6 +470,16 @@ class CommunityAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final name = user?.displayName.trim() ?? '';
     final color = Color(user?.avatarColor ?? 0xFF6E5A8E);
+    final avatarAsset = user?.avatarAsset;
+
+    if (avatarAsset != null && avatarAsset.isNotEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: color.withValues(alpha: 0.16),
+        backgroundImage: AssetImage(avatarAsset),
+      );
+    }
+
     return CircleAvatar(
       radius: radius,
       backgroundColor: color.withValues(alpha: 0.16),
@@ -503,10 +513,8 @@ class CommunityAvatar extends StatelessWidget {
 
   String _initials(String name) {
     if (name.isEmpty) return '?';
-    final parts = name
-        .split(RegExp(r'\s+'))
-        .where((p) => p.isNotEmpty)
-        .toList();
+    final parts =
+        name.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
     return '${parts.first.substring(0, 1)}${parts.last.substring(0, 1)}'
         .toUpperCase();

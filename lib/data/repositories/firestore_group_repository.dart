@@ -22,10 +22,8 @@ class FirestoreGroupRepository implements GroupRepository {
 
   @override
   Stream<List<FriendGroup>> watchUserGroups(String userId) {
-    return _groups
-        .where('memberIds', arrayContains: userId)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map(FriendGroup.fromFirestore).toList());
+    return _groups.where('memberIds', arrayContains: userId).snapshots().map(
+        (snapshot) => snapshot.docs.map(FriendGroup.fromFirestore).toList());
   }
 
   @override
@@ -76,6 +74,7 @@ class FirestoreGroupRepository implements GroupRepository {
       ownerId: group.ownerId,
       memberIds: updatedMemberIds,
       inviteCode: group.inviteCode,
+      coverAsset: group.coverAsset,
       createdAt: group.createdAt,
     );
   }
@@ -98,6 +97,7 @@ class FirestoreGroupRepository implements GroupRepository {
       ownerId: group.ownerId,
       memberIds: updatedMemberIds,
       inviteCode: group.inviteCode,
+      coverAsset: group.coverAsset,
       createdAt: group.createdAt,
     );
   }
