@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../domain/models/app_user.dart';
+import '../theme/app_theme.dart';
+
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,
@@ -137,6 +140,116 @@ class EmptyState extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class CommunityAvatar extends StatelessWidget {
+  const CommunityAvatar({
+    super.key,
+    required this.user,
+    this.radius = 22,
+  });
+
+  final AppUser? user;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final name = user?.displayName.trim() ?? '';
+    final initials = _initials(name);
+    final color = Color(user?.avatarColor ?? 0xFF2D6A4F);
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: color.withValues(alpha: 0.16),
+      child: Container(
+        width: radius * 2,
+        height: radius * 2,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color.withValues(alpha: 0.95),
+              color.withValues(alpha: 0.58),
+            ],
+          ),
+        ),
+        child: Center(
+          child: Text(
+            initials,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: radius * 0.62,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _initials(String name) {
+    if (name.isEmpty) return '?';
+    final parts =
+        name.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.length == 1) return parts.first.characters.first.toUpperCase();
+    return '${parts.first.characters.first}${parts.last.characters.first}'
+        .toUpperCase();
+  }
+}
+
+class CommunityAvatarStack extends StatelessWidget {
+  const CommunityAvatarStack({
+    super.key,
+    required this.users,
+    this.maxVisible = 4,
+    this.radius = 18,
+  });
+
+  final List<AppUser> users;
+  final int maxVisible;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final visible = users.take(maxVisible).toList();
+    final extra = users.length - visible.length;
+    return SizedBox(
+      height: radius * 2,
+      width: (visible.length + (extra > 0 ? 1 : 0)) * radius * 1.35 + radius,
+      child: Stack(
+        children: [
+          for (var i = 0; i < visible.length; i++)
+            Positioned(
+              left: i * radius * 1.35,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: CommunityAvatar(user: visible[i], radius: radius),
+              ),
+            ),
+          if (extra > 0)
+            Positioned(
+              left: visible.length * radius * 1.35,
+              child: CircleAvatar(
+                radius: radius,
+                backgroundColor: AppTheme.primary,
+                child: Text(
+                  '+$extra',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

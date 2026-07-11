@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers/repository_providers.dart';
-import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../domain/models/app_user.dart';
 import '../../domain/models/friend_group.dart';
@@ -18,8 +17,30 @@ class FindPeopleScreen extends ConsumerStatefulWidget {
 class _FindPeopleScreenState extends ConsumerState<FindPeopleScreen> {
   final _searchController = TextEditingController();
   List<AppUser> _results = [];
+  List<AppUser> _suggested = [];
   bool _searching = false;
+  bool _loadingSuggested = true;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadSuggested());
+  }
+
+  Future<void> _loadSuggested() async {
+    final user = ref.read(currentUserProvider).valueOrNull;
+    if (user == null) return;
+    final suggested = await ref.read(userRepositoryProvider).suggestedUsers(
+          excludeUserId: user.id,
+          limit: 8,
+        );
+    if (!mounted) return;
+    setState(() {
+      _suggested = suggested;
+      _loadingSuggested = false;
+    });
+  }
 
   @override
   void dispose() {
@@ -62,10 +83,8 @@ class _FindPeopleScreenState extends ConsumerState<FindPeopleScreen> {
     final user = ref.read(currentUserProvider).valueOrNull;
     if (user == null) return;
 
-    final groups = await ref
-        .read(groupRepositoryProvider)
-        .watchUserGroups(user.id)
-        .first;
+    final groups =
+        await ref.read(groupRepositoryProvider).watchUserGroups(user.id).first;
     if (!mounted) return;
 
     if (groups.isEmpty) {
@@ -98,6 +117,23 @@ class _FindPeopleScreenState extends ConsumerState<FindPeopleScreen> {
         showAppSnackBar(context, 'Could not add to group');
       }
     }
+  }
+
+  Widget _personCard(AppUser person) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: AppCard(
+        child: ListTile(
+          leading: CommunityAvatar(user: person, radius: 24),
+          title: Text(person.displayName),
+          subtitle: Text(person.bio ?? person.email),
+          trailing: OutlinedButton(
+            onPressed: () => _inviteToGroup(person),
+            child: const Text('Add'),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -137,31 +173,25 @@ class _FindPeopleScreenState extends ConsumerState<FindPeopleScreen> {
               'No people found',
               style: TextStyle(color: Colors.grey.shade600),
             )
-          else
-            ..._results.map((person) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: AppCard(
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: AppTheme.accent,
-                      child: Text(
-                        person.displayName.isNotEmpty
-                            ? person.displayName[0].toUpperCase()
-                            : '?',
-                        style: const TextStyle(color: AppTheme.primary),
-                      ),
-                    ),
-                    title: Text(person.displayName),
-                    subtitle: Text(person.email),
-                    trailing: OutlinedButton(
-                      onPressed: () => _inviteToGroup(person),
-                      child: const Text('Add'),
-                    ),
-                  ),
-                ),
-              );
-            }),
+          else if (_results.isNotEmpty) ...[
+            Text('Search results',
+                style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 12),
+            ..._results.map(_personCard),
+          ] else ...[
+            Text('Suggested friends',
+                style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(
+              'A few supportive people are already around in demo mode.',
+              style: TextStyle(color: Colors.grey.shade700),
+            ),
+            const SizedBox(height: 12),
+            if (_loadingSuggested)
+              const Center(child: CircularProgressIndicator())
+            else
+              ..._suggested.map(_personCard),
+          ],
         ],
       ),
     );

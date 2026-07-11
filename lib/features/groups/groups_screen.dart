@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../domain/models/app_user.dart';
 import '../../domain/models/friend_group.dart';
 
 class GroupsScreen extends ConsumerWidget {
@@ -54,11 +56,47 @@ class GroupsScreen extends ConsumerWidget {
               ),
             );
           }
+          final memberCount = groups.fold<int>(
+            0,
+            (total, group) => total + group.memberIds.length,
+          );
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: groups.length,
+            itemCount: groups.length + 1,
             itemBuilder: (context, index) {
-              final group = groups[index];
+              if (index == 0) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: AppCard(
+                    child: Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundColor: AppTheme.accent,
+                          child:
+                              Icon(Icons.diversity_3, color: AppTheme.primary),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${groups.length} support circles nearby',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              Text(
+                                '$memberCount friend seats filled in demo mode',
+                                style: TextStyle(color: Colors.grey.shade700),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              final group = groups[index - 1];
               return AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,6 +106,8 @@ class GroupsScreen extends ConsumerWidget {
                       title: Text(group.name),
                       subtitle: Text('${group.memberIds.length} members'),
                     ),
+                    _GroupMemberPreview(group: group),
+                    const SizedBox(height: 12),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       child: Row(
@@ -76,7 +116,9 @@ class GroupsScreen extends ConsumerWidget {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primaryContainer,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -119,7 +161,7 @@ class GroupsScreen extends ConsumerWidget {
           );
         },
         loading: () => const LoadingView(),
-        error: (e, _) => Center(
+        error: (e, _) => const Center(
           child: ErrorBanner(message: 'Could not load groups'),
         ),
       ),
@@ -139,6 +181,59 @@ class GroupsScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _GroupMemberPreview extends ConsumerWidget {
+  const _GroupMemberPreview({required this.group});
+
+  final FriendGroup group;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FutureBuilder<List<AppUser>>(
+      future: Future.wait(
+        group.memberIds.map((id) async {
+          final user = await ref.read(userRepositoryProvider).getUser(id);
+          return user ??
+              AppUser(
+                id: id,
+                displayName: 'Friend',
+                email: '',
+                createdAt: DateTime.now(),
+              );
+        }),
+      ),
+      builder: (context, snapshot) {
+        final users = snapshot.data ?? [];
+        if (users.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Loading members...',
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              CommunityAvatarStack(users: users),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  users.map((u) => u.displayName.split(' ').first).join(', '),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.grey.shade700),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
