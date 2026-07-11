@@ -193,6 +193,19 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
+      sliderTheme: SliderThemeData(
+        activeTrackColor: lavenderDeep,
+        inactiveTrackColor: stitchBorder,
+        thumbColor: lavenderDeep,
+        overlayColor: lavenderLight.withValues(alpha: 0.4),
+        trackHeight: 4,
+        valueIndicatorColor: inkPlum,
+        valueIndicatorTextStyle: GoogleFonts.poppins(
+          color: paperSurface,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }

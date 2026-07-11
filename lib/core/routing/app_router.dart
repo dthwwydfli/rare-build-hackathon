@@ -9,22 +9,28 @@ import '../../features/auth/signup_screen.dart';
 import '../../features/commitments/commitment_form_screen.dart';
 import '../../features/commitments/commitments_screen.dart';
 import '../../features/groups/create_group_screen.dart';
-import '../../features/groups/groups_screen.dart';
 import '../../features/groups/join_group_screen.dart';
-import '../../features/gamification/leaderboard_screen.dart';
 import '../../features/gamification/stats_detail_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/people/find_people_screen.dart';
+import '../../features/screening/crisis_screen.dart';
+import '../../features/screening/screening_results_screen.dart';
+import '../../features/screening/screening_wizard_screen.dart';
 import '../../features/settings/permissions_screen.dart';
 import '../../features/support/breach_detail_screen.dart';
 import '../../features/support/my_breaches_screen.dart';
+import '../../features/support/support_hub_screen.dart';
 import '../../features/support/support_inbox_screen.dart';
 import '../../features/tools/block_access_screen.dart';
 import '../../features/urges/urge_insights_screen.dart';
 import '../../features/urges/urge_log_screen.dart';
 import '../notifications/notification_service.dart';
 import 'app_shell.dart';
+
+bool _isScreeningRoute(String location) {
+  return location.startsWith('/screening') || location == '/crisis';
+}
 
 class _AuthRefreshNotifier extends ChangeNotifier {
   void notify() => notifyListeners();
@@ -64,7 +70,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      if (isAuthRoute) return '/home';
+      final screeningRepo = ref.read(screeningRepositoryProvider);
+      final screeningStatus = await screeningRepo.getStatus(user.id);
+      final screeningComplete = screeningStatus.screeningCompleted;
+
+      if (isAuthRoute) {
+        if (!screeningComplete) return '/screening';
+        return '/home';
+      }
+
+      if (!screeningComplete && !_isScreeningRoute(location)) {
+        return '/screening';
+      }
+
       return null;
     },
     routes: [
@@ -84,6 +102,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/permissions',
         builder: (context, state) => const PermissionsScreen(),
       ),
+      GoRoute(
+        path: '/screening',
+        builder: (context, state) {
+          final isRescreen = state.uri.queryParameters['mode'] == 'rescreen';
+          return ScreeningWizardScreen(isRescreen: isRescreen);
+        },
+      ),
+      GoRoute(
+        path: '/screening/crisis',
+        builder: (context, state) => const CrisisScreen(fromScreening: true),
+      ),
+      GoRoute(
+        path: '/screening/results',
+        builder: (context, state) => const ScreeningResultsScreen(),
+      ),
+      GoRoute(
+        path: '/crisis',
+        builder: (context, state) =>
+            const CrisisScreen(fromScreening: false, allowBack: true),
+      ),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
@@ -96,12 +134,21 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const CommitmentsScreen(),
           ),
           GoRoute(
+            path: '/support-hub',
+            builder: (context, state) {
+              final segment = supportHubSegmentFromQuery(
+                state.uri.queryParameters['segment'],
+              );
+              return SupportHubScreen(initialSegment: segment);
+            },
+          ),
+          GoRoute(
             path: '/groups',
-            builder: (context, state) => const GroupsScreen(),
+            redirect: (_, __) => '/support-hub',
           ),
           GoRoute(
             path: '/leaderboard',
-            builder: (context, state) => const LeaderboardScreen(),
+            redirect: (_, __) => '/support-hub?segment=rankings',
           ),
           GoRoute(
             path: '/support',

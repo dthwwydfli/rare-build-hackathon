@@ -16,7 +16,10 @@ import '../../data/repositories/firestore_access_block_repository.dart';
 import '../../data/repositories/mock_access_block_repository.dart';
 import '../../data/repositories/firestore_urge_repository.dart';
 import '../../data/repositories/mock_urge_repository.dart';
+import '../../data/repositories/firestore_screening_repository.dart';
+import '../../data/repositories/mock_screening_repository.dart';
 import '../../domain/models/app_user.dart';
+import '../../domain/models/friend_group.dart';
 import '../../domain/models/leaderboard_entry.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/breach_repository.dart';
@@ -27,6 +30,7 @@ import '../config/app_config.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../domain/repositories/access_block_repository.dart';
 import '../../domain/repositories/urge_repository.dart';
+import '../../domain/repositories/screening_repository.dart';
 
 export '../config/app_config.dart' show useMockAuth;
 
@@ -74,6 +78,11 @@ final urgeRepositoryProvider = Provider<UrgeRepository>((ref) {
   return FirestoreUrgeRepository();
 });
 
+final screeningRepositoryProvider = Provider<ScreeningRepository>((ref) {
+  if (useMockAuth) return MockScreeningRepository();
+  return FirestoreScreeningRepository();
+});
+
 final currentUserProvider = StreamProvider<AppUser?>((ref) {
   final authStream = ref.watch(authRepositoryProvider).watchCurrentUser();
   if (!useMockAuth) return authStream;
@@ -99,6 +108,11 @@ final groupLeaderboardProvider =
 
 final globalLeaderboardProvider = StreamProvider<List<LeaderboardEntry>>((ref) {
   return ref.watch(gamificationRepositoryProvider).watchGlobalLeaderboard();
+});
+
+final userGroupsProvider =
+    StreamProvider.family<List<FriendGroup>, String>((ref, userId) {
+  return ref.watch(groupRepositoryProvider).watchUserGroups(userId);
 });
 
 /// Keeps mock gamification stats in sync with the signed-in user.

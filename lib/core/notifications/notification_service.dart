@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/repositories/auth_repository.dart';
+import '../config/app_config.dart';
 import '../providers/repository_providers.dart';
 import 'notification_router.dart';
 
@@ -12,7 +13,7 @@ class NotificationService {
   final AuthRepository _authRepository;
   final GlobalKey<NavigatorState> _navigatorKey;
   final GlobalKey<ScaffoldMessengerState> _messengerKey;
-  final _messaging = FirebaseMessaging.instance;
+  FirebaseMessaging get _messaging => FirebaseMessaging.instance;
   bool _initialized = false;
 
   Future<void> initialize() async {
@@ -89,6 +90,7 @@ final notificationServiceProvider = Provider<NotificationService>((ref) {
 
 /// Re-registers FCM token whenever user signs in.
 final notificationAuthListenerProvider = Provider<void>((ref) {
+  if (useMockAuth) return;
   ref.listen(currentUserProvider, (previous, next) {
     final user = next.valueOrNull;
     if (user != null && previous?.valueOrNull == null) {
