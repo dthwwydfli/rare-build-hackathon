@@ -7,6 +7,8 @@ class AppUser {
     required this.email,
     this.fcmToken,
     this.discoverable = true,
+    this.avatarColor,
+    this.bio,
     required this.createdAt,
     this.points = 1000,
     this.currentStreak = 0,
@@ -20,6 +22,8 @@ class AppUser {
   final String email;
   final String? fcmToken;
   final bool discoverable;
+  final int? avatarColor;
+  final String? bio;
   final DateTime createdAt;
   final int points;
   final int currentStreak;
@@ -37,6 +41,8 @@ class AppUser {
       email: data['email'] as String? ?? '',
       fcmToken: data['fcmToken'] as String?,
       discoverable: data['discoverable'] as bool? ?? true,
+      avatarColor: data['avatarColor'] as int?,
+      bio: data['bio'] as String?,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       points: (data['points'] ?? data['eloRating']) as int? ?? 1000,
       currentStreak: data['currentStreak'] as int? ?? 0,
@@ -53,6 +59,8 @@ class AppUser {
       'email': email,
       if (fcmToken != null) 'fcmToken': fcmToken,
       'discoverable': discoverable,
+      if (avatarColor != null) 'avatarColor': avatarColor,
+      if (bio != null) 'bio': bio,
       'createdAt': Timestamp.fromDate(createdAt),
       'points': points,
       'currentStreak': currentStreak,
@@ -69,6 +77,8 @@ class AppUser {
     String? email,
     String? fcmToken,
     bool? discoverable,
+    int? avatarColor,
+    String? bio,
     int? points,
     int? currentStreak,
     int? bestStreak,
@@ -81,6 +91,8 @@ class AppUser {
       email: email ?? this.email,
       fcmToken: fcmToken ?? this.fcmToken,
       discoverable: discoverable ?? this.discoverable,
+      avatarColor: avatarColor ?? this.avatarColor,
+      bio: bio ?? this.bio,
       createdAt: createdAt,
       points: points ?? this.points,
       currentStreak: currentStreak ?? this.currentStreak,

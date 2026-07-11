@@ -5,8 +5,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/theme/app_text.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_widgets.dart';
 import '../../../core/widgets/craft_widgets.dart';
+import '../../../domain/models/app_user.dart';
+import '../../../domain/models/friend_group.dart';
 import 'group_summary_tile.dart';
 
 class GroupsContent extends ConsumerWidget {
@@ -45,11 +48,51 @@ class GroupsContent extends ConsumerWidget {
             ),
           );
         }
+        final memberCount = groups.fold<int>(
+          0,
+          (total, group) => total + group.memberIds.length,
+        );
         return ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: groups.length,
+          itemCount: groups.length + 1,
           itemBuilder: (context, index) {
-            final group = groups[index];
+            if (index == 0) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: AppCard(
+                  child: Row(
+                    children: [
+                      const CircleAvatar(
+                        backgroundColor: AppTheme.lavenderLight,
+                        child: Icon(
+                          Icons.diversity_3,
+                          color: AppTheme.lavenderDeep,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            LowercaseText(
+                              '${groups.length} support circles nearby',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            LowercaseText(
+                              '$memberCount friend seats filled in demo mode',
+                              style: const TextStyle(
+                                color: AppTheme.inkPlumSoft,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            final group = groups[index - 1];
             final rankAsync = ref.watch(groupLeaderboardProvider(group.id));
             final rank = rankAsync.valueOrNull
                 ?.where((e) => e.userId == user.id)
@@ -61,10 +104,9 @@ class GroupsContent extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GroupSummaryTile(
-                      group: group,
-                      rank: rank,
-                    ),
+                    GroupSummaryTile(group: group, rank: rank),
+                    _GroupMemberPreview(group: group),
+                    const SizedBox(height: 12),
                     TicketStub(
                       code: group.inviteCode,
                       onCopy: () {
@@ -91,9 +133,61 @@ class GroupsContent extends ConsumerWidget {
         );
       },
       loading: () => const LoadingView(),
-      error: (e, _) => const Center(
-        child: ErrorBanner(message: 'could not load groups'),
+      error: (e, _) =>
+          const Center(child: ErrorBanner(message: 'could not load groups')),
+    );
+  }
+}
+
+class _GroupMemberPreview extends ConsumerWidget {
+  const _GroupMemberPreview({required this.group});
+
+  final FriendGroup group;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FutureBuilder<List<AppUser>>(
+      future: Future.wait(
+        group.memberIds.map((id) async {
+          final user = await ref.read(userRepositoryProvider).getUser(id);
+          return user ??
+              AppUser(
+                id: id,
+                displayName: 'Friend',
+                email: '',
+                createdAt: DateTime.now(),
+              );
+        }),
       ),
+      builder: (context, snapshot) {
+        final users = snapshot.data ?? [];
+        if (users.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4),
+            child: LowercaseText(
+              'loading members...',
+              style: TextStyle(color: AppTheme.inkPlumSoft),
+            ),
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Row(
+            children: [
+              CommunityAvatarStack(users: users),
+              const SizedBox(width: 12),
+              Expanded(
+                child: LowercaseText(
+                  users.map((u) => u.displayName.split(' ').first).join(', '),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: AppTheme.inkPlumSoft),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

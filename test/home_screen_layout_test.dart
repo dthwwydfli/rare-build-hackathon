@@ -82,7 +82,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  bool _isVisibleInListViewport(WidgetTester tester, Finder finder) {
+  bool isVisibleInListViewport(WidgetTester tester, Finder finder) {
     final target = tester.renderObject<RenderBox>(finder);
     final listView = tester.renderObject<RenderBox>(find.byType(ListView));
 
@@ -118,16 +118,16 @@ void main() {
       (tester) async {
     await pumpHome(tester, viewport: const Size(375, 667));
 
-    expect(_isVisibleInListViewport(tester, find.text('help')), isTrue);
-    expect(_isVisibleInListViewport(tester, find.text('flag')), isTrue);
+    expect(isVisibleInListViewport(tester, find.text('help')), isTrue);
+    expect(isVisibleInListViewport(tester, find.text('flag')), isTrue);
   });
 
   testWidgets('crisis and flag buttons visible without scroll on iPhone 14',
       (tester) async {
     await pumpHome(tester, viewport: const Size(390, 844));
 
-    expect(_isVisibleInListViewport(tester, find.text('help')), isTrue);
-    expect(_isVisibleInListViewport(tester, find.text('flag')), isTrue);
+    expect(isVisibleInListViewport(tester, find.text('help')), isTrue);
+    expect(isVisibleInListViewport(tester, find.text('flag')), isTrue);
   });
 
   testWidgets('home AppBar shows stats and settings but not logout',

@@ -8,4 +8,9 @@ abstract class UserRepository {
   });
 
   Future<AppUser?> getUser(String userId);
+
+  Future<List<AppUser>> suggestedUsers({
+    required String excludeUserId,
+    int limit = 8,
+  });
 }
