@@ -131,8 +131,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const _SafetyActionsCard(),
               const SizedBox(height: 16),
               const _PositiveReminderCard(),
-              const SizedBox(height: 16),
-              const _ProfessionalHelpCard(),
             ].staggered(context),
           ),
         ),
@@ -235,7 +233,7 @@ class _SafetyActionsCardState extends ConsumerState<_SafetyActionsCard> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         children: [
-          _CrisisHelpTile(onHelp: () => context.push('/crisis')),
+          _GetHelpTile(onHelp: () => context.go('/support-hub?segment=help')),
           Divider(
             height: 1,
             color: AppTheme.stitchBorder.withValues(alpha: 0.6),
@@ -247,8 +245,8 @@ class _SafetyActionsCardState extends ConsumerState<_SafetyActionsCard> {
   }
 }
 
-class _CrisisHelpTile extends StatelessWidget {
-  const _CrisisHelpTile({required this.onHelp});
+class _GetHelpTile extends StatelessWidget {
+  const _GetHelpTile({required this.onHelp});
 
   final VoidCallback onHelp;
 
@@ -260,17 +258,17 @@ class _CrisisHelpTile extends StatelessWidget {
       leading: CircleAvatar(
         radius: 18,
         backgroundColor: AppTheme.granola.withValues(alpha: 0.15),
-        child: const Icon(Icons.emergency_outlined, color: AppTheme.granola),
+        child: const Icon(Icons.medical_services_outlined, color: AppTheme.granola),
       ),
-      title: const LowercaseText('need help right now?'),
+      title: const LowercaseText('need help?'),
       subtitle: const LowercaseText(
-        'one tap to crisis helplines — Samaritans, GamCare, NHS 111.',
+        'crisis helplines, counselors, and recovery coaches when you need more than a friend.',
         style: TextStyle(color: AppTheme.inkPlumSoft),
       ),
       trailing: FilledButton(
         onPressed: onHelp,
         style: FilledButton.styleFrom(backgroundColor: AppTheme.granola),
-        child: const LowercaseText('help'),
+        child: const LowercaseText('get help'),
       ),
     );
   }
@@ -311,31 +309,6 @@ class _FlagForSupportTile extends StatelessWidget {
               style: FilledButton.styleFrom(backgroundColor: AppTheme.granola),
               child: const LowercaseText('flag'),
             ),
-    );
-  }
-}
-
-class _ProfessionalHelpCard extends StatelessWidget {
-  const _ProfessionalHelpCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: const CircleAvatar(
-          backgroundColor: AppTheme.lavenderLight,
-          child: Icon(Icons.medical_services_outlined,
-              color: AppTheme.lavenderDeep),
-        ),
-        title: const LowercaseText('need professional help?'),
-        subtitle: const LowercaseText(
-          'helplines, counselors, and recovery coaches when you need more than a friend.',
-          style: TextStyle(color: AppTheme.inkPlumSoft),
-        ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => context.go('/support-hub?segment=help'),
-      ),
     );
   }
 }
