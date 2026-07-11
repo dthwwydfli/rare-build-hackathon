@@ -64,6 +64,10 @@ void main() {
                       label: 'goals',
                     ),
                     NavigationDestination(
+                      icon: Icon(Icons.savings_outlined),
+                      label: 'finance',
+                    ),
+                    NavigationDestination(
                       icon: Icon(Icons.favorite_outline),
                       label: 'support',
                     ),
@@ -105,6 +109,7 @@ void main() {
     expect(help, findsOneWidget);
     expect(flag, findsOneWidget);
     expect(reminder, findsOneWidget);
+    expect(find.text('financial recovery'), findsNothing);
 
     final helpY = tester.getTopLeft(help).dy;
     final flagY = tester.getTopLeft(flag).dy;
