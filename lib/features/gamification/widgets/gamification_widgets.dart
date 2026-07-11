@@ -44,7 +44,6 @@ class GamificationHeroCard extends StatelessWidget {
     this.bestStreak,
     this.groupRank,
     this.groupName,
-    this.onViewLeaderboard,
   });
 
   final int points;
@@ -52,7 +51,6 @@ class GamificationHeroCard extends StatelessWidget {
   final int? bestStreak;
   final int? groupRank;
   final String? groupName;
-  final VoidCallback? onViewLeaderboard;
 
   @override
   Widget build(BuildContext context) {
@@ -98,16 +96,6 @@ class GamificationHeroCard extends StatelessWidget {
             ),
           ],
         ),
-        if (onViewLeaderboard != null) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: onViewLeaderboard,
-              child: const LowercaseText('see your circle'),
-            ),
-          ),
-        ],
       ],
     );
   }

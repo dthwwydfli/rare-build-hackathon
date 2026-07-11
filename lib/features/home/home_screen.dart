@@ -104,7 +104,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   bestStreak: stats.bestStreak,
                   groupRank: groupRank,
                   groupName: firstGroup?.name,
-                  onViewLeaderboard: () => context.go('/leaderboard'),
                 ),
                 loading: () => const LoadingView(),
                 error: (_, __) => const SizedBox.shrink(),
