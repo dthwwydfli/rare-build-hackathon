@@ -7,13 +7,15 @@ import '../../core/theme/app_motion.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/milestone_tracker.dart';
+import '../../core/utils/screening_prefs.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/enums.dart';
-import '../../domain/models/friend_group.dart';
 import '../../services/detection/detection_coordinator.dart';
 import '../../services/reminders/positive_reminder_service.dart';
 import '../gamification/widgets/gamification_widgets.dart';
+import '../screening/screening_rescreen_prompt.dart';
+import '../../services/screening/screening_reminder_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -26,7 +28,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkMilestones());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkMilestones();
+      _checkRescreenDue();
+    });
+  }
+
+  Future<void> _checkRescreenDue() async {
+    final user = ref.read(currentUserProvider).valueOrNull;
+    if (user == null || !mounted) return;
+    final status =
+        await ref.read(screeningRepositoryProvider).getStatus(user.id);
+    if (!mounted) return;
+    final show = await shouldShowRescreenPrompt(
+      userId: user.id,
+      status: status,
+    );
+    if (show && mounted) {
+      await markRescreenPromptShown(user.id);
+      const ScreeningReminderService().scheduleDueReminderIfNeeded(
+        userId: user.id,
+        status: status,
+      );
+      if (mounted) showRescreenDueDialog(context);
+    }
   }
 
   Future<void> _checkMilestones() async {
@@ -48,7 +73,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final user = ref.watch(currentUserProvider).valueOrNull;
     if (user == null) return const LoadingView();
 
-    final groupsAsync = ref.watch(_userGroupsProvider(user.id));
+    final groupsAsync = ref.watch(userGroupsProvider(user.id));
     final statsAsync = ref.watch(userStatsProvider(user.id));
 
     final firstGroup = groupsAsync.valueOrNull?.firstOrNull;
@@ -88,7 +113,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: PaperBackground(
         child: RefreshIndicator(
           onRefresh: () async {
-            ref.invalidate(_userGroupsProvider(user.id));
+            ref.invalidate(userGroupsProvider(user.id));
             ref.invalidate(userStatsProvider(user.id));
             if (firstGroup != null) {
               ref.invalidate(groupLeaderboardProvider(firstGroup.id));
@@ -111,7 +136,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const SizedBox(height: 16),
               const _PositiveReminderCard(),
               const SizedBox(height: 16),
+              const _CrisisHelpCard(),
+              const SizedBox(height: 16),
               const _FlagForSupportCard(),
+              const SizedBox(height: 16),
+              const _ProfessionalHelpCard(),
             ].staggered(context),
           ),
         ),
@@ -119,11 +148,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 }
-
-final _userGroupsProvider =
-    StreamProvider.family<List<FriendGroup>, String>((ref, userId) {
-  return ref.watch(groupRepositoryProvider).watchUserGroups(userId);
-});
 
 class _PositiveReminderCard extends ConsumerWidget {
   const _PositiveReminderCard();
@@ -203,6 +227,7 @@ class _FlagForSupportCardState extends ConsumerState<_FlagForSupportCard> {
           context,
           'support circle flagged — friends will be alerted',
         );
+        showHelplineSupportSheet(context);
       }
     } catch (e) {
       if (mounted) {
@@ -239,6 +264,58 @@ class _FlagForSupportCardState extends ConsumerState<_FlagForSupportCard> {
                     FilledButton.styleFrom(backgroundColor: AppTheme.granola),
                 child: const LowercaseText('flag'),
               ),
+      ),
+    );
+  }
+}
+
+class _CrisisHelpCard extends StatelessWidget {
+  const _CrisisHelpCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: CircleAvatar(
+          backgroundColor: AppTheme.granola.withValues(alpha: 0.15),
+          child: const Icon(Icons.emergency_outlined, color: AppTheme.granola),
+        ),
+        title: const LowercaseText('need help right now?'),
+        subtitle: const LowercaseText(
+          'one tap to crisis helplines — Samaritans, GamCare, NHS 111.',
+          style: TextStyle(color: AppTheme.inkPlumSoft),
+        ),
+        trailing: FilledButton(
+          onPressed: () => context.push('/crisis'),
+          style: FilledButton.styleFrom(backgroundColor: AppTheme.granola),
+          child: const LowercaseText('help'),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfessionalHelpCard extends StatelessWidget {
+  const _ProfessionalHelpCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const CircleAvatar(
+          backgroundColor: AppTheme.lavenderLight,
+          child: Icon(Icons.medical_services_outlined,
+              color: AppTheme.lavenderDeep),
+        ),
+        title: const LowercaseText('need professional help?'),
+        subtitle: const LowercaseText(
+          'helplines, counselors, and recovery coaches when you need more than a friend.',
+          style: TextStyle(color: AppTheme.inkPlumSoft),
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => context.go('/support-hub?segment=help'),
       ),
     );
   }

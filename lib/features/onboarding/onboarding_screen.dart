@@ -40,8 +40,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     _OnboardingPage(
       icon: Icons.favorite_outline,
-      title: 'social support',
-      subtitle: 'friends can send encouragement when you struggle.',
+      title: 'your friend circle',
+      subtitle:
+          'trusted friends walk with you day-to-day — alerts, encouragement, and accountability together.',
+    ),
+    _OnboardingPage(
+      icon: Icons.medical_services_outlined,
+      title: 'professional help',
+      subtitle:
+          'when you need more than a friend, reach trained counselors, coaches, and helplines from one place.',
     ),
   ];
 
