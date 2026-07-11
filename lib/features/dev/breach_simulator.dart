@@ -94,7 +94,7 @@ class BreachSimulatorResult {
 
   String get summary {
     if (mode == BreachSimulatorMode.viaDetection) {
-      return 'Detection pipeline ran — check Alerts tab or Firestore';
+      return 'Detection pipeline ran so check Alerts tab or Firestore';
     }
     if (events.isEmpty) {
       return 'No breach created';

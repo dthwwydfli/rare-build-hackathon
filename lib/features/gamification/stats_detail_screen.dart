@@ -70,7 +70,7 @@ class StatsDetailScreen extends ConsumerWidget {
                         ),
                       ] else
                         const LowercaseText(
-                          'gardener — the whole path, stitched.',
+                          'gardener and the whole path, stitched.',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             color: AppTheme.sageDeep,
