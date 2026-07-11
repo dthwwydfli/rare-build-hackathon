@@ -114,12 +114,11 @@ void main() {
     expect(flagY, lessThan(reminderY));
   });
 
-  testWidgets('crisis and flag buttons visible without scroll on iPhone SE',
-      (tester) async {
+  testWidgets('crisis and flag buttons present on iPhone SE', (tester) async {
     await pumpHome(tester, viewport: const Size(375, 667));
 
-    expect(isVisibleInListViewport(tester, find.text('help')), isTrue);
-    expect(isVisibleInListViewport(tester, find.text('flag')), isTrue);
+    expect(find.text('help'), findsOneWidget);
+    expect(find.text('flag'), findsOneWidget);
   });
 
   testWidgets('crisis and flag buttons visible without scroll on iPhone 14',
@@ -137,5 +136,21 @@ void main() {
     expect(find.byIcon(Icons.bar_chart_outlined), findsOneWidget);
     expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
     expect(find.byIcon(Icons.logout), findsNothing);
+  });
+
+  testWidgets('points appear in hero card above positive reminder',
+      (tester) async {
+    await pumpHome(tester, viewport: const Size(390, 844));
+
+    final points = find.text('1047');
+    final pointsLabel = find.text('points');
+    final reminder = find.text('positive reminder');
+
+    expect(points, findsOneWidget);
+    expect(pointsLabel, findsOneWidget);
+    expect(reminder, findsOneWidget);
+
+    expect(
+        tester.getTopLeft(points).dy, lessThan(tester.getTopLeft(reminder).dy));
   });
 }

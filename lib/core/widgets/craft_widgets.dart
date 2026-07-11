@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../theme/app_text.dart';
 import '../theme/app_theme.dart';
+import 'app_widgets.dart';
 import 'tactile_widgets.dart';
 
 /// Craft components for lavender's tactile design language: rubber stamps,
@@ -706,6 +707,9 @@ class DaysReclaimedCard extends StatelessWidget {
     required this.days,
     this.bestDays,
     this.dense = false,
+    this.points,
+    this.groupRank,
+    this.groupName,
   });
 
   final int days;
@@ -713,63 +717,224 @@ class DaysReclaimedCard extends StatelessWidget {
   /// Best streak — always shown when provided; a hard moment never erases it.
   final int? bestDays;
   final bool dense;
+  final int? points;
+  final int? groupRank;
+  final String? groupName;
 
   @override
   Widget build(BuildContext context) {
     return TactileCard(
       useStitch: !dense,
-      padding: EdgeInsets.all(dense ? 14 : 20),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
+      padding: EdgeInsets.all(dense ? 12 : 20),
+      child: dense && points != null
+          ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Text(
-                      '$days',
-                      style: TextStyle(
-                        fontSize: dense ? 32 : 40,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.inkPlum,
-                        height: 1.1,
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            '$days',
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.inkPlum,
+                              height: 1.1,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Flexible(
+                            child: LowercaseText(
+                              'days reclaimed',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.inkPlumSoft,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    LowercaseText(
-                      'days reclaimed',
-                      style: TextStyle(
-                        fontSize: dense ? 13 : 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.inkPlumSoft,
-                      ),
+                    const Icon(
+                      Icons.spa_outlined,
+                      size: 28,
+                      color: AppTheme.sageDeep,
                     ),
                   ],
                 ),
-                if (bestDays != null) ...[
+                const SizedBox(height: 6),
+                Divider(
+                  height: 1,
+                  color: AppTheme.sageDeep.withValues(alpha: 0.15),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          const LowercaseText(
+                            'points',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.6,
+                              color: AppTheme.sageDeep,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '$points',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.sageDeep,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    TierBadge(points: points!),
+                  ],
+                ),
+                if (groupRank != null && groupName != null) ...[
                   const SizedBox(height: 4),
                   LowercaseText(
-                    'best: $bestDays days and yours forever',
+                    'with ${groupName!.toLowerCase()} · #$groupRank',
                     style: const TextStyle(
                       fontSize: 12,
+                      fontWeight: FontWeight.w500,
                       color: AppTheme.inkPlumSoft,
                     ),
                   ),
                 ],
               ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text(
+                                '$days',
+                                style: TextStyle(
+                                  fontSize: dense ? 32 : 40,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.inkPlum,
+                                  height: 1.1,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              LowercaseText(
+                                'days reclaimed',
+                                style: TextStyle(
+                                  fontSize: dense ? 13 : 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.inkPlumSoft,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (bestDays != null) ...[
+                            const SizedBox(height: 4),
+                            LowercaseText(
+                              'best: $bestDays days and yours forever',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.inkPlumSoft,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.spa_outlined,
+                      size: dense ? 28 : 36,
+                      color: AppTheme.sageDeep,
+                    ),
+                  ],
+                ),
+                if (points != null) ...[
+                  const SizedBox(height: 12),
+                  Divider(
+                    height: 1,
+                    color: AppTheme.sageDeep.withValues(alpha: 0.15),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const LowercaseText(
+                              'points',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.6,
+                                color: AppTheme.sageDeep,
+                              ),
+                            ),
+                            Text(
+                              '$points',
+                              style: const TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.sageDeep,
+                              ),
+                            ),
+                            LowercaseText(
+                              softTierLabel(points!),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.inkPlumSoft,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      TierBadge(points: points!),
+                    ],
+                  ),
+                  if (groupRank != null && groupName != null) ...[
+                    const SizedBox(height: 4),
+                    LowercaseText(
+                      'with ${groupName!.toLowerCase()} · #$groupRank',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.inkPlumSoft,
+                      ),
+                    ),
+                  ],
+                ],
+              ],
             ),
-          ),
-          Icon(
-            Icons.spa_outlined,
-            size: dense ? 28 : 36,
-            color: AppTheme.sageDeep,
-          ),
-        ],
-      ),
     );
   }
 }
