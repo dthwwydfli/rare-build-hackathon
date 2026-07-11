@@ -35,10 +35,10 @@ class SupportInboxScreen extends ConsumerWidget {
               if (groups.isEmpty) {
                 return ListView(
                   padding: const EdgeInsets.all(16),
-                  children: [
-                    if (useMockAuth) const _DemoPaddyPowerButton(),
-                    const SizedBox(height: 120),
-                    const EmptyState(
+                  children: const [
+                    if (useMockAuth) _DemoPaddyPowerButton(),
+                    SizedBox(height: 120),
+                    EmptyState(
                       title: 'no groups yet',
                       subtitle:
                           'join a friend group to be there for each other',

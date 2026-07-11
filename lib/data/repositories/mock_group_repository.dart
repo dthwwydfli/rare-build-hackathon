@@ -10,7 +10,53 @@ class MockGroupRepository implements GroupRepository {
   final _random = Random();
 
   MockGroupRepository() {
-    _controller.add([]);
+    _seedGroups();
+    _controller.add(List.from(_groups));
+  }
+
+  void _seedGroups() {
+    final now = DateTime.now();
+    _groups.addAll([
+      FriendGroup(
+        id: 'group-weekend-reset',
+        name: 'Weekend reset circle',
+        ownerId: 'mock-user-2',
+        memberIds: const [
+          'mock-user-1',
+          'mock-user-2',
+          'mock-user-3',
+          'mock-user-5',
+        ],
+        inviteCode: 'RESET7',
+        createdAt: now.subtract(const Duration(days: 42)),
+      ),
+      FriendGroup(
+        id: 'group-payday-plan',
+        name: 'Payday plan crew',
+        ownerId: 'mock-user-4',
+        memberIds: const [
+          'mock-user-1',
+          'mock-user-4',
+          'mock-user-6',
+          'mock-user-8',
+        ],
+        inviteCode: 'PAYDAY',
+        createdAt: now.subtract(const Duration(days: 28)),
+      ),
+      FriendGroup(
+        id: 'group-matchday',
+        name: 'Matchday no-bet group',
+        ownerId: 'mock-user-3',
+        memberIds: const [
+          'mock-user-1',
+          'mock-user-3',
+          'mock-user-7',
+          'mock-user-9',
+        ],
+        inviteCode: 'NOBETS',
+        createdAt: now.subtract(const Duration(days: 18)),
+      ),
+    ]);
   }
 
   String _inviteCode() {
