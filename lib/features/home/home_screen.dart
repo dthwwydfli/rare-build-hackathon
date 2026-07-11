@@ -217,12 +217,12 @@ class _SafetyActionsCardState extends ConsumerState<_SafetyActionsCard> {
     setState(() => _loading = true);
     try {
       await ref.read(detectionCoordinatorProvider).emitManualBreach(
-            signalType: BreachSignalType.manual,
-            metadata: {
-              'note': 'Flagged for support — reaching out to my circle',
-              'selfFlagged': true,
-            },
-          );
+        signalType: BreachSignalType.manual,
+        metadata: {
+          'note': 'Flagged for support — reaching out to my circle',
+          'selfFlagged': true,
+        },
+      );
       if (mounted) {
         showAppSnackBar(
           context,

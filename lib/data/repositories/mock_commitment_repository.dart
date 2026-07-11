@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import '../../domain/models/commitment.dart';
-import '../../domain/models/enums.dart';
 import '../../domain/repositories/commitment_repository.dart';
 
 class MockCommitmentRepository implements CommitmentRepository {

@@ -61,6 +61,12 @@ class DetectionCoordinator {
     _timer?.cancel();
   }
 
+  void clearCooldowns() {
+    _cooldowns.clear();
+  }
+
+  Future<void> runChecksNow() => _runChecks();
+
   bool _isOnCooldown(String key) {
     final last = _cooldowns[key];
     if (last == null) return false;
@@ -191,10 +197,8 @@ class DetectionCoordinator {
         .read(commitmentRepositoryProvider)
         .watchUserCommitments(user.id)
         .first;
-    final groups = await ref
-        .read(groupRepositoryProvider)
-        .watchUserGroups(user.id)
-        .first;
+    final groups =
+        await ref.read(groupRepositoryProvider).watchUserGroups(user.id).first;
 
     if (commitments.isEmpty) throw Exception('Create a commitment first');
     if (groups.isEmpty) throw Exception('Join a group first');

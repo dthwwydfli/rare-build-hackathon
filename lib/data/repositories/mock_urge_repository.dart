@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import '../../domain/models/enums.dart';
 import '../../domain/models/urge_log.dart';
 import '../../domain/repositories/urge_repository.dart';
 

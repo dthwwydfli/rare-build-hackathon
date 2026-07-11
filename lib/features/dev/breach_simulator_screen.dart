@@ -8,7 +8,6 @@ import '../../domain/models/commitment.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/friend_group.dart';
 import '../../services/detection/detection_coordinator.dart';
-import '../../services/detection/url_payment_monitors.dart';
 import '../../services/detection/usage_monitor.dart';
 
 class BreachSimulatorScreen extends ConsumerStatefulWidget {
@@ -115,7 +114,8 @@ class _BreachSimulatorScreenState extends ConsumerState<BreachSimulatorScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Prerequisites', style: Theme.of(context).textTheme.titleSmall),
+                  Text('Prerequisites',
+                      style: Theme.of(context).textTheme.titleSmall),
                   const SizedBox(height: 8),
                   _StatusRow(
                     label: 'Signed in',
@@ -136,7 +136,8 @@ class _BreachSimulatorScreenState extends ConsumerState<BreachSimulatorScreen> {
           if (!ready) ...[
             const SizedBox(height: 16),
             const ErrorBanner(
-              message: 'Create a commitment and join a group before simulating.',
+              message:
+                  'Create a commitment and join a group before simulating.',
             ),
           ],
           const SizedBox(height: 24),

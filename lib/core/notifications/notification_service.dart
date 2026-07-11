@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/repositories/auth_repository.dart';
-import '../config/app_config.dart';
 import '../providers/repository_providers.dart';
 import 'notification_router.dart';
 
 class NotificationService {
-  NotificationService(this._authRepository, this._navigatorKey, this._messengerKey);
+  NotificationService(
+      this._authRepository, this._navigatorKey, this._messengerKey);
 
   final AuthRepository _authRepository;
   final GlobalKey<NavigatorState> _navigatorKey;

@@ -18,7 +18,7 @@ class FirestoreUrgeRepository implements UrgeRepository {
         .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((s) => s.docs.map(UrgeLog.fromFirestore).toList());
+        .map((snapshot) => snapshot.docs.map(UrgeLog.fromFirestore).toList());
   }
 
   @override
