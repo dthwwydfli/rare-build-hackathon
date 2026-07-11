@@ -111,6 +111,7 @@ class _HelpResourceCard extends StatelessWidget {
 
   IconData get _icon => switch (resource.category) {
         HelpResourceCategory.crisis => Icons.emergency_outlined,
+        HelpResourceCategory.debt => Icons.account_balance_wallet_outlined,
         HelpResourceCategory.licensed => Icons.psychology_outlined,
         HelpResourceCategory.coach => Icons.support_agent_outlined,
         HelpResourceCategory.tool => Icons.shield_outlined,

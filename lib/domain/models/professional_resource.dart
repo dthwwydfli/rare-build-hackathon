@@ -1,11 +1,13 @@
 enum HelpResourceCategory {
   crisis,
+  debt,
   licensed,
   coach,
   tool;
 
   String get sectionTitle => switch (this) {
         crisis => 'crisis & helplines',
+        debt => 'debt & money',
         licensed => 'licensed support',
         coach => 'recovery coaches & peer specialists',
         tool => 'self-serve tools',

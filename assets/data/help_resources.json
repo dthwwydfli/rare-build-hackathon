@@ -92,5 +92,44 @@
     "description": "GAMSTOP, bank gambling blocks, and spending delays in the app.",
     "subtitle": "Cut off access, not willpower",
     "internalRoute": "/tools/blocks"
+  },
+  {
+    "id": "stepchange",
+    "name": "StepChange",
+    "category": "debt",
+    "description": "Free debt advice and practical support to manage money worries.",
+    "subtitle": "Free · confidential",
+    "phone": "08001381111",
+    "url": "https://www.stepchange.org/",
+    "available24_7": false
+  },
+  {
+    "id": "national-debtline",
+    "name": "National Debtline",
+    "category": "debt",
+    "description": "Free, independent advice on dealing with debt problems.",
+    "subtitle": "Free · Mon–Fri",
+    "phone": "08088084000",
+    "url": "https://www.nationaldebtline.org/",
+    "available24_7": false
+  },
+  {
+    "id": "money-helper",
+    "name": "Money Helper",
+    "category": "debt",
+    "description": "Government-backed guidance on money, debt, and pensions (formerly MaPS).",
+    "subtitle": "Free tools & guidance",
+    "phone": "08001387777",
+    "url": "https://www.moneyhelper.org.uk/",
+    "available24_7": false
+  },
+  {
+    "id": "citizens-advice",
+    "name": "Citizens Advice",
+    "category": "debt",
+    "description": "Free, confidential advice on debt, benefits, and money problems.",
+    "subtitle": "Local & national support",
+    "url": "https://www.citizensadvice.org.uk/debt-and-money/",
+    "available24_7": false
   }
 ]
