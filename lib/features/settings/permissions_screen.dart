@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -113,7 +114,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
               onRequest: _requestNotifications,
               onOpenSettings: _openSettings,
             ),
-            if (Platform.isAndroid) ...[
+            if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) ...[
               const SizedBox(height: 16),
               _PermissionTile(
                 icon: Icons.phone_android_outlined,

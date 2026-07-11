@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -15,7 +14,9 @@ class PermissionStatus {
   final bool usageStatsGranted;
 
   bool get allGranted =>
-      locationGranted && notificationGranted && (usageStatsGranted || !Platform.isAndroid);
+      locationGranted &&
+      notificationGranted &&
+      (usageStatsGranted || kIsWeb || !defaultTargetPlatform.name.contains('android'));
 
   bool get anyGranted =>
       locationGranted || notificationGranted || usageStatsGranted;
@@ -25,9 +26,8 @@ Future<PermissionStatus> checkAllPermissions() async {
   final location = await Geolocator.checkPermission();
   final notification = await Permission.notification.status;
   var usageStats = true;
-  if (Platform.isAndroid) {
-    // Usage stats has no direct permission_handler API; checked via channel
-    usageStats = false; // caller updates after channel check
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    usageStats = false;
   }
   return PermissionStatus(
     locationGranted: location == LocationPermission.always ||

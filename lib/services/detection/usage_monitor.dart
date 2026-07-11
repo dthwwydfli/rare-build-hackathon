@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -42,7 +42,14 @@ class AndroidUsageMonitor implements UsageMonitor {
 
   @override
   Future<AppUsageResult> checkActiveApp() async {
-    if (!Platform.isAndroid) {
+    if (kIsWeb) {
+      return const AppUsageResult(isGamblingAppActive: false);
+    }
+    try {
+      if (!Platform.isAndroid) {
+        return const AppUsageResult(isGamblingAppActive: false);
+      }
+    } catch (_) {
       return const AppUsageResult(isGamblingAppActive: false);
     }
     try {
@@ -94,9 +101,10 @@ class UsageMonitorFactory {
   }
 
   static UsageMonitor create() {
-    if (Platform.isAndroid) {
-      return AndroidUsageMonitor();
-    }
+    if (kIsWeb) return SimulatedUsageMonitor();
+    try {
+      if (Platform.isAndroid) return AndroidUsageMonitor();
+    } catch (_) {}
     return SimulatedUsageMonitor();
   }
 }

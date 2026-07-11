@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,9 +13,11 @@ import 'services/detection/detection_coordinator.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  if (!useMockAuth) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   runApp(const ProviderScope(child: AccountabilityApp()));
 }
 
@@ -36,7 +39,9 @@ class _AccountabilityAppState extends ConsumerState<AccountabilityApp> {
     if (!useMockAuth) {
       await ref.read(notificationServiceProvider).initialize();
     }
-    ref.read(detectionCoordinatorProvider).start();
+    if (!kIsWeb) {
+      ref.read(detectionCoordinatorProvider).start();
+    }
   }
 
   @override
