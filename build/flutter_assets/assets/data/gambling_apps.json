@@ -1,0 +1,12 @@
+[
+  {"packageName": "com.bet365", "displayName": "Bet365"},
+  {"packageName": "com.paddypower", "displayName": "Paddy Power"},
+  {"packageName": "com.williamhill", "displayName": "William Hill"},
+  {"packageName": "com.ladbrokes", "displayName": "Ladbrokes"},
+  {"packageName": "com.betway", "displayName": "Betway"},
+  {"packageName": "com.skybet", "displayName": "Sky Bet"},
+  {"packageName": "com.betfair", "displayName": "Betfair"},
+  {"packageName": "com.betfred", "displayName": "Betfred"},
+  {"packageName": "com.unibet", "displayName": "Unibet"},
+  {"packageName": "com.pokerstars", "displayName": "PokerStars"}
+]
