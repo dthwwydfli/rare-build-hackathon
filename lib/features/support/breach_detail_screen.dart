@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/milestone_tracker.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../domain/models/breach_event.dart';
 import '../../domain/models/enums.dart';
@@ -63,13 +65,21 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
             ),
           );
       await ref.read(breachRepositoryProvider).acknowledgeBreach(breach.id);
+      await ref.read(gamificationRepositoryProvider).applySupportBonus(user.id);
+
       if (mounted) {
-        showAppSnackBar(context, 'Support message sent');
+        final showFirst = await MilestoneTracker.shouldShow('first_support');
+        if (showFirst) {
+          await MilestoneTracker.markSeen('first_support');
+          showAppSnackBar(context, '+5 points for being a good friend');
+        } else {
+          showAppSnackBar(context, '+5 points — support sent');
+        }
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        showAppSnackBar(context, 'Could not send message. Please try again.');
+        showAppSnackBar(context, 'could not send message. please try again.');
       }
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -81,7 +91,7 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
     final breachesAsync = ref.watch(_groupBreachesProvider(widget.groupId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Send support')),
+      appBar: AppBar(title: const LowercaseText('send support')),
       body: breachesAsync.when(
         data: (breaches) {
           BreachEvent? breach;
@@ -92,36 +102,57 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
             }
           }
           if (breach == null) {
-            return const Center(child: Text('Breach not found'));
+            return const Center(child: LowercaseText('breach not found'));
           }
+
+          final breacherStatsAsync =
+              ref.watch(userStatsProvider(breach.userId));
 
           return ListView(
             padding: const EdgeInsets.all(24),
             children: [
               Card(
-                color: Theme.of(context).colorScheme.errorContainer,
+                color: AppTheme.danger.withValues(alpha: 0.12),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        breach.userName ?? 'Friend',
+                        breach.userName ?? 'friend',
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 8),
                       Text(breach.summary),
                       const SizedBox(height: 4),
-                      Text(
+                      LowercaseText(
                         '${breach.signalType.label} · ${_formatTime(breach.createdAt)}',
-                        style: TextStyle(color: Colors.grey.shade700),
+                        style: TextStyle(color: AppTheme.granolaDark.withValues(alpha: 0.8)),
+                      ),
+                      breacherStatsAsync.when(
+                        data: (stats) => Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Row(
+                            children: [
+                              StatChip(
+                                icon: Icons.emoji_events_outlined,
+                                label: 'points',
+                                value: '${stats.points}',
+                              ),
+                              const SizedBox(width: 8),
+                              StreakFlame(streak: stats.currentStreak),
+                            ],
+                          ),
+                        ),
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, __) => const SizedBox.shrink(),
                       ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-              Text('Quick messages', style: Theme.of(context).textTheme.titleSmall),
+              const LowercaseText('quick messages', style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -142,17 +173,17 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
               TextField(
                 controller: _messageController,
                 decoration: const InputDecoration(
-                  labelText: 'Your message',
-                  hintText: 'Write something supportive...',
+                  labelText: 'your message',
+                  hintText: 'write something supportive...',
                 ),
                 maxLines: 3,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<SupportMessageType>(
                 value: _selectedType,
-                decoration: const InputDecoration(labelText: 'Message type'),
+                decoration: const InputDecoration(labelText: 'message type'),
                 items: SupportMessageType.values
-                    .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
+                    .map((t) => DropdownMenuItem(value: t, child: LowercaseText(t.label)))
                     .toList(),
                 onChanged: (v) {
                   if (v != null) setState(() => _selectedType = v);
@@ -167,13 +198,13 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Send support'),
+                    : const LowercaseText('send support'),
               ),
             ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: ErrorBanner(message: 'Could not load breach')),
+        error: (e, _) => const Center(child: ErrorBanner(message: 'could not load breach')),
       ),
     );
   }
