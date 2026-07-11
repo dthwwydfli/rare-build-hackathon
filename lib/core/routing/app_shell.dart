@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class AppShell extends StatelessWidget {
+import '../../features/support/support_inbox_screen.dart';
+
+class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child});
 
   final Widget child;
@@ -32,37 +35,47 @@ class AppShell extends StatelessWidget {
     }
   }
 
+  Widget _alertsIcon({required IconData icon, required int count}) {
+    if (count <= 0) return Icon(icon);
+    return Badge(
+      label: Text('$count'),
+      child: Icon(icon),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unreadCount = ref.watch(unreadAlertsCountProvider);
+
     return Scaffold(
       body: child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex(context),
         onDestinationSelected: (i) => _onTap(context, i),
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: 'home',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.flag_outlined),
             selectedIcon: Icon(Icons.flag),
             label: 'goals',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.group_outlined),
             selectedIcon: Icon(Icons.group),
             label: 'groups',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.spa_outlined),
             selectedIcon: Icon(Icons.spa),
             label: 'circle',
           ),
           NavigationDestination(
-            icon: Icon(Icons.inbox_outlined),
-            selectedIcon: Icon(Icons.inbox),
+            icon: _alertsIcon(icon: Icons.inbox_outlined, count: unreadCount),
+            selectedIcon: _alertsIcon(icon: Icons.inbox, count: unreadCount),
             label: 'alerts',
           ),
         ],

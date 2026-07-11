@@ -48,14 +48,7 @@ final gamificationRepositoryProvider = Provider<GamificationRepository>((ref) {
 
 final breachRepositoryProvider = Provider<BreachRepository>((ref) {
   if (useMockAuth) {
-    return MockBreachRepository(
-      onBreachCreated: (userId, {severity = 1}) {
-        ref.read(gamificationRepositoryProvider).applyBreachPenalty(
-              userId,
-              severity: severity,
-            );
-      },
-    );
+    return MockBreachRepository();
   }
   return FirestoreBreachRepository();
 });

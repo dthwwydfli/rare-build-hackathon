@@ -8,7 +8,6 @@ import '../../features/auth/login_screen.dart';
 import '../../features/auth/signup_screen.dart';
 import '../../features/commitments/commitment_form_screen.dart';
 import '../../features/commitments/commitments_screen.dart';
-import '../../features/dev/breach_simulator_screen.dart';
 import '../../features/groups/create_group_screen.dart';
 import '../../features/groups/groups_screen.dart';
 import '../../features/groups/join_group_screen.dart';
@@ -145,10 +144,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/stats',
         builder: (context, state) => const StatsDetailScreen(),
-      ),
-      GoRoute(
-        path: '/dev/simulator',
-        builder: (context, state) => const BreachSimulatorScreen(),
       ),
     ],
   );

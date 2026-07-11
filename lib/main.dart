@@ -1,8 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/notifications/background_message_handler.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/providers/repository_providers.dart';
 import 'core/routing/app_router.dart';
@@ -17,6 +19,7 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   }
   runApp(const ProviderScope(child: LavenderApp()));
 }
