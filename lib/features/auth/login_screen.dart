@@ -8,6 +8,7 @@ import '../../core/utils/auth_error_helper.dart';
 import '../../core/utils/permissions_helper.dart';
 import '../../core/widgets/app_widgets.dart';
 import 'widgets/auth_shell.dart';
+import 'widgets/social_auth_buttons.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -70,6 +71,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _signInWithApple() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      await ref.read(authRepositoryProvider).signInWithApple();
+      await _navigateAfterAuth();
+    } catch (e) {
+      setState(() => _error = friendlyAuthError(e));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
   Future<void> _resetPassword() async {
     final email = _emailController.text.trim();
     if (email.isEmpty || !isValidEmail(email)) {
@@ -90,6 +106,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     return AuthShell(
       title: 'sign in',
+      teaserLine: null,
       footer: TextButton(
         onPressed: () => context.go('/signup'),
         child: const LowercaseText('create an account'),
@@ -139,11 +156,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   : const LowercaseText('sign in'),
             ),
             const SizedBox(height: 12),
-            OutlinedButton.icon(
+            GoogleSignInButton(
               onPressed: _loading ? null : _signInWithGoogle,
-              icon: const Icon(Icons.g_mobiledata, size: 28),
-              label: const LowercaseText('continue with google'),
+              enabled: !_loading,
             ),
+            if (AppleSignInButton.isSupported) ...[
+              const SizedBox(height: 12),
+              AppleSignInButton(
+                text: 'Sign in with Apple',
+                onPressed: _loading ? null : _signInWithApple,
+                enabled: !_loading,
+              ),
+            ],
           ],
         ),
       ),

@@ -12,6 +12,7 @@ abstract class AuthRepository {
     required String password,
   });
   Future<AppUser> signInWithGoogle();
+  Future<AppUser> signInWithApple();
   Future<void> signOut();
   Future<void> resetPassword(String email);
   Future<void> updateFcmToken(String token);

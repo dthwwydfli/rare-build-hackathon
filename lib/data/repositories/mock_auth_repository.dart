@@ -62,6 +62,11 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<AppUser> signInWithApple() {
+    return signIn(email: 'demo@icloud.com', password: '');
+  }
+
+  @override
   Future<void> signOut() async {
     _currentUser = null;
     _controller.add(null);

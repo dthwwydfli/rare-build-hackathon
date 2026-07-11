@@ -7,6 +7,7 @@ import '../../core/theme/app_text.dart';
 import '../../core/utils/auth_error_helper.dart';
 import '../../core/widgets/app_widgets.dart';
 import 'widgets/auth_shell.dart';
+import 'widgets/social_auth_buttons.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -58,6 +59,21 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     });
     try {
       await ref.read(authRepositoryProvider).signInWithGoogle();
+      if (mounted) context.go('/permissions');
+    } catch (e) {
+      setState(() => _error = friendlyAuthError(e));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _signUpWithApple() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      await ref.read(authRepositoryProvider).signInWithApple();
       if (mounted) context.go('/permissions');
     } catch (e) {
       setState(() => _error = friendlyAuthError(e));
@@ -126,11 +142,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   : const LowercaseText('create account'),
             ),
             const SizedBox(height: 12),
-            OutlinedButton.icon(
+            GoogleSignInButton(
               onPressed: _loading ? null : _signUpWithGoogle,
-              icon: const Icon(Icons.g_mobiledata, size: 28),
-              label: const LowercaseText('continue with google'),
+              enabled: !_loading,
             ),
+            if (AppleSignInButton.isSupported) ...[
+              const SizedBox(height: 12),
+              AppleSignInButton(
+                text: 'Sign up with Apple',
+                onPressed: _loading ? null : _signUpWithApple,
+                enabled: !_loading,
+              ),
+            ],
           ],
         ),
       ),

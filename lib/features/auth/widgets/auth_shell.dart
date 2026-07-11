@@ -11,14 +11,14 @@ class AuthShell extends StatelessWidget {
     required this.child,
     this.subtitle,
     this.footer,
-    this.teaserLine = 'start with 1000 points · every day counts',
+    this.teaserLine,
   });
 
   final String title;
   final String? subtitle;
   final Widget child;
   final Widget? footer;
-  final String teaserLine;
+  final String? teaserLine;
 
   @override
   Widget build(BuildContext context) {
@@ -55,8 +55,10 @@ class AuthShell extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    AuthTeaser(line: teaserLine),
+                    if (teaserLine != null) ...[
+                      const SizedBox(height: 16),
+                      AuthTeaser(line: teaserLine!),
+                    ],
                     if (footer != null) ...[
                       const SizedBox(height: 16),
                       footer!,
