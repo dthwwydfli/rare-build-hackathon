@@ -19,10 +19,15 @@ class MockGroupRepository implements GroupRepository {
   }
 
   @override
-  Stream<List<FriendGroup>> watchUserGroups(String userId) {
-    return _controller.stream.map(
-      (list) => list.where((g) => g.memberIds.contains(userId)).toList(),
-    );
+  Stream<List<FriendGroup>> watchUserGroups(String userId) async* {
+    await for (final list in _groupStream()) {
+      yield list.where((g) => g.memberIds.contains(userId)).toList();
+    }
+  }
+
+  Stream<List<FriendGroup>> _groupStream() async* {
+    yield List.from(_groups);
+    yield* _controller.stream;
   }
 
   @override

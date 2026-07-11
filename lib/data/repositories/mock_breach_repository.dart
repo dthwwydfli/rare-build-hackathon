@@ -17,17 +17,22 @@ class MockBreachRepository implements BreachRepository {
   }
 
   @override
-  Stream<List<BreachEvent>> watchGroupBreaches(String groupId) {
-    return _breachController.stream.map(
-      (list) => list.where((b) => b.groupId == groupId).toList(),
-    );
+  Stream<List<BreachEvent>> watchGroupBreaches(String groupId) async* {
+    await for (final list in _breachStream()) {
+      yield list.where((b) => b.groupId == groupId).toList();
+    }
   }
 
   @override
-  Stream<List<BreachEvent>> watchUserBreaches(String userId) {
-    return _breachController.stream.map(
-      (list) => list.where((b) => b.userId == userId).toList(),
-    );
+  Stream<List<BreachEvent>> watchUserBreaches(String userId) async* {
+    await for (final list in _breachStream()) {
+      yield list.where((b) => b.userId == userId).toList();
+    }
+  }
+
+  Stream<List<BreachEvent>> _breachStream() async* {
+    yield List.from(_breaches);
+    yield* _breachController.stream;
   }
 
   @override
@@ -85,9 +90,14 @@ class MockBreachRepository implements BreachRepository {
   }
 
   @override
-  Stream<List<SupportMessage>> watchSupportForUser(String userId) {
-    return _supportController.stream.map(
-      (list) => list.where((m) => m.toUserId == userId).toList(),
-    );
+  Stream<List<SupportMessage>> watchSupportForUser(String userId) async* {
+    await for (final list in _supportStream()) {
+      yield list.where((m) => m.toUserId == userId).toList();
+    }
+  }
+
+  Stream<List<SupportMessage>> _supportStream() async* {
+    yield List.from(_support);
+    yield* _supportController.stream;
   }
 }

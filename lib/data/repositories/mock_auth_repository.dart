@@ -12,7 +12,10 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
-  Stream<AppUser?> watchCurrentUser() => _controller.stream;
+  Stream<AppUser?> watchCurrentUser() async* {
+    yield _currentUser;
+    yield* _controller.stream;
+  }
 
   @override
   Future<AppUser> signUp({

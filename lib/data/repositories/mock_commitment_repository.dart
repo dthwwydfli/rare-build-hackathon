@@ -13,10 +13,15 @@ class MockCommitmentRepository implements CommitmentRepository {
   }
 
   @override
-  Stream<List<Commitment>> watchUserCommitments(String userId) {
-    return _controller.stream.map(
-      (list) => list.where((c) => c.userId == userId).toList(),
-    );
+  Stream<List<Commitment>> watchUserCommitments(String userId) async* {
+    await for (final list in _commitmentStream()) {
+      yield list.where((c) => c.userId == userId).toList();
+    }
+  }
+
+  Stream<List<Commitment>> _commitmentStream() async* {
+    yield List.from(_commitments);
+    yield* _controller.stream;
   }
 
   @override
