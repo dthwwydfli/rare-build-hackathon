@@ -55,4 +55,4 @@ Shared contract: `lib/domain/` (models + repository interfaces)
 - `breach_events` — detection signals (triggers Cloud Functions)
 - `support_messages` — peer encouragement (triggers support notification)
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for full system design and [docs/INTEGRATION.md](docs/INTEGRATION.md) for the E2E test guide.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for full system design, [docs/INTEGRATION.md](docs/INTEGRATION.md) for the E2E test guide, and [docs/DEMO_CHECKLIST.md](docs/DEMO_CHECKLIST.md) for demo day rehearsal.
