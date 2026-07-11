@@ -93,7 +93,7 @@ class GroupsScreen extends ConsumerWidget {
                           Clipboard.setData(ClipboardData(text: shareText));
                           showAppSnackBar(
                             context,
-                            'invite message copied — paste in messages or whatsapp',
+                            'invite message copied so paste in messages or whatsapp',
                           );
                         },
                       ),

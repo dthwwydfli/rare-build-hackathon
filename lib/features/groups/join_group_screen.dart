@@ -45,7 +45,7 @@ class _JoinGroupScreenState extends ConsumerState<JoinGroupScreen> {
         context.pop();
       }
     } catch (e) {
-      setState(() => _error = 'invalid invite code — ask your friend to share again.');
+      setState(() => _error = 'invalid invite code so ask your friend to share again.');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
