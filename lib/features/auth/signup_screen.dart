@@ -44,7 +44,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             password: _passwordController.text,
             displayName: _nameController.text.trim(),
           );
-      if (mounted) context.go('/permissions');
+      if (mounted) context.go('/screening');
     } catch (e) {
       setState(() => _error = friendlyAuthError(e));
     } finally {
@@ -59,7 +59,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     });
     try {
       await ref.read(authRepositoryProvider).signInWithGoogle();
-      if (mounted) context.go('/permissions');
+      if (mounted) context.go('/screening');
     } catch (e) {
       setState(() => _error = friendlyAuthError(e));
     } finally {
@@ -74,7 +74,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     });
     try {
       await ref.read(authRepositoryProvider).signInWithApple();
-      if (mounted) context.go('/permissions');
+      if (mounted) context.go('/screening');
     } catch (e) {
       setState(() => _error = friendlyAuthError(e));
     } finally {

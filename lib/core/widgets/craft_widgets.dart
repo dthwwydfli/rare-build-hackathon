@@ -138,6 +138,7 @@ class ContractCard extends StatelessWidget {
     required this.child,
     this.title,
     this.signedBy,
+    this.signaturePending = false,
     this.stamp,
     this.onTap,
     this.faded = false,
@@ -149,6 +150,9 @@ class ContractCard extends StatelessWidget {
 
   /// Renders a dashed signature line footer: "signed, {name}".
   final String? signedBy;
+
+  /// When true, footer reads "ready to sign, {name}" instead of "signed".
+  final bool signaturePending;
 
   /// Widget overlapping the top-right corner, usually a [StampBadge].
   final Widget? stamp;
@@ -200,7 +204,9 @@ class ContractCard extends StatelessWidget {
                     const _SignatureLine(),
                     const SizedBox(height: 4),
                     LowercaseText(
-                      'signed, $signedBy',
+                      signaturePending
+                          ? 'ready to sign, $signedBy'
+                          : 'signed, $signedBy',
                       style: const TextStyle(
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w500,

@@ -82,6 +82,17 @@ flowchart TB
 
 ### `users/{userId}`
 - `displayName`, `email`, `fcmToken`, `createdAt`
+- `screeningCompleted`, `lastScreeningAt`, `nextScreeningDueAt`, `activeReferralFlags[]`
+
+### `users/{userId}/screenings/{screeningId}`
+- `pgsiScore`, `phq2Score`, `gad2Score`, `auditCScore`, `suicideItemScore`
+- `pgsiBand`, `referrals[]`, `crisisTriggered`, `screeningVersion`, `completedAt`
+
+## Wellbeing screening flow
+
+Mandatory at signup (PGSI + PHQ-2 + GAD-2 + AUDIT-C + suicide item). Router blocks app access until complete. Suicide endorsement routes to crisis screen with UK helplines. Scores drive refer-on to existing help resources. Re-screen every 8 weeks with in-app prompt on home.
+
+Routes: `/screening`, `/screening/crisis`, `/screening/results`, `/crisis`
 
 ### `commitments/{commitmentId}`
 - `userId`, `title`, `type` (location | online | spending)

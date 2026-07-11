@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,21 +9,28 @@ import '../../features/auth/signup_screen.dart';
 import '../../features/commitments/commitment_form_screen.dart';
 import '../../features/commitments/commitments_screen.dart';
 import '../../features/groups/create_group_screen.dart';
-import '../../features/groups/groups_screen.dart';
 import '../../features/groups/join_group_screen.dart';
 import '../../features/gamification/stats_detail_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/people/find_people_screen.dart';
+import '../../features/screening/crisis_screen.dart';
+import '../../features/screening/screening_results_screen.dart';
+import '../../features/screening/screening_wizard_screen.dart';
 import '../../features/settings/permissions_screen.dart';
 import '../../features/support/breach_detail_screen.dart';
 import '../../features/support/my_breaches_screen.dart';
+import '../../features/support/support_hub_screen.dart';
 import '../../features/support/support_inbox_screen.dart';
 import '../../features/tools/block_access_screen.dart';
 import '../../features/urges/urge_insights_screen.dart';
 import '../../features/urges/urge_log_screen.dart';
 import '../notifications/notification_service.dart';
 import 'app_shell.dart';
+
+bool _isScreeningRoute(String location) {
+  return location.startsWith('/screening') || location == '/crisis';
+}
 
 class _AuthRefreshNotifier extends ChangeNotifier {
   void notify() => notifyListeners();
@@ -48,8 +55,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLoading = authState.isLoading;
       final user = authState.valueOrNull;
       final location = state.matchedLocation;
-      final isAuthRoute =
-          location == '/login' ||
+      final isAuthRoute = location == '/login' ||
           location == '/signup' ||
           location == '/onboarding';
 
@@ -64,7 +70,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      if (isAuthRoute) return '/home';
+      final screeningRepo = ref.read(screeningRepositoryProvider);
+      final screeningStatus = await screeningRepo.getStatus(user.id);
+      final screeningComplete = screeningStatus.screeningCompleted;
+
+      if (isAuthRoute) {
+        if (!screeningComplete) return '/screening';
+        return '/home';
+      }
+
+      if (!screeningComplete && !_isScreeningRoute(location)) {
+        return '/screening';
+      }
+
       return null;
     },
     routes: [
@@ -72,7 +90,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/onboarding',
         builder: (context, state) => const OnboardingScreen(),
       ),
-      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
       GoRoute(
         path: '/signup',
         builder: (context, state) => const SignupScreen(),
@@ -80,6 +101,26 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/permissions',
         builder: (context, state) => const PermissionsScreen(),
+      ),
+      GoRoute(
+        path: '/screening',
+        builder: (context, state) {
+          final isRescreen = state.uri.queryParameters['mode'] == 'rescreen';
+          return ScreeningWizardScreen(isRescreen: isRescreen);
+        },
+      ),
+      GoRoute(
+        path: '/screening/crisis',
+        builder: (context, state) => const CrisisScreen(fromScreening: true),
+      ),
+      GoRoute(
+        path: '/screening/results',
+        builder: (context, state) => const ScreeningResultsScreen(),
+      ),
+      GoRoute(
+        path: '/crisis',
+        builder: (context, state) =>
+            const CrisisScreen(fromScreening: false, allowBack: true),
       ),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
@@ -93,16 +134,25 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const CommitmentsScreen(),
           ),
           GoRoute(
+            path: '/support-hub',
+            builder: (context, state) {
+              final segment = supportHubSegmentFromQuery(
+                state.uri.queryParameters['segment'],
+              );
+              return SupportHubScreen(initialSegment: segment);
+            },
+          ),
+          GoRoute(
             path: '/groups',
-            builder: (context, state) => const GroupsScreen(),
+            redirect: (_, __) => '/support-hub',
+          ),
+          GoRoute(
+            path: '/leaderboard',
+            redirect: (_, __) => '/support-hub?segment=rankings',
           ),
           GoRoute(
             path: '/support',
             builder: (context, state) => const SupportInboxScreen(),
-          ),
-          GoRoute(
-            path: '/urges',
-            builder: (context, state) => const UrgeInsightsScreen(),
           ),
         ],
       ),

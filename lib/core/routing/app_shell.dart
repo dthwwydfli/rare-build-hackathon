@@ -12,10 +12,13 @@ class AppShell extends ConsumerWidget {
   int _selectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
     if (location.startsWith('/commitments')) return 1;
-    if (location.startsWith('/urges')) return 2;
-    if (location.startsWith('/groups')) return 3;
+    if (location.startsWith('/support-hub') ||
+        location.startsWith('/groups') ||
+        location.startsWith('/leaderboard')) {
+      return 2;
+    }
     if (location.startsWith('/support') || location.startsWith('/breach')) {
-      return 4;
+      return 3;
     }
     return 0;
   }
@@ -27,17 +30,18 @@ class AppShell extends ConsumerWidget {
       case 1:
         context.go('/commitments');
       case 2:
-        context.go('/urges');
+        context.go('/support-hub');
       case 3:
-        context.go('/groups');
-      case 4:
         context.go('/support');
     }
   }
 
   Widget _alertsIcon({required IconData icon, required int count}) {
     if (count <= 0) return Icon(icon);
-    return Badge(label: Text('$count'), child: Icon(icon));
+    return Badge(
+      label: Text('$count'),
+      child: Icon(icon),
+    );
   }
 
   @override
@@ -61,14 +65,9 @@ class AppShell extends ConsumerWidget {
             label: 'goals',
           ),
           const NavigationDestination(
-            icon: Icon(Icons.psychology_alt_outlined),
-            selectedIcon: Icon(Icons.psychology_alt),
-            label: 'urges',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.group_outlined),
-            selectedIcon: Icon(Icons.group),
-            label: 'groups',
+            icon: Icon(Icons.favorite_outline),
+            selectedIcon: Icon(Icons.favorite),
+            label: 'support',
           ),
           NavigationDestination(
             icon: _alertsIcon(icon: Icons.inbox_outlined, count: unreadCount),

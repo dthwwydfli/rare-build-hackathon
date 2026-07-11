@@ -1,0 +1,96 @@
+[
+  {
+    "id": "gamcare",
+    "name": "GamCare — National Gambling Helpline",
+    "category": "crisis",
+    "description": "Free, confidential advice and support for anyone affected by gambling.",
+    "subtitle": "Free, confidential · 24/7",
+    "phone": "08088020133",
+    "url": "https://www.gamcare.org.uk/",
+    "available24_7": true
+  },
+  {
+    "id": "samaritans",
+    "name": "Samaritans",
+    "category": "crisis",
+    "description": "Someone to talk to, whatever you're going through.",
+    "subtitle": "Free · 24/7",
+    "phone": "116123",
+    "url": "https://www.samaritans.org/",
+    "available24_7": true
+  },
+  {
+    "id": "nhs-111",
+    "name": "NHS 111",
+    "category": "crisis",
+    "description": "Get urgent medical help or mental health advice when you need it.",
+    "subtitle": "Free · 24/7",
+    "phone": "111",
+    "url": "https://111.nhs.uk/",
+    "available24_7": true
+  },
+  {
+    "id": "be-gamble-aware",
+    "name": "BeGambleAware",
+    "category": "crisis",
+    "description": "Information, advice, and support for safer gambling.",
+    "subtitle": "Free resources",
+    "url": "https://www.begambleaware.org/",
+    "available24_7": false
+  },
+  {
+    "id": "nhs-talking-therapies",
+    "name": "NHS Talking Therapies",
+    "category": "licensed",
+    "description": "Free NHS psychological therapies for anxiety, depression, and addiction.",
+    "subtitle": "Self-referral available",
+    "url": "https://www.nhs.uk/nhs-services/mental-health-services/find-nhs-talking-therapies-for-anxiety-and-depression/",
+    "available24_7": false
+  },
+  {
+    "id": "gamblers-anonymous",
+    "name": "Gamblers Anonymous UK",
+    "category": "licensed",
+    "description": "Peer-led fellowship meetings for people who want to stop gambling.",
+    "subtitle": "Meetings across the UK",
+    "url": "https://www.gamblersanonymous.org.uk/",
+    "phone": "03300940932",
+    "available24_7": false
+  },
+  {
+    "id": "gordon-moody",
+    "name": "Gordon Moody Association",
+    "category": "licensed",
+    "description": "Residential treatment and online support for gambling addiction.",
+    "subtitle": "Specialist addiction charity",
+    "url": "https://www.gordonmoody.org.uk/",
+    "phone": "01384241292",
+    "available24_7": false
+  },
+  {
+    "id": "expert-self-exclusion",
+    "name": "Expert Self Exclusion",
+    "category": "coach",
+    "description": "Coaching and practical support to block gambling access and rebuild habits.",
+    "subtitle": "Recovery coaching",
+    "url": "https://www.expertselfexclusion.co.uk/",
+    "available24_7": false
+  },
+  {
+    "id": "gambling-with-lives",
+    "name": "Gambling with Lives",
+    "category": "coach",
+    "description": "Support for families and individuals affected by gambling harm.",
+    "subtitle": "Peer support & advocacy",
+    "url": "https://www.gamblingwithlives.org/",
+    "available24_7": false
+  },
+  {
+    "id": "block-access",
+    "name": "Block access & money",
+    "category": "tool",
+    "description": "GAMSTOP, bank gambling blocks, and spending delays in the app.",
+    "subtitle": "Cut off access, not willpower",
+    "internalRoute": "/tools/blocks"
+  }
+]

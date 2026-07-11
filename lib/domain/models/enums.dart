@@ -48,6 +48,17 @@ extension CommitmentTypeX on CommitmentType {
     }
   }
 
+  String get description {
+    switch (this) {
+      case CommitmentType.location:
+        return 'alert when you\'re near betting venues';
+      case CommitmentType.online:
+        return 'block gambling apps and websites';
+      case CommitmentType.spending:
+        return 'get warned before you overspend';
+    }
+  }
+
   static CommitmentType fromString(String value) {
     return CommitmentType.values.firstWhere(
       (e) => e.name == value,

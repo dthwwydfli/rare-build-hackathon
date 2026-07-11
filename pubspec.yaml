@@ -39,4 +39,5 @@ flutter:
     - assets/data/gambling_pois.json
     - assets/data/gambling_apps.json
     - assets/data/gambling_domains.json
+    - assets/data/help_resources.json
     - assets/images/google_signin/g-logo.png
