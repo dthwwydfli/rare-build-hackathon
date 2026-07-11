@@ -87,7 +87,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     return AuthShell(
       title: 'create account',
       subtitle: 'your first day starts here',
-      teaserLine: 'reclaim days · collect milestones · walk with friends',
+      teaserLine: null,
       footer: TextButton(
         onPressed: () => context.go('/login'),
         child: const LowercaseText('already have an account? sign in'),
