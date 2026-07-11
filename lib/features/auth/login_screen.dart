@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_text.dart';
 import '../../core/utils/auth_error_helper.dart';
 import '../../core/utils/permissions_helper.dart';
 import '../../core/widgets/app_widgets.dart';
+import 'widgets/auth_shell.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -71,13 +73,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _resetPassword() async {
     final email = _emailController.text.trim();
     if (email.isEmpty || !isValidEmail(email)) {
-      setState(() => _error = 'Enter a valid email to reset your password');
+      setState(() => _error = 'enter a valid email to reset your password');
       return;
     }
     try {
       await ref.read(authRepositoryProvider).resetPassword(email);
       if (mounted) {
-        showAppSnackBar(context, 'Check your email for a reset link');
+        showAppSnackBar(context, 'check your email for a reset link');
       }
     } catch (e) {
       setState(() => _error = friendlyAuthError(e));
@@ -86,69 +88,63 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Sign in')),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Enter your email';
-                    if (!isValidEmail(v)) return 'Enter a valid email';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Enter your password' : null,
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: _loading ? null : _resetPassword,
-                    child: const Text('Forgot password?'),
-                  ),
-                ),
-                if (_error != null) ...[
-                  ErrorBanner(message: _error!),
-                  const SizedBox(height: 16),
-                ],
-                ElevatedButton(
-                  onPressed: _loading ? null : _signIn,
-                  child: _loading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Sign in'),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: _loading ? null : _signInWithGoogle,
-                  icon: const Icon(Icons.g_mobiledata, size: 28),
-                  label: const Text('Continue with Google'),
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () => context.go('/signup'),
-                  child: const Text('Create an account'),
-                ),
-              ],
+    return AuthShell(
+      title: 'sign in',
+      footer: TextButton(
+        onPressed: () => context.go('/signup'),
+        child: const LowercaseText('create an account'),
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: 'email'),
+              keyboardType: TextInputType.emailAddress,
+              validator: (v) {
+                if (v == null || v.isEmpty) return 'enter your email';
+                if (!isValidEmail(v)) return 'enter a valid email';
+                return null;
+              },
             ),
-          ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _passwordController,
+              decoration: const InputDecoration(labelText: 'password'),
+              obscureText: true,
+              validator: (v) =>
+                  v == null || v.isEmpty ? 'enter your password' : null,
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: _loading ? null : _resetPassword,
+                child: const LowercaseText('forgot password?'),
+              ),
+            ),
+            if (_error != null) ...[
+              ErrorBanner(message: _error!),
+              const SizedBox(height: 16),
+            ],
+            ElevatedButton(
+              onPressed: _loading ? null : _signIn,
+              child: _loading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const LowercaseText('sign in'),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _loading ? null : _signInWithGoogle,
+              icon: const Icon(Icons.g_mobiledata, size: 28),
+              label: const LowercaseText('continue with google'),
+            ),
+          ],
         ),
       ),
     );
