@@ -10,6 +10,7 @@ import '../../core/widgets/app_widgets.dart';
 import '../../core/widgets/craft_widgets.dart';
 import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/commitment.dart';
+import '../../core/utils/commitment_ui.dart';
 import '../../domain/models/enums.dart';
 
 class CommitmentsScreen extends ConsumerWidget {
@@ -61,7 +62,7 @@ class CommitmentsScreen extends ConsumerWidget {
                           label: c.active
                               ? c.type.label
                               : '${c.type.label} · paused',
-                          icon: _iconForType(c.type),
+                          icon: commitmentIcon(c.type),
                         ),
                         if (c.active && streak > 0) ...[
                           const SizedBox(width: 8),
@@ -148,13 +149,3 @@ final _commitmentsProvider =
   return ref.watch(commitmentRepositoryProvider).watchUserCommitments(userId);
 });
 
-IconData _iconForType(CommitmentType type) {
-  switch (type) {
-    case CommitmentType.location:
-      return Icons.location_on_outlined;
-    case CommitmentType.spending:
-      return Icons.payments_outlined;
-    case CommitmentType.online:
-      return Icons.phone_android_outlined;
-  }
-}

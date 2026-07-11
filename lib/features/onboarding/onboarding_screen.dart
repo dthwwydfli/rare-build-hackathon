@@ -21,10 +21,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   static const _pages = [
     _OnboardingPage(
-      icon: Icons.spa_outlined,
+      icon: Icons.eco_outlined,
       title: 'stay accountable together',
       subtitle:
-          'make commitments, invite trusted friends, and get support when you need it most.',
+          'make commitments, invite trusted friends, get support when you need it, and reclaim days alongside your circle.',
       showWordmark: true,
     ),
     _OnboardingPage(
@@ -42,12 +42,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       icon: Icons.favorite_outline,
       title: 'social support',
       subtitle: 'friends can send encouragement when you struggle.',
-    ),
-    _OnboardingPage(
-      icon: Icons.spa_outlined,
-      title: 'grow together',
-      subtitle:
-          'reclaim days, collect milestones, and walk alongside your friends.',
     ),
   ];
 

@@ -36,25 +36,6 @@ class PointsBadge extends StatelessWidget {
   }
 }
 
-class StreakBanner extends StatelessWidget {
-  const StreakBanner({super.key, required this.streak});
-
-  final int streak;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const LowercaseText('streak', style: TextStyle(fontSize: 12)),
-        const SizedBox(width: 8),
-        StreakFlame(streak: streak),
-      ],
-    );
-  }
-}
-
-/// Journal-style header for the home screen: today's date, days reclaimed,
-/// points stamp-pad, and a solidarity line for the user's circle.
 class GamificationHeroCard extends StatelessWidget {
   const GamificationHeroCard({
     super.key,

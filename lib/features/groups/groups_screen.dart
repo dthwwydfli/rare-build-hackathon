@@ -5,11 +5,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/providers/repository_providers.dart';
 import '../../core/theme/app_text.dart';
-import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../core/widgets/craft_widgets.dart';
 import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/friend_group.dart';
+import 'widgets/group_summary_tile.dart';
 
 class GroupsScreen extends ConsumerWidget {
   const GroupsScreen({super.key});
@@ -75,16 +75,9 @@ class GroupsScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.group_outlined,
-                            color: AppTheme.lavenderDeep),
-                        title: Text(group.name),
-                        subtitle: LowercaseText(
-                          '${group.memberIds.length} walking together${rank != null ? ' · you\'re #$rank' : ''}',
-                          style:
-                              const TextStyle(color: AppTheme.inkPlumSoft),
-                        ),
+                      GroupSummaryTile(
+                        group: group,
+                        rank: rank,
                       ),
                       TicketStub(
                         code: group.inviteCode,

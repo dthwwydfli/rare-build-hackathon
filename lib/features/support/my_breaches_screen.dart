@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../core/providers/repository_providers.dart';
 import '../../core/theme/app_text.dart';
@@ -9,7 +8,7 @@ import '../../core/widgets/app_widgets.dart';
 import '../../core/widgets/craft_widgets.dart';
 import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/breach_event.dart';
-import '../../domain/models/enums.dart';
+import 'breach_ui_helpers.dart';
 
 class MyBreachesScreen extends ConsumerWidget {
   const MyBreachesScreen({super.key});
@@ -47,14 +46,14 @@ class MyBreachesScreen extends ConsumerWidget {
                           child: ListTile(
                             contentPadding: EdgeInsets.zero,
                             leading: Icon(
-                              _iconForSignal(breach.signalType),
+                              breachSignalIcon(breach.signalType),
                               color: AppTheme.inkPlumSoft,
                             ),
                             title: LowercaseText(
                               softSignal(breach.signalType),
                             ),
                             subtitle: LowercaseText(
-                              _formatTime(breach.createdAt),
+                              formatRelativeTime(breach.createdAt),
                               style: const TextStyle(
                                 color: AppTheme.inkPlumSoft,
                               ),
@@ -106,31 +105,9 @@ class MyBreachesScreen extends ConsumerWidget {
       ),
     );
   }
-
-  String _formatTime(DateTime time) {
-    final diff = DateTime.now().difference(time);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    return DateFormat.MMMd().format(time);
-  }
 }
 
 final _myBreachesProvider =
     StreamProvider.family<List<BreachEvent>, String>((ref, userId) {
   return ref.watch(breachRepositoryProvider).watchUserBreaches(userId);
 });
-
-IconData _iconForSignal(BreachSignalType type) {
-  switch (type) {
-    case BreachSignalType.location:
-      return Icons.location_on;
-    case BreachSignalType.app:
-      return Icons.phone_android;
-    case BreachSignalType.url:
-      return Icons.language;
-    case BreachSignalType.payment:
-      return Icons.payments;
-    case BreachSignalType.manual:
-      return Icons.waving_hand;
-  }
-}

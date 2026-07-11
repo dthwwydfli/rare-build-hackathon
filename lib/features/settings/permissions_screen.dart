@@ -3,24 +3,27 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../core/config/app_config.dart';
+import '../../core/notifications/notification_service.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../core/widgets/craft_widgets.dart';
 import '../../core/widgets/tactile_widgets.dart';
 
-class PermissionsScreen extends StatefulWidget {
+class PermissionsScreen extends ConsumerStatefulWidget {
   const PermissionsScreen({super.key});
 
   @override
-  State<PermissionsScreen> createState() => _PermissionsScreenState();
+  ConsumerState<PermissionsScreen> createState() => _PermissionsScreenState();
 }
 
-class _PermissionsScreenState extends State<PermissionsScreen> {
+class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
   static const _usageChannel = MethodChannel('com.accountability/usage_stats');
 
   bool _locationGranted = false;
@@ -57,6 +60,9 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
   Future<void> _requestNotifications() async {
     await Permission.notification.request();
     await _checkPermissions();
+    if (!useMockAuth && mounted) {
+      await ref.read(notificationServiceProvider).refreshToken();
+    }
   }
 
   Future<void> _requestUsageStats() async {
@@ -132,7 +138,16 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
             ],
             const Spacer(),
             ElevatedButton(
-              onPressed: _canContinue ? () => context.go('/home') : null,
+              onPressed: _canContinue
+                  ? () async {
+                      if (!useMockAuth && _notificationGranted) {
+                        await ref
+                            .read(notificationServiceProvider)
+                            .refreshToken();
+                      }
+                      if (context.mounted) context.go('/home');
+                    }
+                  : null,
               child: const LowercaseText('continue'),
             ),
             if (!_canContinue)

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../core/providers/repository_providers.dart';
 import '../../core/theme/app_text.dart';
@@ -10,8 +9,8 @@ import '../../core/widgets/app_widgets.dart';
 import '../../core/widgets/craft_widgets.dart';
 import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/breach_event.dart';
-import '../../domain/models/enums.dart';
 import '../../domain/models/friend_group.dart';
+import 'breach_ui_helpers.dart';
 
 class SupportInboxScreen extends ConsumerWidget {
   const SupportInboxScreen({super.key});
@@ -97,6 +96,23 @@ final _groupsProvider =
   return ref.watch(groupRepositoryProvider).watchUserGroups(userId);
 });
 
+/// Count of friend breaches across all groups that still need support.
+final unreadAlertsCountProvider = Provider<int>((ref) {
+  final user = ref.watch(currentUserProvider).valueOrNull;
+  if (user == null) return 0;
+
+  final groups = ref.watch(_groupsProvider(user.id)).valueOrNull ?? [];
+  var count = 0;
+  for (final group in groups) {
+    final breaches =
+        ref.watch(_groupBreachesProvider(group.id)).valueOrNull ?? [];
+    count += breaches
+        .where((b) => b.userId != user.id && b.needsSupport)
+        .length;
+  }
+  return count;
+});
+
 class _GroupBreachesSection extends ConsumerWidget {
   const _GroupBreachesSection({
     required this.group,
@@ -151,7 +167,7 @@ class _GroupBreachesSection extends ConsumerWidget {
                           CircleAvatar(
                             backgroundColor: AppTheme.lavenderLight,
                             child: Icon(
-                              _iconForSignal(breach.signalType),
+                              breachSignalIcon(breach.signalType),
                               color: AppTheme.lavenderDeep,
                             ),
                           ),
@@ -178,7 +194,7 @@ class _GroupBreachesSection extends ConsumerWidget {
                         ),
                       ),
                       subtitle: LowercaseText(
-                        '${softSignal(breach.signalType)} · ${_formatTime(breach.createdAt)}',
+                        '${softSignal(breach.signalType)} · ${formatRelativeTime(breach.createdAt)}',
                         style: const TextStyle(color: AppTheme.inkPlumSoft),
                       ),
                       trailing: breach.acknowledged
@@ -201,31 +217,9 @@ class _GroupBreachesSection extends ConsumerWidget {
       ],
     );
   }
-
-  String _formatTime(DateTime time) {
-    final diff = DateTime.now().difference(time);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    return DateFormat.MMMd().format(time);
-  }
 }
 
 final _groupBreachesProvider =
     StreamProvider.family<List<BreachEvent>, String>((ref, groupId) {
   return ref.watch(breachRepositoryProvider).watchGroupBreaches(groupId);
 });
-
-IconData _iconForSignal(BreachSignalType type) {
-  switch (type) {
-    case BreachSignalType.location:
-      return Icons.location_on;
-    case BreachSignalType.app:
-      return Icons.phone_android;
-    case BreachSignalType.url:
-      return Icons.language;
-    case BreachSignalType.payment:
-      return Icons.payments;
-    case BreachSignalType.manual:
-      return Icons.waving_hand;
-  }
-}

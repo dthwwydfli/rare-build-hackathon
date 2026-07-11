@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../core/providers/repository_providers.dart';
 import '../../core/theme/app_motion.dart';
@@ -14,6 +13,7 @@ import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/breach_event.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/support_message.dart';
+import 'breach_ui_helpers.dart';
 
 const _presetMessages = [
   ("You've got this — I'm here for you", SupportMessageType.encouragement),
@@ -166,7 +166,7 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
                       ),
                       const SizedBox(height: 8),
                       LowercaseText(
-                        '${softSignal(breach.signalType)} · ${_formatTime(breach.createdAt)}',
+                        '${softSignal(breach.signalType)} · ${formatRelativeTime(breach.createdAt)}',
                         style: const TextStyle(color: AppTheme.inkPlumSoft),
                       ),
                       const SizedBox(height: 12),
@@ -303,13 +303,6 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
         ),
       ),
     );
-  }
-
-  String _formatTime(DateTime time) {
-    final diff = DateTime.now().difference(time);
-    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
-    if (diff.inHours < 24) return '${diff.inHours} hr ago';
-    return DateFormat.MMMd().format(time);
   }
 }
 
