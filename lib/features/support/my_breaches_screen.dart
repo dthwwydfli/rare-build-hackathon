@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../domain/models/breach_event.dart';
@@ -21,13 +20,13 @@ class MyBreachesScreen extends ConsumerWidget {
     final breachesAsync = ref.watch(_myBreachesProvider(user.id));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My breach history')),
+      appBar: AppBar(title: const LowercaseText('my breach history')),
       body: breachesAsync.when(
         data: (breaches) {
           if (breaches.isEmpty) {
             return const EmptyState(
-              title: 'No breaches recorded',
-              subtitle: 'When detection triggers, your history appears here',
+              title: 'no breaches recorded',
+              subtitle: 'when detection triggers, your history appears here',
             );
           }
           return ListView.builder(
@@ -42,11 +41,11 @@ class MyBreachesScreen extends ConsumerWidget {
                     color: AppTheme.danger,
                   ),
                   title: Text(breach.summary),
-                  subtitle: Text(
+                  subtitle: LowercaseText(
                     '${breach.signalType.label} · ${_formatTime(breach.createdAt)}',
                   ),
                   trailing: breach.acknowledged
-                      ? const Icon(Icons.check, color: Colors.green, size: 20)
+                      ? const Icon(Icons.check, color: AppTheme.lavender, size: 20)
                       : null,
                 ),
               );
@@ -55,7 +54,7 @@ class MyBreachesScreen extends ConsumerWidget {
         },
         loading: () => const LoadingView(),
         error: (e, _) => const Center(
-          child: ErrorBanner(message: 'Could not load breach history'),
+          child: ErrorBanner(message: 'could not load breach history'),
         ),
       ),
     );
