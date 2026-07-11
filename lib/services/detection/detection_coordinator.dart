@@ -247,8 +247,8 @@ class DetectionCoordinator {
     required BreachSignalType signalType,
     required Map<String, dynamic> metadata,
     String severity = 'medium',
-  }) {
-    return ref.read(breachRepositoryProvider).createBreach(
+  }) async {
+    final event = await ref.read(breachRepositoryProvider).createBreach(
           BreachEvent(
             id: '',
             userId: userId,
@@ -262,6 +262,11 @@ class DetectionCoordinator {
             userName: userName,
           ),
         );
+    await ref.read(gamificationRepositoryProvider).applyBreachPenalty(
+          userId,
+          severity: severity == 'severe' ? 2 : 1,
+        );
+    return event;
   }
 }
 
