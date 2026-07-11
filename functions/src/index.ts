@@ -37,6 +37,10 @@ function buildBreachSummary(signalType: string, metadata: Record<string, unknown
       return `Visited ${metadata.url ?? "gambling website"}`;
     case "payment":
       return "Possible gambling spend detected";
+    case "manual":
+      return metadata.selfFlagged
+        ? "Asked their circle for support"
+        : ((metadata.note as string) ?? "May need support");
     default:
       return "May need support";
   }
