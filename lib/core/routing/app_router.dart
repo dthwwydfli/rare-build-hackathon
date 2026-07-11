@@ -12,6 +12,8 @@ import '../../features/dev/breach_simulator_screen.dart';
 import '../../features/groups/create_group_screen.dart';
 import '../../features/groups/groups_screen.dart';
 import '../../features/groups/join_group_screen.dart';
+import '../../features/gamification/leaderboard_screen.dart';
+import '../../features/gamification/stats_detail_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/people/find_people_screen.dart';
@@ -22,13 +24,26 @@ import '../../features/support/support_inbox_screen.dart';
 import '../notifications/notification_service.dart';
 import 'app_shell.dart';
 
+class _AuthRefreshNotifier extends ChangeNotifier {
+  void notify() => notifyListeners();
+}
+
+final _authRefreshNotifierProvider = Provider<_AuthRefreshNotifier>((ref) {
+  final notifier = _AuthRefreshNotifier();
+  ref.listen(currentUserProvider, (_, __) => notifier.notify());
+  ref.onDispose(notifier.dispose);
+  return notifier;
+});
+
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(currentUserProvider);
+  final authRefresh = ref.watch(_authRefreshNotifierProvider);
 
   return GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: '/onboarding',
+    refreshListenable: authRefresh,
     redirect: (context, state) async {
+      final authState = ref.read(currentUserProvider);
       final isLoading = authState.isLoading;
       final user = authState.valueOrNull;
       final location = state.matchedLocation;
@@ -83,6 +98,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const GroupsScreen(),
           ),
           GoRoute(
+            path: '/leaderboard',
+            builder: (context, state) => const LeaderboardScreen(),
+          ),
+          GoRoute(
             path: '/support',
             builder: (context, state) => const SupportInboxScreen(),
           ),
@@ -122,6 +141,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           final groupId = state.uri.queryParameters['groupId'] ?? '';
           return BreachDetailScreen(eventId: eventId, groupId: groupId);
         },
+      ),
+      GoRoute(
+        path: '/stats',
+        builder: (context, state) => const StatsDetailScreen(),
       ),
       GoRoute(
         path: '/dev/simulator',

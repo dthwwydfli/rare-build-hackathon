@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/breach_event.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/friend_group.dart';
@@ -21,65 +24,67 @@ class SupportInboxScreen extends ConsumerWidget {
     final groupsAsync = ref.watch(_groupsProvider(user.id));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Breach alerts')),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(_groupsProvider(user.id));
-        },
-        child: groupsAsync.when(
-          data: (groups) {
-            if (groups.isEmpty) {
+      appBar: AppBar(title: const LowercaseText('alerts')),
+      body: PaperBackground(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(_groupsProvider(user.id));
+          },
+          child: groupsAsync.when(
+            data: (groups) {
+              if (groups.isEmpty) {
+                return ListView(
+                  children: const [
+                    SizedBox(height: 120),
+                    EmptyState(
+                      title: 'no groups yet',
+                      subtitle: 'join a friend group to be there for each other',
+                    ),
+                  ],
+                );
+              }
               return ListView(
-                children: const [
-                  SizedBox(height: 120),
-                  EmptyState(
-                    title: 'No groups',
-                    subtitle: 'Join a friend group to see breach alerts',
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: AppTheme.lavenderLight,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.flag, color: AppTheme.terracotta),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: LowercaseText(
+                            'red flags mean a friend broke a commitment or asked for support. tap to send encouragement.',
+                            style: TextStyle(color: AppTheme.inkPlumSoft),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  ...groups.map((group) {
+                    return _GroupBreachesSection(
+                      group: group,
+                      currentUserId: user.id,
+                    );
+                  }),
                 ],
               );
-            }
-            return ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.accent,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.flag, color: AppTheme.danger),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Red flags mean a friend broke a commitment or asked for support. Tap to send encouragement.',
-                          style: TextStyle(color: Colors.grey.shade800),
-                        ),
-                      ),
-                    ],
-                  ),
+            },
+            loading: () => const LoadingView(),
+            error: (e, _) => ListView(
+              children: const [
+                SizedBox(height: 48),
+                Padding(
+                  padding: EdgeInsets.all(16),
+                  child: ErrorBanner(message: 'could not load alerts'),
                 ),
-                ...groups.map((group) {
-                  return _GroupBreachesSection(
-                    group: group,
-                    currentUserId: user.id,
-                  );
-                }),
               ],
-            );
-          },
-          loading: () => const LoadingView(),
-          error: (e, _) => ListView(
-            children: const [
-              SizedBox(height: 48),
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: ErrorBanner(message: 'Could not load alerts'),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -122,59 +127,65 @@ class _GroupBreachesSection extends ConsumerWidget {
                 .take(10)
                 .toList();
             if (relevant.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Text(
-                  'No alerts from group members',
-                  style: TextStyle(color: Colors.grey.shade600),
+              return const Padding(
+                padding: EdgeInsets.only(bottom: 16),
+                child: LowercaseText(
+                  'all quiet — everyone\'s doing okay',
+                  style: TextStyle(color: AppTheme.inkPlumSoft),
                 ),
               );
             }
             return Column(
               children: relevant.map((breach) {
-                return AppCard(
-                  onTap: () => context.push(
-                    '/breach/${breach.id}?groupId=${group.id}',
-                  ),
-                  child: ListTile(
-                    leading: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        CircleAvatar(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.errorContainer,
-                          child: Icon(
-                            _iconForSignal(breach.signalType),
-                            color: AppTheme.danger,
-                          ),
-                        ),
-                        if (breach.needsSupport)
-                          const Positioned(
-                            right: -2,
-                            top: -2,
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: AppCard(
+                    onTap: () => context.push(
+                      '/breach/${breach.id}?groupId=${group.id}',
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: AppTheme.lavenderLight,
                             child: Icon(
-                              Icons.flag,
-                              color: AppTheme.danger,
-                              size: 16,
+                              _iconForSignal(breach.signalType),
+                              color: AppTheme.lavenderDeep,
                             ),
                           ),
-                      ],
-                    ),
-                    title: Text(
-                      breach.userName ?? 'Group member',
-                      style: TextStyle(
-                        fontWeight: breach.needsSupport
-                            ? FontWeight.bold
-                            : FontWeight.normal,
+                          if (breach.needsSupport)
+                            const Positioned(
+                              right: -2,
+                              top: -2,
+                              child: Icon(
+                                Icons.flag,
+                                color: AppTheme.terracotta,
+                                size: 16,
+                              ),
+                            ),
+                        ],
                       ),
+                      title: Text(
+                        breach.userName ?? 'group member',
+                        style: TextStyle(
+                          fontWeight: breach.needsSupport
+                              ? FontWeight.bold
+                              : breach.acknowledged
+                                  ? FontWeight.normal
+                                  : FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: LowercaseText(
+                        '${softSignal(breach.signalType)} · ${_formatTime(breach.createdAt)}',
+                        style: const TextStyle(color: AppTheme.inkPlumSoft),
+                      ),
+                      trailing: breach.acknowledged
+                          ? const WaxSealCheck(size: 22)
+                          : const Icon(Icons.fiber_manual_record,
+                              color: AppTheme.terracotta, size: 12),
                     ),
-                    subtitle: Text(
-                      '${breach.summary} · ${_formatTime(breach.createdAt)}',
-                    ),
-                    trailing: breach.acknowledged
-                        ? const Icon(Icons.favorite, color: Colors.green)
-                        : const Icon(Icons.fiber_manual_record,
-                            color: AppTheme.danger, size: 12),
                   ),
                 );
               }).toList(),
@@ -184,7 +195,8 @@ class _GroupBreachesSection extends ConsumerWidget {
             padding: EdgeInsets.all(16),
             child: CircularProgressIndicator(),
           ),
-          error: (e, _) => const ErrorBanner(message: 'Could not load breaches'),
+          error: (e, _) =>
+              const ErrorBanner(message: 'could not load breaches'),
         ),
       ],
     );
@@ -214,6 +226,6 @@ IconData _iconForSignal(BreachSignalType type) {
     case BreachSignalType.payment:
       return Icons.payments;
     case BreachSignalType.manual:
-      return Icons.flag;
+      return Icons.waving_hand;
   }
 }

@@ -8,6 +8,11 @@ class AppUser {
     this.fcmToken,
     this.discoverable = true,
     required this.createdAt,
+    this.points = 1000,
+    this.currentStreak = 0,
+    this.bestStreak = 0,
+    this.lastCleanDate,
+    this.lastBreachDate,
   });
 
   final String id;
@@ -16,6 +21,11 @@ class AppUser {
   final String? fcmToken;
   final bool discoverable;
   final DateTime createdAt;
+  final int points;
+  final int currentStreak;
+  final int bestStreak;
+  final DateTime? lastCleanDate;
+  final DateTime? lastBreachDate;
 
   String get displayNameLower => displayName.toLowerCase();
 
@@ -28,6 +38,11 @@ class AppUser {
       fcmToken: data['fcmToken'] as String?,
       discoverable: data['discoverable'] as bool? ?? true,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      points: (data['points'] ?? data['eloRating']) as int? ?? 1000,
+      currentStreak: data['currentStreak'] as int? ?? 0,
+      bestStreak: data['bestStreak'] as int? ?? 0,
+      lastCleanDate: (data['lastCleanDate'] as Timestamp?)?.toDate(),
+      lastBreachDate: (data['lastBreachDate'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -39,6 +54,13 @@ class AppUser {
       if (fcmToken != null) 'fcmToken': fcmToken,
       'discoverable': discoverable,
       'createdAt': Timestamp.fromDate(createdAt),
+      'points': points,
+      'currentStreak': currentStreak,
+      'bestStreak': bestStreak,
+      if (lastCleanDate != null)
+        'lastCleanDate': Timestamp.fromDate(lastCleanDate!),
+      if (lastBreachDate != null)
+        'lastBreachDate': Timestamp.fromDate(lastBreachDate!),
     };
   }
 
@@ -47,6 +69,11 @@ class AppUser {
     String? email,
     String? fcmToken,
     bool? discoverable,
+    int? points,
+    int? currentStreak,
+    int? bestStreak,
+    DateTime? lastCleanDate,
+    DateTime? lastBreachDate,
   }) {
     return AppUser(
       id: id,
@@ -55,6 +82,11 @@ class AppUser {
       fcmToken: fcmToken ?? this.fcmToken,
       discoverable: discoverable ?? this.discoverable,
       createdAt: createdAt,
+      points: points ?? this.points,
+      currentStreak: currentStreak ?? this.currentStreak,
+      bestStreak: bestStreak ?? this.bestStreak,
+      lastCleanDate: lastCleanDate ?? this.lastCleanDate,
+      lastBreachDate: lastBreachDate ?? this.lastBreachDate,
     );
   }
 }

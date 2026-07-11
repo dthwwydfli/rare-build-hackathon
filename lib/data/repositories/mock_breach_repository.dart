@@ -5,15 +5,17 @@ import '../../domain/models/support_message.dart';
 import '../../domain/repositories/breach_repository.dart';
 
 class MockBreachRepository implements BreachRepository {
+  MockBreachRepository({this.onBreachCreated}) {
+    _breachController.add([]);
+    _supportController.add([]);
+  }
+
+  final void Function(String userId, {int severity})? onBreachCreated;
+
   final _breachController = StreamController<List<BreachEvent>>.broadcast();
   final _supportController = StreamController<List<SupportMessage>>.broadcast();
   final List<BreachEvent> _breaches = [];
   final List<SupportMessage> _support = [];
-
-  MockBreachRepository() {
-    _breachController.add([]);
-    _supportController.add([]);
-  }
 
   @override
   Stream<List<BreachEvent>> watchGroupBreaches(String groupId) async* {
@@ -51,6 +53,10 @@ class MockBreachRepository implements BreachRepository {
     );
     _breaches.insert(0, created);
     _breachController.add(List.from(_breaches));
+    onBreachCreated?.call(
+      created.userId,
+      severity: created.severity == 'severe' ? 2 : 1,
+    );
     return created;
   }
 

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/theme/app_motion.dart';
+import '../../core/theme/app_text.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/onboarding_prefs.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -17,25 +21,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   static const _pages = [
     _OnboardingPage(
-      icon: Icons.shield_outlined,
-      title: 'Stay accountable together',
+      icon: Icons.spa_outlined,
+      title: 'stay accountable together',
       subtitle:
-          'Make commitments, invite trusted friends, and get support when you need it most.',
+          'make commitments, invite trusted friends, and get support when you need it most.',
+      showWordmark: true,
     ),
     _OnboardingPage(
       icon: Icons.location_on_outlined,
-      title: 'Location alerts',
-      subtitle: 'Friends are notified when you are near casinos or betting shops.',
+      title: 'location alerts',
+      subtitle:
+          'your circle is quietly notified when you are near a trigger spot.',
     ),
     _OnboardingPage(
       icon: Icons.phone_android_outlined,
-      title: 'Online monitoring',
-      subtitle: 'Detect gambling apps, websites, and spending patterns.',
+      title: 'online monitoring',
+      subtitle: 'detect gambling apps, websites, and spending patterns.',
     ),
     _OnboardingPage(
       icon: Icons.favorite_outline,
-      title: 'Social support',
-      subtitle: 'Friends can send encouragement when you struggle.',
+      title: 'social support',
+      subtitle: 'friends can send encouragement when you struggle.',
+    ),
+    _OnboardingPage(
+      icon: Icons.spa_outlined,
+      title: 'grow together',
+      subtitle:
+          'reclaim days, collect milestones, and walk alongside your friends.',
     ),
   ];
 
@@ -54,87 +66,96 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _pages.length,
-                onPageChanged: (i) => setState(() => _currentPage = i),
-                itemBuilder: (context, index) {
-                  final page = _pages[index];
-                  return Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(page.icon,
-                            size: 80, color: Theme.of(context).colorScheme.primary),
-                        const SizedBox(height: 24),
-                        Text(
-                          page.title,
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
+      body: PaperBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: _pages.length,
+                  onPageChanged: (i) => setState(() => _currentPage = i),
+                  itemBuilder: (context, index) {
+                    final page = _pages[index];
+                    return Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: TactileCard(
+                        useStitch: true,
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (page.showWordmark) ...[
+                              const BrandWordmark(size: 28),
+                              const SizedBox(height: 24),
+                            ],
+                            StampBadge(
+                              label: page.title.split(' ').first,
+                              icon: page.icon,
+                              size: 96,
+                              seed: page.title,
+                            ).stampIn(context),
+                            const SizedBox(height: 16),
+                            const OrnamentalDivider(),
+                            const SizedBox(height: 16),
+                            ...[
+                              LowercaseText(
+                                page.title,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium,
+                                textAlign: TextAlign.center,
                               ),
-                          textAlign: TextAlign.center,
+                              const SizedBox(height: 16),
+                              LowercaseText(
+                                page.subtitle,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: AppTheme.inkPlumSoft,
+                                  fontSize: 16,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ].staggered(context),
+                          ],
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          page.subtitle,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _pages.length,
-                (i) => Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: i == _currentPage
-                        ? Theme.of(context).colorScheme.primary
-                        : Colors.grey.shade300,
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (_currentPage < _pages.length - 1)
-                    ElevatedButton(
-                      onPressed: () => _pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ),
-                      child: const Text('Next'),
-                    )
-                  else
-                    ElevatedButton(
-                      onPressed: () => _finish(toSignup: true),
-                      child: const Text('Get started'),
-                    ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: () => _finish(toSignup: false),
-                    child: const Text('I already have an account'),
-                  ),
-                ],
+              StitchProgress.dots(
+                count: _pages.length,
+                index: _currentPage,
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_currentPage < _pages.length - 1)
+                      ElevatedButton(
+                        onPressed: () => _pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                        child: const LowercaseText('next'),
+                      )
+                    else
+                      ElevatedButton(
+                        onPressed: () => _finish(toSignup: true),
+                        child: const LowercaseText('get started'),
+                      ),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () => _finish(toSignup: false),
+                      child: const LowercaseText('i already have an account'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -146,9 +167,11 @@ class _OnboardingPage {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.showWordmark = false,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
+  final bool showWordmark;
 }

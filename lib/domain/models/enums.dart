@@ -10,15 +10,15 @@ extension BreachSignalTypeX on BreachSignalType {
   String get label {
     switch (this) {
       case BreachSignalType.location:
-        return 'Location';
+        return 'location';
       case BreachSignalType.app:
-        return 'App usage';
+        return 'app usage';
       case BreachSignalType.url:
-        return 'Website';
+        return 'website';
       case BreachSignalType.payment:
-        return 'Payment';
+        return 'payment';
       case BreachSignalType.manual:
-        return 'Manual';
+        return 'manual';
     }
   }
 
@@ -40,11 +40,11 @@ extension CommitmentTypeX on CommitmentType {
   String get label {
     switch (this) {
       case CommitmentType.location:
-        return 'Location';
+        return 'location';
       case CommitmentType.online:
-        return 'Online';
+        return 'online';
       case CommitmentType.spending:
-        return 'Spending';
+        return 'spending';
     }
   }
 
@@ -66,11 +66,11 @@ extension SupportMessageTypeX on SupportMessageType {
   String get label {
     switch (this) {
       case SupportMessageType.encouragement:
-        return 'Encouragement';
+        return 'encouragement';
       case SupportMessageType.checkIn:
-        return 'Check-in';
+        return 'check-in';
       case SupportMessageType.callOffer:
-        return 'Call offer';
+        return 'call offer';
     }
   }
 

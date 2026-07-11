@@ -7,7 +7,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../core/theme/app_text.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 
 class PermissionsScreen extends StatefulWidget {
   const PermissionsScreen({super.key});
@@ -63,7 +67,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     if (mounted) {
       showAppSnackBar(
         context,
-        'Enable Usage Access for Accountability in system settings',
+        'enable usage access for lavender in system settings',
       );
     }
   }
@@ -79,27 +83,28 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Enable monitoring')),
-      body: Padding(
+      appBar: AppBar(title: const LowercaseText('enable monitoring')),
+      body: PaperBackground(
+        child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'To keep you accountable, we need a few permissions. Your friends are only alerted when a commitment is at risk.',
-              style: TextStyle(color: Colors.grey.shade700, fontSize: 15),
+            const LowercaseText(
+              'these let lavender quietly look out for you. your friends are only alerted when a goal is at risk.',
+              style: TextStyle(color: AppTheme.inkPlumSoft, fontSize: 15),
             ),
             if (!_canContinue) ...[
               const SizedBox(height: 16),
               const ErrorBanner(
-                message: 'Enable at least one permission for monitoring to work.',
+                message: 'enable at least one permission for monitoring to work.',
               ),
             ],
             const SizedBox(height: 24),
             _PermissionTile(
               icon: Icons.location_on_outlined,
-              title: 'Location access',
-              subtitle: 'Detect when you are near casinos or betting shops',
+              title: 'location access',
+              subtitle: 'detect when you are near casinos or betting shops',
               granted: _locationGranted,
               permanentlyDenied: _locationPermanentlyDenied,
               onRequest: _requestLocation,
@@ -108,8 +113,8 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
             const SizedBox(height: 16),
             _PermissionTile(
               icon: Icons.notifications_outlined,
-              title: 'Notifications',
-              subtitle: 'Receive support messages and send alerts to friends',
+              title: 'notifications',
+              subtitle: 'receive support messages and send alerts to friends',
               granted: _notificationGranted,
               onRequest: _requestNotifications,
               onOpenSettings: _openSettings,
@@ -118,8 +123,8 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
               const SizedBox(height: 16),
               _PermissionTile(
                 icon: Icons.phone_android_outlined,
-                title: 'App usage access',
-                subtitle: 'Detect when gambling apps are opened (Android)',
+                title: 'app usage access',
+                subtitle: 'detect when gambling apps are opened (android)',
                 granted: _usageStatsGranted,
                 onRequest: _requestUsageStats,
                 onOpenSettings: _openSettings,
@@ -128,14 +133,15 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
             const Spacer(),
             ElevatedButton(
               onPressed: _canContinue ? () => context.go('/home') : null,
-              child: const Text('Continue'),
+              child: const LowercaseText('continue'),
             ),
             if (!_canContinue)
               TextButton(
                 onPressed: () => context.go('/home'),
-                child: const Text('Skip for now'),
+                child: const LowercaseText('skip for now'),
               ),
           ],
+        ),
         ),
       ),
     );
@@ -168,26 +174,29 @@ class _PermissionTile extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(icon, color: Theme.of(context).colorScheme.primary),
+            Icon(icon, color: AppTheme.lavenderDeep),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-                  Text(subtitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                  LowercaseText(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  LowercaseText(
+                    subtitle,
+                    style: const TextStyle(color: AppTheme.inkPlumSoft, fontSize: 13),
+                  ),
                 ],
               ),
             ),
             if (granted)
-              const Icon(Icons.check_circle, color: Colors.green)
+              const WaxSealCheck(size: 26)
             else if (permanentlyDenied)
               TextButton(
                 onPressed: onOpenSettings,
-                child: const Text('Settings'),
+                child: const LowercaseText('settings'),
               )
             else
-              TextButton(onPressed: onRequest, child: const Text('Enable')),
+              TextButton(onPressed: onRequest, child: const LowercaseText('enable')),
           ],
         ),
       ),

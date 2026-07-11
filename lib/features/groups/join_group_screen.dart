@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_text.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 
 class JoinGroupScreen extends ConsumerStatefulWidget {
   const JoinGroupScreen({super.key});
@@ -37,11 +41,11 @@ class _JoinGroupScreenState extends ConsumerState<JoinGroupScreen> {
             userId: user.id,
           );
       if (mounted) {
-        showAppSnackBar(context, 'Joined group successfully');
+        showAppSnackBar(context, 'joined group successfully');
         context.pop();
       }
     } catch (e) {
-      setState(() => _error = 'Invalid invite code — ask your friend to share again.');
+      setState(() => _error = 'invalid invite code — ask your friend to share again.');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -50,21 +54,24 @@ class _JoinGroupScreenState extends ConsumerState<JoinGroupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Join group')),
-      body: Padding(
+      appBar: AppBar(title: const LowercaseText('join group')),
+      body: PaperBackground(
+        child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Enter the 6-character invite code shared by your friend.',
-              style: TextStyle(color: Colors.grey.shade700),
+            const TicketStub(),
+            const SizedBox(height: 20),
+            const LowercaseText(
+              'enter the 6-character invite code shared by your friend.',
+              style: TextStyle(color: AppTheme.inkPlumSoft),
             ),
             const SizedBox(height: 24),
             TextFormField(
               controller: _codeController,
               decoration: const InputDecoration(
-                labelText: 'Invite code',
+                labelText: 'invite code',
                 hintText: 'ABC123',
               ),
               textCapitalization: TextCapitalization.characters,
@@ -83,9 +90,10 @@ class _JoinGroupScreenState extends ConsumerState<JoinGroupScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Join group'),
+                  : const LowercaseText('join group'),
             ),
           ],
+        ),
         ),
       ),
     );

@@ -28,6 +28,10 @@ class MockAuthRepository implements AuthRepository {
       displayName: displayName,
       email: email,
       createdAt: DateTime.now(),
+      points: 1047,
+      currentStreak: 12,
+      bestStreak: 18,
+      lastCleanDate: DateTime.now().subtract(const Duration(days: 1)),
     );
     _controller.add(_currentUser);
     return _currentUser!;
@@ -43,6 +47,10 @@ class MockAuthRepository implements AuthRepository {
       displayName: email.split('@').first,
       email: email,
       createdAt: DateTime.now(),
+      points: 1047,
+      currentStreak: 12,
+      bestStreak: 18,
+      lastCleanDate: DateTime.now().subtract(const Duration(days: 1)),
     );
     _controller.add(_currentUser);
     return _currentUser!;

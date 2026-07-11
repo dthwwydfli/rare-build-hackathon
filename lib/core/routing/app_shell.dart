@@ -10,8 +10,9 @@ class AppShell extends StatelessWidget {
     final location = GoRouterState.of(context).matchedLocation;
     if (location.startsWith('/commitments')) return 1;
     if (location.startsWith('/groups')) return 2;
+    if (location.startsWith('/leaderboard')) return 3;
     if (location.startsWith('/support') || location.startsWith('/breach')) {
-      return 3;
+      return 4;
     }
     return 0;
   }
@@ -25,6 +26,8 @@ class AppShell extends StatelessWidget {
       case 2:
         context.go('/groups');
       case 3:
+        context.go('/leaderboard');
+      case 4:
         context.go('/support');
     }
   }
@@ -40,22 +43,27 @@ class AppShell extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            label: 'home',
           ),
           NavigationDestination(
             icon: Icon(Icons.flag_outlined),
             selectedIcon: Icon(Icons.flag),
-            label: 'Goals',
+            label: 'goals',
           ),
           NavigationDestination(
             icon: Icon(Icons.group_outlined),
             selectedIcon: Icon(Icons.group),
-            label: 'Groups',
+            label: 'groups',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.spa_outlined),
+            selectedIcon: Icon(Icons.spa),
+            label: 'circle',
           ),
           NavigationDestination(
             icon: Icon(Icons.inbox_outlined),
             selectedIcon: Icon(Icons.inbox),
-            label: 'Alerts',
+            label: 'alerts',
           ),
         ],
       ),

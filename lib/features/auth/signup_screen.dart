@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_text.dart';
 import '../../core/utils/auth_error_helper.dart';
 import '../../core/widgets/app_widgets.dart';
+import 'widgets/auth_shell.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -66,74 +68,70 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Create account')),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Display name'),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Enter your name' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Enter your email';
-                    if (!isValidEmail(v)) return 'Enter a valid email';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    helperText: 'At least 6 characters',
-                  ),
-                  obscureText: true,
-                  validator: (v) => v == null || v.length < 6
-                      ? 'Password must be at least 6 characters'
-                      : null,
-                ),
-                if (_error != null) ...[
-                  const SizedBox(height: 16),
-                  ErrorBanner(message: _error!),
-                ],
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _loading ? null : _signUp,
-                  child: _loading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Create account'),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: _loading ? null : _signUpWithGoogle,
-                  icon: const Icon(Icons.g_mobiledata, size: 28),
-                  label: const Text('Continue with Google'),
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () => context.go('/login'),
-                  child: const Text('Already have an account? Sign in'),
-                ),
-              ],
+    return AuthShell(
+      title: 'create account',
+      subtitle: 'your first day starts here',
+      teaserLine: 'reclaim days · collect milestones · walk with friends',
+      footer: TextButton(
+        onPressed: () => context.go('/login'),
+        child: const LowercaseText('already have an account? sign in'),
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'display name'),
+              validator: (v) =>
+                  v == null || v.isEmpty ? 'enter your name' : null,
             ),
-          ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: 'email'),
+              keyboardType: TextInputType.emailAddress,
+              validator: (v) {
+                if (v == null || v.isEmpty) return 'enter your email';
+                if (!isValidEmail(v)) return 'enter a valid email';
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _passwordController,
+              decoration: const InputDecoration(
+                labelText: 'password',
+                helperText: 'at least 6 characters',
+              ),
+              obscureText: true,
+              validator: (v) => v == null || v.length < 6
+                  ? 'password must be at least 6 characters'
+                  : null,
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 16),
+              ErrorBanner(message: _error!),
+            ],
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loading ? null : _signUp,
+              child: _loading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const LowercaseText('create account'),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _loading ? null : _signUpWithGoogle,
+              icon: const Icon(Icons.g_mobiledata, size: 28),
+              label: const LowercaseText('continue with google'),
+            ),
+          ],
         ),
       ),
     );
