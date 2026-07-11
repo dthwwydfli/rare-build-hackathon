@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,13 +23,26 @@ import '../../features/support/support_inbox_screen.dart';
 import '../notifications/notification_service.dart';
 import 'app_shell.dart';
 
+class _AuthRefreshNotifier extends ChangeNotifier {
+  void notify() => notifyListeners();
+}
+
+final _authRefreshNotifierProvider = Provider<_AuthRefreshNotifier>((ref) {
+  final notifier = _AuthRefreshNotifier();
+  ref.listen(currentUserProvider, (_, __) => notifier.notify());
+  ref.onDispose(notifier.dispose);
+  return notifier;
+});
+
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(currentUserProvider);
+  final authRefresh = ref.watch(_authRefreshNotifierProvider);
 
   return GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: '/onboarding',
+    refreshListenable: authRefresh,
     redirect: (context, state) async {
+      final authState = ref.read(currentUserProvider);
       final isLoading = authState.isLoading;
       final user = authState.valueOrNull;
       final location = state.matchedLocation;

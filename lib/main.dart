@@ -63,7 +63,10 @@ class _LavenderAppState extends ConsumerState<LavenderApp> {
             child: LoadingView(message: 'loading...'),
           );
         }
-        return child ?? const SizedBox.shrink();
+        return child ??
+            const Material(
+              child: LoadingView(message: 'loading...'),
+            );
       },
     );
   }
