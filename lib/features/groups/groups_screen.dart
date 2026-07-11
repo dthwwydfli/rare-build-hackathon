@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/providers/repository_providers.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/friend_group.dart';
 
 class GroupsScreen extends ConsumerWidget {
@@ -22,7 +23,8 @@ class GroupsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const LowercaseText('groups')),
-      body: groupsAsync.when(
+      body: PaperBackground(
+        child: groupsAsync.when(
         data: (groups) {
           if (groups.isEmpty) {
             return EmptyState(
@@ -53,62 +55,43 @@ class GroupsScreen extends ConsumerWidget {
                   ?.where((e) => e.userId == user.id)
                   .map((e) => e.rank)
                   .firstOrNull;
-              return AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.group),
-                      title: Text(group.name),
-                      subtitle: LowercaseText(
-                        '${group.memberIds.length} members${rank != null ? ' · your rank #$rank' : ''}',
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.group_outlined,
+                            color: AppTheme.lavenderDeep),
+                        title: Text(group.name),
+                        subtitle: LowercaseText(
+                          '${group.memberIds.length} walking together${rank != null ? ' · you\'re #$rank' : ''}',
+                          style:
+                              const TextStyle(color: AppTheme.inkPlumSoft),
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: AppTheme.lavenderLight,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                'invite code: ${group.inviteCode}',
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.copy),
-                            onPressed: () {
-                              Clipboard.setData(
-                                ClipboardData(text: group.inviteCode),
-                              );
-                              showAppSnackBar(context, 'code copied');
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.share_outlined),
-                            onPressed: () {
-                              final shareText =
-                                  'Join my lavender group "${group.name}" with code: ${group.inviteCode}';
-                              Clipboard.setData(ClipboardData(text: shareText));
-                              showAppSnackBar(
-                                context,
-                                'invite message copied — paste in messages or whatsapp',
-                              );
-                            },
-                          ),
-                        ],
+                      TicketStub(
+                        code: group.inviteCode,
+                        onCopy: () {
+                          Clipboard.setData(
+                            ClipboardData(text: group.inviteCode),
+                          );
+                          showAppSnackBar(context, 'code copied');
+                        },
+                        onShare: () {
+                          final shareText =
+                              'Join my lavender group "${group.name}" with code: ${group.inviteCode}';
+                          Clipboard.setData(ClipboardData(text: shareText));
+                          showAppSnackBar(
+                            context,
+                            'invite message copied — paste in messages or whatsapp',
+                          );
+                        },
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
@@ -117,6 +100,7 @@ class GroupsScreen extends ConsumerWidget {
         loading: () => const LoadingView(),
         error: (e, _) => const Center(
           child: ErrorBanner(message: 'could not load groups'),
+        ),
         ),
       ),
       floatingActionButton: Column(

@@ -70,8 +70,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   Widget build(BuildContext context) {
     return AuthShell(
       title: 'create account',
-      subtitle: 'new players start at 1000 points',
-      teaserLine: 'join leaderboards · build streaks · earn your rank',
+      subtitle: 'your first day starts here',
+      teaserLine: 'reclaim days · collect milestones · walk with friends',
       footer: TextButton(
         onPressed: () => context.go('/login'),
         child: const LowercaseText('already have an account? sign in'),

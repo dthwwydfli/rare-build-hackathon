@@ -11,7 +11,7 @@ class AuthShell extends StatelessWidget {
     required this.child,
     this.subtitle,
     this.footer,
-    this.teaserLine = 'start at 1000 points · keep your streaks alive',
+    this.teaserLine = 'start with 1000 points · every day counts',
   });
 
   final String title;
@@ -45,7 +45,7 @@ class AuthShell extends StatelessWidget {
                               title,
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    color: AppTheme.lavender,
+                                    color: AppTheme.lavenderDeep,
                                   ),
                               textAlign: TextAlign.center,
                             ),
@@ -86,10 +86,10 @@ class _AuthHeader extends StatelessWidget {
         const OrnamentalDivider(width: 80),
         const SizedBox(height: 8),
         LowercaseText(
-          subtitle ?? 'earn points. keep streaks.',
+          subtitle ?? 'one day at a time, together.',
           textAlign: TextAlign.center,
           style: const TextStyle(
-            color: AppTheme.lavenderDark,
+            color: AppTheme.inkPlumSoft,
             fontSize: 14,
           ),
         ),
@@ -115,9 +115,9 @@ class AuthTeaser extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.emoji_events_outlined, size: 18, color: AppTheme.granola),
+          const Icon(Icons.spa_outlined, size: 18, color: AppTheme.sageDeep),
           const SizedBox(width: 8),
-          const Icon(Icons.local_fire_department, size: 18, color: AppTheme.granolaDark),
+          const Icon(Icons.favorite_outline, size: 18, color: AppTheme.terracotta),
           const SizedBox(width: 8),
           Flexible(
             child: LowercaseText(
@@ -126,7 +126,7 @@ class AuthTeaser extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: AppTheme.granolaDark,
+                color: AppTheme.sageDeep,
               ),
             ),
           ),

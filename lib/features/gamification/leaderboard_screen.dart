@@ -5,6 +5,7 @@ import '../../core/providers/repository_providers.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/friend_group.dart';
 import '../../domain/models/leaderboard_entry.dart';
 
@@ -27,38 +28,41 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     final groupsAsync = ref.watch(_groupsProvider(user.id));
 
     return Scaffold(
-      appBar: AppBar(title: const LowercaseText('rank')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: false, label: LowercaseText('my groups')),
-                ButtonSegment(value: true, label: LowercaseText('global')),
-              ],
-              selected: {_global},
-              onSelectionChanged: (s) => setState(() => _global = s.first),
+      appBar: AppBar(title: const LowercaseText('your circle')),
+      body: PaperBackground(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: SegmentedButton<bool>(
+                segments: const [
+                  ButtonSegment(
+                      value: false, label: LowercaseText('my groups')),
+                  ButtonSegment(value: true, label: LowercaseText('everyone')),
+                ],
+                selected: {_global},
+                onSelectionChanged: (s) => setState(() => _global = s.first),
+              ),
             ),
-          ),
-          Expanded(
-            child: _global
-                ? _GlobalLeaderboard(currentUserId: user.id)
-                : groupsAsync.when(
-                    data: (groups) => _GroupLeaderboard(
-                      groups: groups,
-                      currentUserId: user.id,
-                      selectedGroupId: _selectedGroupId,
-                      onGroupSelected: (id) =>
-                          setState(() => _selectedGroupId = id),
+            Expanded(
+              child: _global
+                  ? _GlobalLeaderboard(currentUserId: user.id)
+                  : groupsAsync.when(
+                      data: (groups) => _GroupLeaderboard(
+                        groups: groups,
+                        currentUserId: user.id,
+                        selectedGroupId: _selectedGroupId,
+                        onGroupSelected: (id) =>
+                            setState(() => _selectedGroupId = id),
+                      ),
+                      loading: () => const LoadingView(),
+                      error: (_, __) => const ErrorBanner(
+                        message: 'could not load groups',
+                      ),
                     ),
-                    loading: () => const LoadingView(),
-                    error: (_, __) => const ErrorBanner(
-                      message: 'could not load groups',
-                    ),
-                  ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -77,8 +81,8 @@ class _GlobalLeaderboard extends ConsumerWidget {
       data: (entries) {
         if (entries.isEmpty) {
           return const EmptyState(
-            title: 'no rankings yet',
-            subtitle: 'be among the first ranked',
+            title: 'no one here yet',
+            subtitle: 'every journey starts with one person',
           );
         }
         final myEntry = entries.where((e) => e.userId == currentUserId).firstOrNull;
@@ -117,7 +121,7 @@ class _GroupLeaderboard extends ConsumerWidget {
     if (groups.isEmpty) {
       return const EmptyState(
         title: 'no groups yet',
-        subtitle: 'join a group to compete with friends',
+        subtitle: 'join a group to walk together',
       );
     }
 
@@ -129,7 +133,7 @@ class _GroupLeaderboard extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: DropdownButtonFormField<String>(
-            value: groupId,
+            initialValue: groupId,
             decoration: const InputDecoration(labelText: 'group'),
             items: groups
                 .map((g) => DropdownMenuItem(value: g.id, child: Text(g.name)))
@@ -144,8 +148,8 @@ class _GroupLeaderboard extends ConsumerWidget {
             data: (entries) {
               if (entries.length <= 1) {
                 return const EmptyState(
-                  title: 'invite friends to compete',
-                  subtitle: 'leaderboards need at least two members',
+                  title: 'invite friends to walk together',
+                  subtitle: 'your circle needs at least two people',
                 );
               }
               final myEntry =
@@ -196,42 +200,52 @@ class _LeaderboardList extends StatelessWidget {
       itemBuilder: (context, index) {
         final entry = entries[index];
         final isMe = entry.userId == highlightUserId;
-        return AppCard(
-          color: isMe ? AppTheme.lavenderLight : null,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            children: [
-              RankBadge(rank: entry.rank),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      entry.displayName,
-                      style: TextStyle(
-                        fontWeight: isMe ? FontWeight.bold : FontWeight.w500,
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: AppCard(
+            color: isMe ? AppTheme.lavenderLight : null,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                RankBadge(rank: entry.rank),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        entry.displayName,
+                        style: TextStyle(
+                          fontWeight: isMe ? FontWeight.bold : FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    LowercaseText(
-                      '${pointsTierLabel(entry.points)} · ${entry.currentStreak} day streak',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.granolaDark.withValues(alpha: 0.7),
+                      Row(
+                        children: [
+                          const Icon(Icons.spa_outlined,
+                              size: 13, color: AppTheme.sageDeep),
+                          const SizedBox(width: 4),
+                          LowercaseText(
+                            '${entry.currentStreak} days reclaimed · ${softTierLabel(entry.points)}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.inkPlumSoft,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Text(
-                '${entry.points}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: AppTheme.granola,
+                Text(
+                  '${entry.points}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: AppTheme.inkPlumSoft,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -251,14 +265,14 @@ class _YourRankFooter extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
-        color: AppTheme.granola,
+        color: AppTheme.inkPlum,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: LowercaseText(
-        'you\'re #$rank of $total',
+        'walking with ${total - 1} ${total - 1 == 1 ? 'friend' : 'friends'} · #$rank',
         textAlign: TextAlign.center,
         style: const TextStyle(
-          color: AppTheme.white,
+          color: AppTheme.paperSurface,
           fontWeight: FontWeight.w600,
         ),
       ),

@@ -18,7 +18,7 @@ void main() {
     expect(find.text('continue with google'), findsOneWidget);
     expect(find.text('create an account'), findsOneWidget);
     expect(find.text('lavender'), findsOneWidget);
-    expect(find.text('start at 1000 points · keep your streaks alive'), findsOneWidget);
+    expect(find.text('start with 1000 points · every day counts'), findsOneWidget);
     expect(find.byType(AuthShell), findsOneWidget);
     expect(find.byType(AppBar), findsNothing);
     expect(find.byIcon(Icons.shield_outlined), findsNothing);

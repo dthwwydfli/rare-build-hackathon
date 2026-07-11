@@ -10,6 +10,8 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 
 class PermissionsScreen extends StatefulWidget {
   const PermissionsScreen({super.key});
@@ -82,14 +84,15 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const LowercaseText('enable monitoring')),
-      body: Padding(
+      body: PaperBackground(
+        child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            LowercaseText(
-              'to keep you accountable, we need a few permissions. your friends are only alerted when a goal is at risk.',
-              style: TextStyle(color: AppTheme.granolaDark.withValues(alpha: 0.8), fontSize: 15),
+            const LowercaseText(
+              'these let lavender quietly look out for you. your friends are only alerted when a goal is at risk.',
+              style: TextStyle(color: AppTheme.inkPlumSoft, fontSize: 15),
             ),
             if (!_canContinue) ...[
               const SizedBox(height: 16),
@@ -139,6 +142,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
               ),
           ],
         ),
+        ),
       ),
     );
   }
@@ -170,7 +174,7 @@ class _PermissionTile extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(icon, color: Theme.of(context).colorScheme.primary),
+            Icon(icon, color: AppTheme.lavenderDeep),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -179,13 +183,13 @@ class _PermissionTile extends StatelessWidget {
                   LowercaseText(title, style: const TextStyle(fontWeight: FontWeight.w600)),
                   LowercaseText(
                     subtitle,
-                    style: TextStyle(color: AppTheme.granolaDark.withValues(alpha: 0.7), fontSize: 13),
+                    style: const TextStyle(color: AppTheme.inkPlumSoft, fontSize: 13),
                   ),
                 ],
               ),
             ),
             if (granted)
-              const Icon(Icons.check_circle, color: AppTheme.lavender)
+              const WaxSealCheck(size: 26)
             else if (permanentlyDenied)
               TextButton(
                 onPressed: onOpenSettings,

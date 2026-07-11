@@ -6,6 +6,8 @@ import '../../core/providers/repository_providers.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 
 class JoinGroupScreen extends ConsumerStatefulWidget {
   const JoinGroupScreen({super.key});
@@ -53,14 +55,17 @@ class _JoinGroupScreenState extends ConsumerState<JoinGroupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const LowercaseText('join group')),
-      body: Padding(
+      body: PaperBackground(
+        child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            LowercaseText(
+            const TicketStub(),
+            const SizedBox(height: 20),
+            const LowercaseText(
               'enter the 6-character invite code shared by your friend.',
-              style: TextStyle(color: AppTheme.granolaDark.withValues(alpha: 0.8)),
+              style: TextStyle(color: AppTheme.inkPlumSoft),
             ),
             const SizedBox(height: 24),
             TextFormField(
@@ -88,6 +93,7 @@ class _JoinGroupScreenState extends ConsumerState<JoinGroupScreen> {
                   : const LowercaseText('join group'),
             ),
           ],
+        ),
         ),
       ),
     );

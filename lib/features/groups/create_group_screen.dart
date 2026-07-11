@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_motion.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 
 class CreateGroupScreen extends ConsumerStatefulWidget {
   const CreateGroupScreen({super.key});
@@ -52,13 +54,15 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
             children: [
               const LowercaseText('share this invite code with friends:'),
               const SizedBox(height: 12),
-              SelectableText(
-                group.inviteCode,
-                style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 4,
-                ),
+              SizedBox(
+                width: 300,
+                child: TicketStub(
+                  code: group.inviteCode,
+                  onCopy: () {
+                    Clipboard.setData(ClipboardData(text: group.inviteCode));
+                    showAppSnackBar(context, 'code copied');
+                  },
+                ).stampIn(context),
               ),
             ],
           ),
@@ -89,7 +93,8 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const LowercaseText('create group')),
-      body: Padding(
+      body: PaperBackground(
+        child: Padding(
         padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,
@@ -122,6 +127,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

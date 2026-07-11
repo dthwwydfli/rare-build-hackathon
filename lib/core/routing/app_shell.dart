@@ -56,9 +56,9 @@ class AppShell extends StatelessWidget {
             label: 'groups',
           ),
           NavigationDestination(
-            icon: Icon(Icons.emoji_events_outlined),
-            selectedIcon: Icon(Icons.emoji_events),
-            label: 'rank',
+            icon: Icon(Icons.spa_outlined),
+            selectedIcon: Icon(Icons.spa),
+            label: 'circle',
           ),
           NavigationDestination(
             icon: Icon(Icons.inbox_outlined),
