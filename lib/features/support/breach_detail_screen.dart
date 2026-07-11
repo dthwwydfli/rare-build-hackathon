@@ -4,10 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_motion.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/milestone_tracker.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/breach_event.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/support_message.dart';
@@ -69,12 +72,26 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
 
       if (mounted) {
         final showFirst = await MilestoneTracker.shouldShow('first_support');
+        if (!mounted) return;
         if (showFirst) {
           await MilestoneTracker.markSeen('first_support');
-          showAppSnackBar(context, '+5 points for being a good friend');
-        } else {
-          showAppSnackBar(context, '+5 points — support sent');
         }
+        if (!mounted) return;
+        // A quiet seal moment before returning — one-shot, calm.
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: true,
+          builder: (dialogContext) {
+            Future.delayed(const Duration(milliseconds: 900), () {
+              if (dialogContext.mounted) Navigator.pop(dialogContext);
+            });
+            return Center(
+              child: const WaxSealCheck(size: 72).sealIn(dialogContext),
+            );
+          },
+        );
+        if (!mounted) return;
+        showAppSnackBar(context, '+5 — thanks for showing up');
         context.pop();
       }
     } catch (e) {
@@ -92,7 +109,8 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const LowercaseText('send support')),
-      body: breachesAsync.when(
+      body: PaperBackground(
+        child: breachesAsync.when(
         data: (breaches) {
           BreachEvent? breach;
           for (final b in breaches) {
@@ -111,56 +129,61 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
           return ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              Card(
-                color: AppTheme.danger.withValues(alpha: 0.12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        breach.userName ?? 'friend',
-                        style: Theme.of(context).textTheme.titleLarge,
+              TactileCard(
+                useStitch: true,
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    LowercaseText(
+                      '${breach.userName ?? 'a friend'} hit a rough moment',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    LowercaseText(
+                      '${softSignal(breach.signalType)} · ${_formatTime(breach.createdAt)}',
+                      style: const TextStyle(color: AppTheme.inkPlumSoft),
+                    ),
+                    const SizedBox(height: 12),
+                    const LowercaseText(
+                      'showing up now is what this app is for.',
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        color: AppTheme.lavenderDeep,
+                        fontWeight: FontWeight.w500,
                       ),
-                      const SizedBox(height: 8),
-                      Text(breach.summary),
-                      const SizedBox(height: 4),
-                      LowercaseText(
-                        '${breach.signalType.label} · ${_formatTime(breach.createdAt)}',
-                        style: TextStyle(color: AppTheme.granolaDark.withValues(alpha: 0.8)),
-                      ),
-                      breacherStatsAsync.when(
-                        data: (stats) => Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: Row(
-                            children: [
-                              StatChip(
-                                icon: Icons.emoji_events_outlined,
-                                label: 'points',
-                                value: '${stats.points}',
-                              ),
-                              const SizedBox(width: 8),
-                              StreakFlame(streak: stats.currentStreak),
-                            ],
+                    ),
+                    breacherStatsAsync.when(
+                      data: (stats) => Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: LowercaseText(
+                          '${stats.bestStreak} days reclaimed so far — that doesn\'t go away.',
+                          style: const TextStyle(
+                            color: AppTheme.sageDeep,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        loading: () => const SizedBox.shrink(),
-                        error: (_, __) => const SizedBox.shrink(),
                       ),
-                    ],
-                  ),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),
-              const LowercaseText('quick messages', style: TextStyle(fontWeight: FontWeight.w600)),
+              const LowercaseText('quick notes',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: _presetMessages.map((preset) {
-                  return ActionChip(
-                    label: Text(preset.$1, style: const TextStyle(fontSize: 12)),
-                    onPressed: () {
+                  final selected = _messageController.text == preset.$1;
+                  return PatchChip(
+                    label: preset.$1,
+                    selected: selected,
+                    tilted: true,
+                    onTap: () {
                       setState(() {
                         _messageController.text = preset.$1;
                         _selectedType = preset.$2;
@@ -177,34 +200,27 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
                   hintText: 'write something supportive...',
                 ),
                 maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<SupportMessageType>(
-                value: _selectedType,
-                decoration: const InputDecoration(labelText: 'message type'),
-                items: SupportMessageType.values
-                    .map((t) => DropdownMenuItem(value: t, child: LowercaseText(t.label)))
-                    .toList(),
-                onChanged: (v) {
-                  if (v != null) setState(() => _selectedType = v);
-                },
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 32),
-              ElevatedButton(
+              ElevatedButton.icon(
                 onPressed: _sending ? null : () => _sendSupport(breach!),
-                child: _sending
+                icon: _sending
                     ? const SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const LowercaseText('send support'),
+                    : const Icon(Icons.favorite, size: 18),
+                label: const LowercaseText('send support'),
               ),
             ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => const Center(child: ErrorBanner(message: 'could not load breach')),
+        error: (e, _) =>
+            const Center(child: ErrorBanner(message: 'could not load breach')),
+        ),
       ),
     );
   }

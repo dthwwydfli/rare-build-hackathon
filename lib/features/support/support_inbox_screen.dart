@@ -7,6 +7,8 @@ import '../../core/providers/repository_providers.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/breach_event.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/friend_group.dart';
@@ -23,7 +25,8 @@ class SupportInboxScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const LowercaseText('alerts')),
-      body: RefreshIndicator(
+      body: PaperBackground(
+        child: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(_groupsProvider(user.id));
         },
@@ -34,8 +37,8 @@ class SupportInboxScreen extends ConsumerWidget {
                 children: const [
                   SizedBox(height: 120),
                   EmptyState(
-                    title: 'no groups',
-                    subtitle: 'join a friend group to see breach alerts',
+                    title: 'no groups yet',
+                    subtitle: 'join a friend group to be there for each other',
                   ),
                 ],
               );
@@ -60,6 +63,7 @@ class SupportInboxScreen extends ConsumerWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );
@@ -101,43 +105,48 @@ class _GroupBreachesSection extends ConsumerWidget {
                 .take(10)
                 .toList();
             if (relevant.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
+              return const Padding(
+                padding: EdgeInsets.only(bottom: 16),
                 child: LowercaseText(
-                  'no alerts from group members',
-                  style: TextStyle(color: AppTheme.granolaDark.withValues(alpha: 0.7)),
+                  'all quiet — everyone\'s doing okay',
+                  style: TextStyle(color: AppTheme.inkPlumSoft),
                 ),
               );
             }
             return Column(
               children: relevant.map((breach) {
-                return AppCard(
-                  onTap: () => context.push(
-                    '/breach/${breach.id}?groupId=${group.id}',
-                  ),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: AppTheme.danger.withValues(alpha: 0.15),
-                      child: Icon(
-                        _iconForSignal(breach.signalType),
-                        color: AppTheme.danger,
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: AppCard(
+                    onTap: () => context.push(
+                      '/breach/${breach.id}?groupId=${group.id}',
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: AppTheme.lavenderLight,
+                        child: Icon(
+                          _iconForSignal(breach.signalType),
+                          color: AppTheme.lavenderDeep,
+                        ),
                       ),
-                    ),
-                    title: Text(
-                      breach.userName ?? 'group member',
-                      style: TextStyle(
-                        fontWeight: breach.acknowledged
-                            ? FontWeight.normal
-                            : FontWeight.bold,
+                      title: Text(
+                        breach.userName ?? 'group member',
+                        style: TextStyle(
+                          fontWeight: breach.acknowledged
+                              ? FontWeight.normal
+                              : FontWeight.bold,
+                        ),
                       ),
+                      subtitle: LowercaseText(
+                        '${softSignal(breach.signalType)} · ${_formatTime(breach.createdAt)}',
+                        style: const TextStyle(color: AppTheme.inkPlumSoft),
+                      ),
+                      trailing: breach.acknowledged
+                          ? const WaxSealCheck(size: 22)
+                          : const Icon(Icons.fiber_manual_record,
+                              color: AppTheme.terracotta, size: 12),
                     ),
-                    subtitle: LowercaseText(
-                      '${breach.summary} · ${_formatTime(breach.createdAt)}',
-                    ),
-                    trailing: breach.acknowledged
-                        ? const Icon(Icons.check, color: AppTheme.lavender)
-                        : const Icon(Icons.fiber_manual_record,
-                            color: AppTheme.danger, size: 12),
                   ),
                 );
               }).toList(),
@@ -177,6 +186,6 @@ IconData _iconForSignal(BreachSignalType type) {
     case BreachSignalType.payment:
       return Icons.payments;
     case BreachSignalType.manual:
-      return Icons.warning_amber;
+      return Icons.waving_hand;
   }
 }

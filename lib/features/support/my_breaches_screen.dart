@@ -6,6 +6,8 @@ import '../../core/providers/repository_providers.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/breach_event.dart';
 import '../../domain/models/enums.dart';
 
@@ -20,41 +22,81 @@ class MyBreachesScreen extends ConsumerWidget {
     final breachesAsync = ref.watch(_myBreachesProvider(user.id));
 
     return Scaffold(
-      appBar: AppBar(title: const LowercaseText('my breach history')),
-      body: breachesAsync.when(
-        data: (breaches) {
-          if (breaches.isEmpty) {
-            return const EmptyState(
-              title: 'no breaches recorded',
-              subtitle: 'when detection triggers, your history appears here',
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: breaches.length,
-            itemBuilder: (context, index) {
-              final breach = breaches[index];
-              return AppCard(
-                child: ListTile(
-                  leading: Icon(
-                    _iconForSignal(breach.signalType),
-                    color: AppTheme.danger,
-                  ),
-                  title: Text(breach.summary),
-                  subtitle: LowercaseText(
-                    '${breach.signalType.label} · ${_formatTime(breach.createdAt)}',
-                  ),
-                  trailing: breach.acknowledged
-                      ? const Icon(Icons.check, color: AppTheme.lavender, size: 20)
-                      : null,
-                ),
+      appBar: AppBar(title: const LowercaseText('my moments')),
+      body: PaperBackground(
+        child: breachesAsync.when(
+          data: (breaches) {
+            if (breaches.isEmpty) {
+              return const EmptyState(
+                title: 'nothing here — keep going',
+                subtitle: 'if a rough moment happens, it shows up here '
+                    'so your friends can catch you',
               );
-            },
-          );
-        },
-        loading: () => const LoadingView(),
-        error: (e, _) => const Center(
-          child: ErrorBanner(message: 'could not load breach history'),
+            }
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: breaches.length,
+                    itemBuilder: (context, index) {
+                      final breach = breaches[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: AppCard(
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: Icon(
+                              _iconForSignal(breach.signalType),
+                              color: AppTheme.inkPlumSoft,
+                            ),
+                            title: LowercaseText(
+                                softSignal(breach.signalType)),
+                            subtitle: LowercaseText(
+                              _formatTime(breach.createdAt),
+                              style: const TextStyle(
+                                  color: AppTheme.inkPlumSoft),
+                            ),
+                            trailing: breach.acknowledged
+                                ? const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      LowercaseText(
+                                        'friends responded',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.lavenderDeep,
+                                        ),
+                                      ),
+                                      SizedBox(width: 6),
+                                      WaxSealCheck(size: 20),
+                                    ],
+                                  )
+                                : null,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(24, 8, 24, 20),
+                  child: LowercaseText(
+                    'a hard moment doesn\'t erase your progress.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      color: AppTheme.inkPlumSoft,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+          loading: () => const LoadingView(),
+          error: (e, _) => const Center(
+            child: ErrorBanner(message: 'could not load breach history'),
+          ),
         ),
       ),
     );
@@ -84,6 +126,6 @@ IconData _iconForSignal(BreachSignalType type) {
     case BreachSignalType.payment:
       return Icons.payments;
     case BreachSignalType.manual:
-      return Icons.warning_amber;
+      return Icons.waving_hand;
   }
 }

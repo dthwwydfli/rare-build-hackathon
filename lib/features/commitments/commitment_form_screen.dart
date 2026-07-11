@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/providers/repository_providers.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../../core/widgets/craft_widgets.dart';
+import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/commitment.dart';
 import '../../domain/models/enums.dart';
 
@@ -109,7 +111,8 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
               ),
             );
         if (mounted) {
-          showAppSnackBar(context, 'goal created — detection is now active');
+          showAppSnackBar(
+              context, 'signed & sealed — we\'re watching out for you');
           context.pop();
         }
       }
@@ -140,11 +143,21 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
       appBar: AppBar(
         title: LowercaseText(widget.isEditing ? 'edit goal' : 'new goal'),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
+      body: PaperBackground(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              ContractCard(
+                title: widget.isEditing
+                    ? 'your commitment'
+                    : 'a commitment to yourself',
+                signedBy: user?.displayName,
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
             TextFormField(
               controller: _titleController,
               decoration: const InputDecoration(
@@ -210,18 +223,24 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
                 },
               ),
             ],
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _loading ? null : _save,
-              child: _loading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : LowercaseText(widget.isEditing ? 'update goal' : 'save goal'),
-            ),
-          ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: _loading ? null : _save,
+                icon: _loading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.draw_outlined, size: 20),
+                label: LowercaseText(
+                    widget.isEditing ? 'update goal' : 'sign it'),
+              ),
+            ],
+          ),
         ),
       ),
     );
