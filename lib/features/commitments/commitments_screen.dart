@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_text.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../domain/models/commitment.dart';
 import '../../domain/models/enums.dart';
@@ -16,18 +17,20 @@ class CommitmentsScreen extends ConsumerWidget {
     if (user == null) return const Scaffold(body: LoadingView());
 
     final commitmentsAsync = ref.watch(_commitmentsProvider(user.id));
+    final statsAsync = ref.watch(userStatsProvider(user.id));
+    final streak = statsAsync.valueOrNull?.currentStreak ?? 0;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Commitments')),
+      appBar: AppBar(title: const LowercaseText('goals')),
       body: commitmentsAsync.when(
         data: (commitments) {
           if (commitments.isEmpty) {
             return EmptyState(
-              title: 'No commitments',
-              subtitle: 'Set goals to avoid gambling triggers',
+              title: 'no goals yet',
+              subtitle: 'set goals to avoid gambling triggers',
               action: ElevatedButton(
                 onPressed: () => context.push('/commitments/new'),
-                child: const Text('Create commitment'),
+                child: const LowercaseText('create goal'),
               ),
             );
           }
@@ -40,7 +43,15 @@ class CommitmentsScreen extends ConsumerWidget {
                 child: ListTile(
                   leading: Icon(_iconForType(c.type)),
                   title: Text(c.title),
-                  subtitle: Text('${c.type.label} · ${c.active ? "Active" : "Paused"}'),
+                  subtitle: Row(
+                    children: [
+                      LowercaseText('${c.type.label} · ${c.active ? "active" : "paused"}'),
+                      if (c.active && streak > 0) ...[
+                        const SizedBox(width: 8),
+                        StreakFlame(streak: streak),
+                      ],
+                    ],
+                  ),
                   onTap: () => context.push('/commitments/${c.id}/edit'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -64,10 +75,7 @@ class CommitmentsScreen extends ConsumerWidget {
                                 );
                           } catch (e) {
                             if (context.mounted) {
-                              showAppSnackBar(
-                                context,
-                                'Could not update commitment',
-                              );
+                              showAppSnackBar(context, 'could not update goal');
                             }
                           }
                         },
@@ -77,9 +85,9 @@ class CommitmentsScreen extends ConsumerWidget {
                         onPressed: () async {
                           final confirmed = await showConfirmDialog(
                             context,
-                            title: 'Delete commitment',
-                            message: 'Delete "${c.title}"? This cannot be undone.',
-                            confirmLabel: 'Delete',
+                            title: 'delete goal',
+                            message: 'delete "${c.title}"? this cannot be undone.',
+                            confirmLabel: 'delete',
                           );
                           if (!confirmed || !context.mounted) return;
                           try {
@@ -87,14 +95,11 @@ class CommitmentsScreen extends ConsumerWidget {
                                 .read(commitmentRepositoryProvider)
                                 .deleteCommitment(c.id);
                             if (context.mounted) {
-                              showAppSnackBar(context, 'Commitment deleted');
+                              showAppSnackBar(context, 'goal deleted');
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              showAppSnackBar(
-                                context,
-                                'Could not delete commitment',
-                              );
+                              showAppSnackBar(context, 'could not delete goal');
                             }
                           }
                         },
@@ -107,7 +112,7 @@ class CommitmentsScreen extends ConsumerWidget {
           );
         },
         loading: () => const LoadingView(),
-        error: (e, _) => Center(child: ErrorBanner(message: 'Could not load commitments')),
+        error: (e, _) => const Center(child: ErrorBanner(message: 'could not load goals')),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/commitments/new'),
