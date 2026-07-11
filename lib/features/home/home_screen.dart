@@ -9,6 +9,8 @@ import '../../domain/models/commitment.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/friend_group.dart';
 import '../../domain/models/support_message.dart';
+import '../../services/detection/detection_coordinator.dart';
+import '../../services/reminders/positive_reminder_service.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -48,6 +50,10 @@ class HomeScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            _PositiveReminderCard(),
+            const SizedBox(height: 16),
+            _FlagForSupportCard(),
+            const SizedBox(height: 16),
             _QuickActions(),
             const SizedBox(height: 16),
             commitmentsAsync.when(
@@ -162,33 +168,155 @@ final _userSupportProvider =
   return ref.watch(breachRepositoryProvider).watchSupportForUser(userId);
 });
 
+class _PositiveReminderCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final message = ref.watch(currentPositiveReminderProvider);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.primary.withValues(alpha: 0.9),
+            AppTheme.secondary,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.wb_sunny_outlined, color: Colors.white),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Positive reminder',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  message,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.95),
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FlagForSupportCard extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_FlagForSupportCard> createState() =>
+      _FlagForSupportCardState();
+}
+
+class _FlagForSupportCardState extends ConsumerState<_FlagForSupportCard> {
+  bool _loading = false;
+
+  Future<void> _flagForSupport() async {
+    setState(() => _loading = true);
+    try {
+      await ref.read(detectionCoordinatorProvider).emitManualBreach(
+            signalType: BreachSignalType.manual,
+            metadata: {
+              'note': 'Flagged for support — reaching out to my circle',
+              'selfFlagged': true,
+            },
+          );
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          'Support circle flagged — friends will be alerted',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        showAppSnackBar(context, '$e');
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: AppTheme.danger.withValues(alpha: 0.12),
+          child: const Icon(Icons.flag, color: AppTheme.danger),
+        ),
+        title: const Text('Flag for support'),
+        subtitle: const Text(
+          'Struggling right now? Alert your friends without waiting for detection.',
+        ),
+        trailing: _loading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : FilledButton(
+                onPressed: _flagForSupport,
+                style: FilledButton.styleFrom(backgroundColor: AppTheme.danger),
+                child: const Text('Flag'),
+              ),
+      ),
+    );
+  }
+}
+
 class _QuickActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _ActionCard(
-            icon: Icons.flag_outlined,
-            label: 'Commitments',
-            onTap: () => context.push('/commitments'),
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionCard(
+                icon: Icons.flag_outlined,
+                label: 'Commitments',
+                onTap: () => context.push('/commitments'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ActionCard(
+                icon: Icons.group_outlined,
+                label: 'Groups',
+                onTap: () => context.push('/groups'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ActionCard(
+                icon: Icons.inbox_outlined,
+                label: 'Alerts',
+                onTap: () => context.push('/support'),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _ActionCard(
-            icon: Icons.group_outlined,
-            label: 'Groups',
-            onTap: () => context.push('/groups'),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _ActionCard(
-            icon: Icons.inbox_outlined,
-            label: 'Alerts',
-            onTap: () => context.push('/support'),
-          ),
+        const SizedBox(height: 12),
+        _ActionCard(
+          icon: Icons.person_search_outlined,
+          label: 'Find people on the app',
+          onTap: () => context.push('/people/find'),
         ),
       ],
     );

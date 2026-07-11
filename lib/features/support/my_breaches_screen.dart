@@ -45,9 +45,11 @@ class MyBreachesScreen extends ConsumerWidget {
                   subtitle: Text(
                     '${breach.signalType.label} · ${_formatTime(breach.createdAt)}',
                   ),
-                  trailing: breach.acknowledged
-                      ? const Icon(Icons.check, color: Colors.green, size: 20)
-                      : null,
+                  trailing: breach.flagged
+                      ? const Icon(Icons.flag, color: AppTheme.danger, size: 20)
+                      : breach.acknowledged
+                          ? const Icon(Icons.check, color: Colors.green, size: 20)
+                          : null,
                 ),
               );
             },

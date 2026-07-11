@@ -48,6 +48,7 @@ class FirestoreBreachRepository implements BreachRepository {
       metadata: event.metadata,
       severity: event.severity,
       createdAt: DateTime.now(),
+      flagged: event.flagged,
       acknowledged: event.acknowledged,
       userName: event.userName,
     );
@@ -57,7 +58,15 @@ class FirestoreBreachRepository implements BreachRepository {
 
   @override
   Future<void> acknowledgeBreach(String eventId) {
-    return _breaches.doc(eventId).update({'acknowledged': true});
+    return _breaches.doc(eventId).update({
+      'acknowledged': true,
+      'flagged': false,
+    });
+  }
+
+  @override
+  Future<void> resolveBreach(String eventId) {
+    return _breaches.doc(eventId).update({'flagged': false});
   }
 
   @override
@@ -69,6 +78,16 @@ class FirestoreBreachRepository implements BreachRepository {
   Stream<List<SupportMessage>> watchSupportForUser(String userId) {
     return _support
         .where('toUserId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map(SupportMessage.fromFirestore).toList());
+  }
+
+  @override
+  Stream<List<SupportMessage>> watchSupportForBreach(String breachEventId) {
+    return _support
+        .where('breachEventId', isEqualTo: breachEventId)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) =>

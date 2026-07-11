@@ -257,6 +257,7 @@ class DetectionCoordinator {
             signalType: signalType,
             metadata: metadata,
             severity: severity,
+            flagged: true,
             createdAt: DateTime.now(),
             userName: userName,
           ),

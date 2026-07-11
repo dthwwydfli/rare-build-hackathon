@@ -41,12 +41,34 @@ class SupportInboxScreen extends ConsumerWidget {
             }
             return ListView(
               padding: const EdgeInsets.all(16),
-              children: groups.map((group) {
-                return _GroupBreachesSection(
-                  group: group,
-                  currentUserId: user.id,
-                );
-              }).toList(),
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.flag, color: AppTheme.danger),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Red flags mean a friend broke a commitment or asked for support. Tap to send encouragement.',
+                          style: TextStyle(color: Colors.grey.shade800),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ...groups.map((group) {
+                  return _GroupBreachesSection(
+                    group: group,
+                    currentUserId: user.id,
+                  );
+                }),
+              ],
             );
           },
           loading: () => const LoadingView(),
@@ -115,27 +137,42 @@ class _GroupBreachesSection extends ConsumerWidget {
                     '/breach/${breach.id}?groupId=${group.id}',
                   ),
                   child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.errorContainer,
-                      child: Icon(
-                        _iconForSignal(breach.signalType),
-                        color: AppTheme.danger,
-                      ),
+                    leading: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        CircleAvatar(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.errorContainer,
+                          child: Icon(
+                            _iconForSignal(breach.signalType),
+                            color: AppTheme.danger,
+                          ),
+                        ),
+                        if (breach.needsSupport)
+                          const Positioned(
+                            right: -2,
+                            top: -2,
+                            child: Icon(
+                              Icons.flag,
+                              color: AppTheme.danger,
+                              size: 16,
+                            ),
+                          ),
+                      ],
                     ),
                     title: Text(
                       breach.userName ?? 'Group member',
                       style: TextStyle(
-                        fontWeight: breach.acknowledged
-                            ? FontWeight.normal
-                            : FontWeight.bold,
+                        fontWeight: breach.needsSupport
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                     subtitle: Text(
                       '${breach.summary} · ${_formatTime(breach.createdAt)}',
                     ),
                     trailing: breach.acknowledged
-                        ? const Icon(Icons.check, color: Colors.green)
+                        ? const Icon(Icons.favorite, color: Colors.green)
                         : const Icon(Icons.fiber_manual_record,
                             color: AppTheme.danger, size: 12),
                   ),
@@ -177,6 +214,6 @@ IconData _iconForSignal(BreachSignalType type) {
     case BreachSignalType.payment:
       return Icons.payments;
     case BreachSignalType.manual:
-      return Icons.warning_amber;
+      return Icons.flag;
   }
 }

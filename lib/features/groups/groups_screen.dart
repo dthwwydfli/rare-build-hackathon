@@ -18,7 +18,16 @@ class GroupsScreen extends ConsumerWidget {
     final groupsAsync = ref.watch(_groupsProvider(user.id));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Friend groups')),
+      appBar: AppBar(
+        title: const Text('Friend groups'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person_search_outlined),
+            onPressed: () => context.push('/people/find'),
+            tooltip: 'Find people',
+          ),
+        ],
+      ),
       body: groupsAsync.when(
         data: (groups) {
           if (groups.isEmpty) {
@@ -35,6 +44,11 @@ class GroupsScreen extends ConsumerWidget {
                   OutlinedButton(
                     onPressed: () => context.push('/groups/join'),
                     child: const Text('Join with code'),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton(
+                    onPressed: () => context.push('/people/find'),
+                    child: const Text('Find people'),
                   ),
                 ],
               ),
