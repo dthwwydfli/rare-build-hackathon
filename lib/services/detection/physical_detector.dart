@@ -10,8 +10,20 @@ class PhysicalDetector {
       : _catalog = catalog ?? GamblingCatalog.instance;
 
   final GamblingCatalog _catalog;
+  GamblingPoiEntry? _simulatedPoi;
+  double? _simulatedDistanceM;
 
   Future<void> initialize() => _catalog.load();
+
+  void simulateVenueVisit(GamblingPoiEntry poi, {double distanceM = 85}) {
+    _simulatedPoi = poi;
+    _simulatedDistanceM = distanceM;
+  }
+
+  void clearSimulation() {
+    _simulatedPoi = null;
+    _simulatedDistanceM = null;
+  }
 
   Future<Position?> getCurrentPosition() async {
     final enabled = await Geolocator.isLocationServiceEnabled();
@@ -36,6 +48,22 @@ class PhysicalDetector {
   /// Returns a signal if the user is within [radiusMeters] of a known POI.
   Future<DetectionSignal?> checkNearbyVenue({int radiusMeters = 200}) async {
     await initialize();
+    final simulatedPoi = _simulatedPoi;
+    if (simulatedPoi != null) {
+      return DetectionSignal(
+        channel: DetectionChannel.physical,
+        signalType: BreachSignalType.location,
+        metadata: {
+          'placeName': simulatedPoi.name,
+          'lat': simulatedPoi.lat,
+          'lng': simulatedPoi.lng,
+          'distanceM': _simulatedDistanceM,
+          'poiType': simulatedPoi.type,
+          'simulated': true,
+        },
+      );
+    }
+
     final position = await getCurrentPosition();
     if (position == null) return null;
 

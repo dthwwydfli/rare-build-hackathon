@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'enums.dart';
 
-/// CBT-style urge log — when, where, mood, money, trigger.
+/// CBT urge log — when, where, mood, money on hand, trigger.
 class UrgeLog {
   const UrgeLog({
     required this.id,

@@ -34,6 +34,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _navigateAfterAuth() async {
     if (!mounted) return;
     final needsPerms = await needsPermissionsSetup();
+    if (!mounted) return;
     context.go(needsPerms ? '/permissions' : '/home');
   }
 

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,7 +11,6 @@ import '../../features/commitments/commitments_screen.dart';
 import '../../features/groups/create_group_screen.dart';
 import '../../features/groups/groups_screen.dart';
 import '../../features/groups/join_group_screen.dart';
-import '../../features/gamification/leaderboard_screen.dart';
 import '../../features/gamification/stats_detail_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
@@ -49,7 +48,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLoading = authState.isLoading;
       final user = authState.valueOrNull;
       final location = state.matchedLocation;
-      final isAuthRoute = location == '/login' ||
+      final isAuthRoute =
+          location == '/login' ||
           location == '/signup' ||
           location == '/onboarding';
 
@@ -72,10 +72,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/onboarding',
         builder: (context, state) => const OnboardingScreen(),
       ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/signup',
         builder: (context, state) => const SignupScreen(),
@@ -100,12 +97,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const GroupsScreen(),
           ),
           GoRoute(
-            path: '/leaderboard',
-            builder: (context, state) => const LeaderboardScreen(),
-          ),
-          GoRoute(
             path: '/support',
             builder: (context, state) => const SupportInboxScreen(),
+          ),
+          GoRoute(
+            path: '/urges',
+            builder: (context, state) => const UrgeInsightsScreen(),
           ),
         ],
       ),

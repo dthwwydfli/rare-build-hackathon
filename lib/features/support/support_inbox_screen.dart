@@ -37,7 +37,8 @@ class SupportInboxScreen extends ConsumerWidget {
                     SizedBox(height: 120),
                     EmptyState(
                       title: 'no groups yet',
-                      subtitle: 'join a friend group to be there for each other',
+                      subtitle:
+                          'join a friend group to be there for each other',
                     ),
                   ],
                 );
@@ -52,10 +53,10 @@ class SupportInboxScreen extends ConsumerWidget {
                       color: AppTheme.lavenderLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
-                        const Icon(Icons.flag, color: AppTheme.granola),
-                        const SizedBox(width: 12),
+                        Icon(Icons.flag, color: AppTheme.granola),
+                        SizedBox(width: 12),
                         Expanded(
                           child: LowercaseText(
                             'red flags mean a friend broke a commitment or asked for support. tap to send encouragement.',
@@ -106,9 +107,8 @@ final unreadAlertsCountProvider = Provider<int>((ref) {
   for (final group in groups) {
     final breaches =
         ref.watch(_groupBreachesProvider(group.id)).valueOrNull ?? [];
-    count += breaches
-        .where((b) => b.userId != user.id && b.needsSupport)
-        .length;
+    count +=
+        breaches.where((b) => b.userId != user.id && b.needsSupport).length;
   }
   return count;
 });
