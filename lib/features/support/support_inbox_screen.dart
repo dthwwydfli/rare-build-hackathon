@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../domain/models/breach_event.dart';
@@ -21,7 +22,7 @@ class SupportInboxScreen extends ConsumerWidget {
     final groupsAsync = ref.watch(_groupsProvider(user.id));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Breach alerts')),
+      appBar: AppBar(title: const LowercaseText('alerts')),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(_groupsProvider(user.id));
@@ -33,8 +34,8 @@ class SupportInboxScreen extends ConsumerWidget {
                 children: const [
                   SizedBox(height: 120),
                   EmptyState(
-                    title: 'No groups',
-                    subtitle: 'Join a friend group to see breach alerts',
+                    title: 'no groups',
+                    subtitle: 'join a friend group to see breach alerts',
                   ),
                 ],
               );
@@ -55,7 +56,7 @@ class SupportInboxScreen extends ConsumerWidget {
               SizedBox(height: 48),
               Padding(
                 padding: EdgeInsets.all(16),
-                child: ErrorBanner(message: 'Could not load alerts'),
+                child: ErrorBanner(message: 'could not load alerts'),
               ),
             ],
           ),
@@ -102,9 +103,9 @@ class _GroupBreachesSection extends ConsumerWidget {
             if (relevant.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
-                child: Text(
-                  'No alerts from group members',
-                  style: TextStyle(color: Colors.grey.shade600),
+                child: LowercaseText(
+                  'no alerts from group members',
+                  style: TextStyle(color: AppTheme.granolaDark.withValues(alpha: 0.7)),
                 ),
               );
             }
@@ -116,26 +117,25 @@ class _GroupBreachesSection extends ConsumerWidget {
                   ),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.errorContainer,
+                      backgroundColor: AppTheme.danger.withValues(alpha: 0.15),
                       child: Icon(
                         _iconForSignal(breach.signalType),
                         color: AppTheme.danger,
                       ),
                     ),
                     title: Text(
-                      breach.userName ?? 'Group member',
+                      breach.userName ?? 'group member',
                       style: TextStyle(
                         fontWeight: breach.acknowledged
                             ? FontWeight.normal
                             : FontWeight.bold,
                       ),
                     ),
-                    subtitle: Text(
+                    subtitle: LowercaseText(
                       '${breach.summary} · ${_formatTime(breach.createdAt)}',
                     ),
                     trailing: breach.acknowledged
-                        ? const Icon(Icons.check, color: Colors.green)
+                        ? const Icon(Icons.check, color: AppTheme.lavender)
                         : const Icon(Icons.fiber_manual_record,
                             color: AppTheme.danger, size: 12),
                   ),
@@ -147,7 +147,7 @@ class _GroupBreachesSection extends ConsumerWidget {
             padding: EdgeInsets.all(16),
             child: CircularProgressIndicator(),
           ),
-          error: (e, _) => const ErrorBanner(message: 'Could not load breaches'),
+          error: (e, _) => const ErrorBanner(message: 'could not load breaches'),
         ),
       ],
     );
