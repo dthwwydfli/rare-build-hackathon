@@ -119,7 +119,7 @@ class AuthTeaser extends StatelessWidget {
         children: [
           const Icon(Icons.spa_outlined, size: 18, color: AppTheme.sageDeep),
           const SizedBox(width: 8),
-          const Icon(Icons.favorite_outline, size: 18, color: AppTheme.terracotta),
+          const Icon(Icons.favorite_outline, size: 18, color: AppTheme.granola),
           const SizedBox(width: 8),
           Flexible(
             child: LowercaseText(

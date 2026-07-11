@@ -85,7 +85,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
       ),
-<<<<<<< HEAD
       body: PaperBackground(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -106,83 +105,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   groupRank: groupRank,
                   groupName: firstGroup?.name,
                   onViewLeaderboard: () => context.go('/leaderboard'),
-=======
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(_userCommitmentsProvider(user.id));
-          ref.invalidate(_userGroupsProvider(user.id));
-          ref.invalidate(_userSupportProvider(user.id));
-        },
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            _PositiveReminderCard(),
-            const SizedBox(height: 16),
-            _FlagForSupportCard(),
-            const SizedBox(height: 16),
-            _RecoveryToolsRow(),
-            const SizedBox(height: 16),
-            _QuickActions(),
-            const SizedBox(height: 16),
-            commitmentsAsync.when(
-              data: (commitments) {
-                final groups = groupsAsync.valueOrNull ?? [];
-                if (commitments.isNotEmpty && groups.isEmpty) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.accent,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.secondary.withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.info_outline, color: AppTheme.primary),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Add friends so they can support you when commitments are at risk.',
-                            style: TextStyle(color: Colors.grey.shade800),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => context.push('/groups/new'),
-                          child: const Text('Add'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-              loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
-            ),
-            Text('Active commitments', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            commitmentsAsync.when(
-              data: (commitments) => _CommitmentsSummary(commitments: commitments),
-              loading: () => const LoadingView(),
-              error: (e, _) => ErrorBanner(message: 'Could not load commitments'),
-            ),
-            const SizedBox(height: 24),
-            Text('Your groups', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            groupsAsync.when(
-              data: (groups) => _GroupsSummary(groups: groups),
-              loading: () => const LoadingView(),
-              error: (e, _) => ErrorBanner(message: 'Could not load groups'),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Recent support', style: Theme.of(context).textTheme.titleMedium),
-                TextButton(
-                  onPressed: () => context.push('/my-breaches'),
-                  child: const Text('My breaches'),
->>>>>>> ba2564f (feat: block access and money feature)
                 ),
                 loading: () => const LoadingView(),
                 error: (_, __) => const SizedBox.shrink(),
@@ -298,8 +220,8 @@ class _FlagForSupportCardState extends ConsumerState<_FlagForSupportCard> {
       child: ListTile(
         contentPadding: EdgeInsets.zero,
         leading: CircleAvatar(
-          backgroundColor: AppTheme.terracotta.withValues(alpha: 0.12),
-          child: const Icon(Icons.flag, color: AppTheme.terracotta),
+          backgroundColor: AppTheme.granola.withValues(alpha: 0.12),
+          child: const Icon(Icons.flag, color: AppTheme.granola),
         ),
         title: const LowercaseText('flag for support'),
         subtitle: const LowercaseText(
@@ -315,7 +237,7 @@ class _FlagForSupportCardState extends ConsumerState<_FlagForSupportCard> {
             : FilledButton(
                 onPressed: _flagForSupport,
                 style:
-                    FilledButton.styleFrom(backgroundColor: AppTheme.terracotta),
+                    FilledButton.styleFrom(backgroundColor: AppTheme.granola),
                 child: const LowercaseText('flag'),
               ),
       ),
