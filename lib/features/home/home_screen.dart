@@ -90,6 +90,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
       ),
+<<<<<<< HEAD
       body: PaperBackground(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -112,6 +113,83 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   groupRank: groupRank,
                   groupName: firstGroup?.name,
                   onViewLeaderboard: () => context.go('/leaderboard'),
+=======
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(_userCommitmentsProvider(user.id));
+          ref.invalidate(_userGroupsProvider(user.id));
+          ref.invalidate(_userSupportProvider(user.id));
+        },
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _PositiveReminderCard(),
+            const SizedBox(height: 16),
+            _FlagForSupportCard(),
+            const SizedBox(height: 16),
+            _RecoveryToolsRow(),
+            const SizedBox(height: 16),
+            _QuickActions(),
+            const SizedBox(height: 16),
+            commitmentsAsync.when(
+              data: (commitments) {
+                final groups = groupsAsync.valueOrNull ?? [];
+                if (commitments.isNotEmpty && groups.isEmpty) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.accent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppTheme.secondary.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline, color: AppTheme.primary),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Add friends so they can support you when commitments are at risk.',
+                            style: TextStyle(color: Colors.grey.shade800),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => context.push('/groups/new'),
+                          child: const Text('Add'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+            Text('Active commitments', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            commitmentsAsync.when(
+              data: (commitments) => _CommitmentsSummary(commitments: commitments),
+              loading: () => const LoadingView(),
+              error: (e, _) => ErrorBanner(message: 'Could not load commitments'),
+            ),
+            const SizedBox(height: 24),
+            Text('Your groups', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            groupsAsync.when(
+              data: (groups) => _GroupsSummary(groups: groups),
+              loading: () => const LoadingView(),
+              error: (e, _) => ErrorBanner(message: 'Could not load groups'),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Recent support', style: Theme.of(context).textTheme.titleMedium),
+                TextButton(
+                  onPressed: () => context.push('/my-breaches'),
+                  child: const Text('My breaches'),
+>>>>>>> ba2564f (feat: block access and money feature)
                 ),
                 loading: () => const LoadingView(),
                 error: (_, __) => const SizedBox.shrink(),
@@ -389,6 +467,132 @@ class _FlagForSupportCardState extends ConsumerState<_FlagForSupportCard> {
   }
 }
 
+<<<<<<< HEAD
+=======
+class _RecoveryToolsRow extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        AppCard(
+          onTap: () => context.push('/tools/blocks'),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: AppTheme.primary.withValues(alpha: 0.12),
+              child: const Icon(Icons.shield_outlined, color: AppTheme.primary),
+            ),
+            title: const Text(
+              'Block access & money',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: const Text(
+              'GAMSTOP, bank blocks, app blocker, spending delays',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+          ),
+        ),
+        const SizedBox(height: 12),
+        AppCard(
+          onTap: () => context.push('/urges/log'),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: AppTheme.secondary.withValues(alpha: 0.15),
+              child: const Icon(Icons.psychology_outlined, color: AppTheme.primary),
+            ),
+            title: const Text(
+              'Log an urge',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: const Text(
+              '30-second CBT log — spot triggers, get coping prompts',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () => context.push('/urges/insights'),
+            child: const Text('View urge patterns'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickActions extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _ActionCard(
+                icon: Icons.flag_outlined,
+                label: 'Commitments',
+                onTap: () => context.push('/commitments'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ActionCard(
+                icon: Icons.group_outlined,
+                label: 'Groups',
+                onTap: () => context.push('/groups'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ActionCard(
+                icon: Icons.inbox_outlined,
+                label: 'Alerts',
+                onTap: () => context.push('/support'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _ActionCard(
+          icon: Icons.person_search_outlined,
+          label: 'Find people on the app',
+          onTap: () => context.push('/people/find'),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionCard extends StatelessWidget {
+  const _ActionCard({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      onTap: onTap,
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        children: [
+          Icon(icon, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+}
+
+>>>>>>> ba2564f (feat: block access and money feature)
 class _CommitmentsSummary extends StatelessWidget {
   const _CommitmentsSummary({
     required this.commitments,

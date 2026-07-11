@@ -58,5 +58,18 @@ service cloud.firestore {
         request.resource.data.fromUserId == request.auth.uid;
       allow update, delete: if false;
     }
+
+    match /block_settings/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    match /urge_logs/{logId} {
+      allow read: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() &&
+        request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+    }
   }
 }

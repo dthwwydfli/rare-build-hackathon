@@ -64,6 +64,14 @@
         { "fieldPath": "discoverable", "order": "ASCENDING" },
         { "fieldPath": "displayNameLower", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "urge_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
