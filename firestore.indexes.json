@@ -25,6 +25,15 @@
       ]
     },
     {
+      "collectionGroup": "breach_events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "signalType", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "support_messages",
       "queryScope": "COLLECTION",
       "fields": [

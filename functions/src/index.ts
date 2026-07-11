@@ -62,6 +62,36 @@ async function getGroupMemberTokens(
   return tokens;
 }
 
+async function sendMulticastWithCleanup(
+  tokens: { uid: string; token: string }[],
+  payload: admin.messaging.MulticastMessage
+): Promise<void> {
+  if (tokens.length === 0) return;
+
+  const response = await messaging.sendEachForMulticast({
+    ...payload,
+    tokens: tokens.map((t) => t.token),
+  });
+
+  response.responses.forEach(async (res, index) => {
+    if (!res.success) {
+      const code = res.error?.code;
+      if (
+        code === "messaging/invalid-registration-token" ||
+        code === "messaging/registration-token-not-registered"
+      ) {
+        const uid = tokens[index].uid;
+        console.log(`Removing invalid FCM token for user ${uid}`);
+        await db.collection("users").doc(uid).update({
+          fcmToken: admin.firestore.FieldValue.delete(),
+        });
+      } else {
+        console.error(`FCM error for token index ${index}:`, res.error?.message);
+      }
+    }
+  });
+}
+
 export const onBreachCreated = onDocumentCreated(
   "breach_events/{eventId}",
   async (event) => {
@@ -71,7 +101,6 @@ export const onBreachCreated = onDocumentCreated(
     const eventId = event.params.eventId;
     const { userId, groupId, signalType, metadata, userName } = data;
 
-    // Dedupe rapid repeats
     const recent = await db
       .collection("breach_events")
       .where("userId", "==", userId)
@@ -98,7 +127,7 @@ export const onBreachCreated = onDocumentCreated(
 
     const summary = buildBreachSummary(signalType, metadata ?? {});
 
-    await messaging.sendEachForMulticast({
+    await sendMulticastWithCleanup(tokens, {
       tokens: tokens.map((t) => t.token),
       notification: {
         title: `${userName ?? "Friend"} may need support`,
@@ -130,17 +159,30 @@ export const onSupportCreated = onDocumentCreated(
     const token = userDoc.data()?.fcmToken as string | undefined;
     if (!token) return;
 
-    await messaging.send({
-      token,
-      notification: {
-        title: `${fromUserName ?? "A friend"} sent support`,
-        body: message,
-      },
-      data: {
-        type: "support_received",
-        fromName: fromUserName ?? "A friend",
-        message,
-      },
-    });
+    try {
+      await messaging.send({
+        token,
+        notification: {
+          title: `${fromUserName ?? "A friend"} sent support`,
+          body: message,
+        },
+        data: {
+          type: "support_received",
+          fromName: fromUserName ?? "A friend",
+          message,
+        },
+      });
+    } catch (error: unknown) {
+      const err = error as { code?: string };
+      if (
+        err.code === "messaging/invalid-registration-token" ||
+        err.code === "messaging/registration-token-not-registered"
+      ) {
+        await db.collection("users").doc(toUserId).update({
+          fcmToken: admin.firestore.FieldValue.delete(),
+        });
+      }
+      console.error("Support notification failed:", error);
+    }
   }
 );
