@@ -75,6 +75,10 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
+    match /financial_recovery/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
     match /urge_logs/{logId} {
       allow read: if isSignedIn() &&
         resource.data.userId == request.auth.uid;
