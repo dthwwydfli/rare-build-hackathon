@@ -19,7 +19,7 @@ flutter run
 2. Enable location + notifications (+ Usage Access on Android)
 3. Create commitment: **"No betting shops"** (type: Location)
 4. Create group **"Support Circle"** — note invite code
-5. Tap **Demo breach** → **Simulate Location breach**
+5. Tap **Flag for support** on home (or trigger real location detection)
 
 ### Device 2 — Sam (friend)
 
@@ -32,16 +32,15 @@ flutter run
 ### Verify on Device 1
 
 1. Alex receives support push notification
-2. Home screen shows message under **Recent support**
-3. Firestore console shows `breach_events` and `support_messages` docs
+2. Firestore console shows `breach_events` and `support_messages` docs
 
 ## Fallbacks if live detection fails
 
 | Issue | Fallback |
 |-------|----------|
-| Location not triggering | Use breach simulator (FAB on home) |
-| Android app detection | Use simulator → App breach |
-| iOS app detection | Use simulator (real UsageStats blocked) |
+| Location not triggering | Use **Flag for support** on home |
+| Android app detection | Use flag for support (real UsageStats in Phase 2) |
+| iOS app detection | Use flag for support (real monitoring requires Family Controls) |
 | Push not arriving | Check `users/{id}.fcmToken` in Firestore |
 | Function dedupe error | Deploy indexes: `firebase deploy --only firestore:indexes` |
 

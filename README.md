@@ -38,14 +38,18 @@ flutter run
 
 Shared contract: `lib/domain/` (models + repository interfaces)
 
-## Demo flow
+## Demo flow (mock auth — default for local dev)
+
+With `useMockAuth = true` in `lib/core/config/app_config.dart`, the app runs without Firebase. Sign in with Google/Apple mock buttons on the login screen.
 
 1. Sign up → enable permissions
 2. Create commitment ("No betting shops or gambling apps")
 3. Create friend group → share invite code → friend joins on second device
-4. Open **Demo breach** (FAB on home) → simulate location breach
+4. Tap **Flag for support** on home (or trigger real detection near a betting shop)
 5. Friend sees alert in **Alerts** tab → sends support message
 6. User receives support notification
+
+For real Firebase, run `flutterfire configure`, set `useMockAuth = false`, then deploy backend per steps below.
 
 ## Firebase collections
 
