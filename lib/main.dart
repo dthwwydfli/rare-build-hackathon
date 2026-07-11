@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/notifications/background_message_handler.dart';
+import 'core/notifications/local_notification_service.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/providers/repository_providers.dart';
 import 'core/routing/app_router.dart';
@@ -39,6 +40,9 @@ class _LavenderAppState extends ConsumerState<LavenderApp> {
   }
 
   Future<void> _initializeServices() async {
+    if (!kIsWeb) {
+      await ref.read(localNotificationServiceProvider).initialize();
+    }
     if (!useMockAuth) {
       await ref.read(notificationServiceProvider).initialize();
     }
