@@ -53,8 +53,7 @@ class GamificationHeroCard extends StatelessWidget {
   final int? groupRank;
   final String? groupName;
 
-  /// When true, shows only a dense streak card — date, points, and tier are
-  /// deferred elsewhere on the home screen.
+  /// When true, shows a dense streak card with inline points below the streak.
   final bool compact;
 
   @override
@@ -77,6 +76,9 @@ class GamificationHeroCard extends StatelessWidget {
           days: streak,
           bestDays: compact ? null : bestStreak,
           dense: compact,
+          points: compact ? points : null,
+          groupRank: compact ? groupRank : null,
+          groupName: compact ? groupName : null,
         ),
         if (!compact) ...[
           const SizedBox(height: 12),
