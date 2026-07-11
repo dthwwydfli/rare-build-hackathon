@@ -23,4 +23,6 @@ else
   echo "Firebase CLI not found. Install: npm install -g firebase-tools"
 fi
 
-echo "==> Done. Next: flutterfire configure, then flutter run"
+echo "==> Done. Next steps for TestFlight:"
+echo "  npm run testflight:setup    # Firebase + backend"
+echo "  npm run testflight:release  # Build IPA after Xcode signing"

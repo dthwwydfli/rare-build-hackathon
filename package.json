@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "firebase-tools": "^15.23.0"
+  },
+  "scripts": {
+    "testflight": "bash scripts/testflight.sh",
+    "testflight:setup": "bash scripts/testflight_setup.sh",
+    "testflight:release": "bash scripts/testflight_release.sh",
+    "testflight:apple-checklist": "bash scripts/apple_portal_checklist.sh",
+    "testflight:apns-checklist": "bash scripts/apns_firebase_checklist.sh",
+    "testflight:install-checklist": "bash scripts/testflight_install_checklist.sh"
+  }
+}
