@@ -19,7 +19,9 @@ import '../../features/people/find_people_screen.dart';
 import '../../features/settings/permissions_screen.dart';
 import '../../features/support/breach_detail_screen.dart';
 import '../../features/support/my_breaches_screen.dart';
-import '../../features/support/support_inbox_screen.dart';
+import '../../features/tools/block_access_screen.dart';
+import '../../features/urges/urge_insights_screen.dart';
+import '../../features/urges/urge_log_screen.dart';
 import '../notifications/notification_service.dart';
 import 'app_shell.dart';
 
@@ -142,8 +144,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+<<<<<<< HEAD
         path: '/stats',
         builder: (context, state) => const StatsDetailScreen(),
+=======
+        path: '/tools/blocks',
+        builder: (context, state) => const BlockAccessScreen(),
+      ),
+      GoRoute(
+        path: '/urges/log',
+        builder: (context, state) => const UrgeLogScreen(),
+      ),
+      GoRoute(
+        path: '/urges/insights',
+        builder: (context, state) => const UrgeInsightsScreen(),
+>>>>>>> ba2564f (feat: block access and money feature)
       ),
     ],
   );

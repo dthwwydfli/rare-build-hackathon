@@ -12,6 +12,10 @@ import '../../data/repositories/mock_gamification_repository.dart';
 import '../../data/repositories/mock_group_repository.dart';
 import '../../data/repositories/firestore_user_repository.dart';
 import '../../data/repositories/mock_user_repository.dart';
+import '../../data/repositories/firestore_access_block_repository.dart';
+import '../../data/repositories/mock_access_block_repository.dart';
+import '../../data/repositories/firestore_urge_repository.dart';
+import '../../data/repositories/mock_urge_repository.dart';
 import '../../domain/models/app_user.dart';
 import '../../domain/models/leaderboard_entry.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -21,6 +25,8 @@ import '../../domain/repositories/gamification_repository.dart';
 import '../../domain/repositories/group_repository.dart';
 import '../config/app_config.dart';
 import '../../domain/repositories/user_repository.dart';
+import '../../domain/repositories/access_block_repository.dart';
+import '../../domain/repositories/urge_repository.dart';
 
 export '../config/app_config.dart' show useMockAuth;
 
@@ -56,6 +62,16 @@ final breachRepositoryProvider = Provider<BreachRepository>((ref) {
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   if (useMockAuth) return _mockUserRepository;
   return FirestoreUserRepository();
+});
+
+final accessBlockRepositoryProvider = Provider<AccessBlockRepository>((ref) {
+  if (useMockAuth) return MockAccessBlockRepository();
+  return FirestoreAccessBlockRepository();
+});
+
+final urgeRepositoryProvider = Provider<UrgeRepository>((ref) {
+  if (useMockAuth) return MockUrgeRepository();
+  return FirestoreUrgeRepository();
 });
 
 final currentUserProvider = StreamProvider<AppUser?>((ref) {
