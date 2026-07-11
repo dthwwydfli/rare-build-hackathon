@@ -14,6 +14,8 @@ import '../../domain/models/commitment.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/friend_group.dart';
 import '../../domain/models/support_message.dart';
+import '../../services/detection/detection_coordinator.dart';
+import '../../services/reminders/positive_reminder_service.dart';
 import '../gamification/widgets/gamification_widgets.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -100,135 +102,147 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             }
           },
           child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            statsAsync.when(
-              data: (stats) => GamificationHeroCard(
-                points: stats.points,
-                streak: stats.currentStreak,
-                bestStreak: stats.bestStreak,
-                groupRank: groupRank,
-                groupName: firstGroup?.name,
-                onViewLeaderboard: () => context.go('/leaderboard'),
+            padding: const EdgeInsets.all(16),
+            children: [
+              statsAsync.when(
+                data: (stats) => GamificationHeroCard(
+                  points: stats.points,
+                  streak: stats.currentStreak,
+                  bestStreak: stats.bestStreak,
+                  groupRank: groupRank,
+                  groupName: firstGroup?.name,
+                  onViewLeaderboard: () => context.go('/leaderboard'),
+                ),
+                loading: () => const LoadingView(),
+                error: (_, __) => const SizedBox.shrink(),
               ),
-              loading: () => const LoadingView(),
-              error: (_, __) => const SizedBox.shrink(),
-            ),
-            const SizedBox(height: 20),
-            const Center(child: OrnamentalDivider()),
-            const SizedBox(height: 20),
-            commitmentsAsync.when(
-              data: (commitments) {
-                final groups = groupsAsync.valueOrNull ?? [];
-                if (commitments.isNotEmpty && groups.isEmpty) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.lavenderLight,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.lavender.withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.info_outline, color: AppTheme.lavender),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: LowercaseText(
-                            'add friends so they can support you when goals are at risk',
+              const SizedBox(height: 16),
+              const _PositiveReminderCard(),
+              const SizedBox(height: 16),
+              const _FlagForSupportCard(),
+              const SizedBox(height: 20),
+              const Center(child: OrnamentalDivider()),
+              const SizedBox(height: 20),
+              commitmentsAsync.when(
+                data: (commitments) {
+                  final groups = groupsAsync.valueOrNull ?? [];
+                  if (commitments.isNotEmpty && groups.isEmpty) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.lavenderLight,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppTheme.lavender.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.info_outline,
+                              color: AppTheme.lavender),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: LowercaseText(
+                              'add friends so they can support you when goals are at risk',
+                            ),
                           ),
-                        ),
-                        TextButton(
-                          onPressed: () => context.push('/groups/new'),
-                          child: const LowercaseText('add'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-              loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
-            ),
-            const LowercaseText(
-              'active goals',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-            ),
-            const SizedBox(height: 10),
-            commitmentsAsync.when(
-              data: (commitments) => _CommitmentsSummary(
-                commitments: commitments,
-                streak: statsAsync.valueOrNull?.currentStreak ?? 0,
+                          TextButton(
+                            onPressed: () => context.push('/groups/new'),
+                            child: const LowercaseText('add'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
               ),
-              loading: () => const LoadingView(),
-              error: (e, _) => const ErrorBanner(message: 'could not load goals'),
-            ),
-            const SizedBox(height: 20),
-            const Center(child: OrnamentalDivider()),
-            const SizedBox(height: 20),
-            const LowercaseText(
-              'your groups',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-            ),
-            const SizedBox(height: 10),
-            groupsAsync.when(
-              data: (groups) => _GroupsSummary(groups: groups, userId: user.id),
-              loading: () => const LoadingView(),
-              error: (e, _) => const ErrorBanner(message: 'could not load groups'),
-            ),
-            const SizedBox(height: 20),
-            const Center(child: OrnamentalDivider()),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const LowercaseText(
-                  'notes from friends',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              const LowercaseText(
+                'active goals',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              ),
+              const SizedBox(height: 10),
+              commitmentsAsync.when(
+                data: (commitments) => _CommitmentsSummary(
+                  commitments: commitments,
+                  streak: statsAsync.valueOrNull?.currentStreak ?? 0,
                 ),
-                TextButton(
-                  onPressed: () => context.push('/my-breaches'),
-                  child: const LowercaseText('my moments'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            supportAsync.when(
-              data: (messages) {
-                if (messages.isEmpty) {
-                  return const LowercaseText(
-                    'no notes yet — when friends reach out, their words land here.',
-                    style: TextStyle(color: AppTheme.inkPlumSoft),
-                  );
-                }
-                return Column(
-                  children: messages.take(3).map((m) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: AppCard(
-                        child: ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.favorite,
-                              color: AppTheme.terracotta),
-                          title: Text(m.message),
-                          subtitle: LowercaseText(
-                            m.fromUserName ?? 'a friend',
-                            style: const TextStyle(
-                              fontStyle: FontStyle.italic,
-                              color: AppTheme.inkPlumSoft,
+                loading: () => const LoadingView(),
+                error: (e, _) =>
+                    const ErrorBanner(message: 'could not load goals'),
+              ),
+              const SizedBox(height: 20),
+              const Center(child: OrnamentalDivider()),
+              const SizedBox(height: 20),
+              const LowercaseText(
+                'your groups',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              ),
+              const SizedBox(height: 10),
+              groupsAsync.when(
+                data: (groups) =>
+                    _GroupsSummary(groups: groups, userId: user.id),
+                loading: () => const LoadingView(),
+                error: (e, _) =>
+                    const ErrorBanner(message: 'could not load groups'),
+              ),
+              const SizedBox(height: 20),
+              const Center(child: OrnamentalDivider()),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const LowercaseText(
+                    'notes from friends',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                  ),
+                  TextButton(
+                    onPressed: () => context.push('/my-breaches'),
+                    child: const LowercaseText('my moments'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              supportAsync.when(
+                data: (messages) {
+                  if (messages.isEmpty) {
+                    return const LowercaseText(
+                      'no notes yet — when friends reach out, their words land here.',
+                      style: TextStyle(color: AppTheme.inkPlumSoft),
+                    );
+                  }
+                  return Column(
+                    children: messages.take(3).map((m) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: AppCard(
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.favorite,
+                                color: AppTheme.terracotta),
+                            title: Text(m.message),
+                            subtitle: LowercaseText(
+                              m.fromUserName ?? 'a friend',
+                              style: const TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: AppTheme.inkPlumSoft,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  }).toList(),
-                );
-              },
-              loading: () => const LoadingView(),
-              error: (e, _) => const ErrorBanner(message: 'could not load support messages'),
-            ),
-          ].staggered(context),
+                      );
+                    }).toList(),
+                  );
+                },
+                loading: () => const LoadingView(),
+                error: (e, _) => const ErrorBanner(
+                  message: 'could not load support messages',
+                ),
+              ),
+            ].staggered(context),
           ),
         ),
       ),
@@ -255,6 +269,125 @@ final _userSupportProvider =
     StreamProvider.family<List<SupportMessage>, String>((ref, userId) {
   return ref.watch(breachRepositoryProvider).watchSupportForUser(userId);
 });
+
+class _PositiveReminderCard extends ConsumerWidget {
+  const _PositiveReminderCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final message = ref.watch(currentPositiveReminderProvider);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.lavenderDeep.withValues(alpha: 0.9),
+            AppTheme.lavender,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.wb_sunny_outlined, color: Colors.white),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const LowercaseText(
+                  'positive reminder',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  message,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.95),
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FlagForSupportCard extends ConsumerStatefulWidget {
+  const _FlagForSupportCard();
+
+  @override
+  ConsumerState<_FlagForSupportCard> createState() =>
+      _FlagForSupportCardState();
+}
+
+class _FlagForSupportCardState extends ConsumerState<_FlagForSupportCard> {
+  bool _loading = false;
+
+  Future<void> _flagForSupport() async {
+    setState(() => _loading = true);
+    try {
+      await ref.read(detectionCoordinatorProvider).emitManualBreach(
+            signalType: BreachSignalType.manual,
+            metadata: {
+              'note': 'Flagged for support — reaching out to my circle',
+              'selfFlagged': true,
+            },
+          );
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          'support circle flagged — friends will be alerted',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        showAppSnackBar(context, '$e');
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: CircleAvatar(
+          backgroundColor: AppTheme.terracotta.withValues(alpha: 0.12),
+          child: const Icon(Icons.flag, color: AppTheme.terracotta),
+        ),
+        title: const LowercaseText('flag for support'),
+        subtitle: const LowercaseText(
+          'struggling right now? alert your friends without waiting for detection.',
+          style: TextStyle(color: AppTheme.inkPlumSoft),
+        ),
+        trailing: _loading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : FilledButton(
+                onPressed: _flagForSupport,
+                style:
+                    FilledButton.styleFrom(backgroundColor: AppTheme.terracotta),
+                child: const LowercaseText('flag'),
+              ),
+      ),
+    );
+  }
+}
 
 class _CommitmentsSummary extends StatelessWidget {
   const _CommitmentsSummary({

@@ -27,43 +27,65 @@ class SupportInboxScreen extends ConsumerWidget {
       appBar: AppBar(title: const LowercaseText('alerts')),
       body: PaperBackground(
         child: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(_groupsProvider(user.id));
-        },
-        child: groupsAsync.when(
-          data: (groups) {
-            if (groups.isEmpty) {
+          onRefresh: () async {
+            ref.invalidate(_groupsProvider(user.id));
+          },
+          child: groupsAsync.when(
+            data: (groups) {
+              if (groups.isEmpty) {
+                return ListView(
+                  children: const [
+                    SizedBox(height: 120),
+                    EmptyState(
+                      title: 'no groups yet',
+                      subtitle: 'join a friend group to be there for each other',
+                    ),
+                  ],
+                );
+              }
               return ListView(
-                children: const [
-                  SizedBox(height: 120),
-                  EmptyState(
-                    title: 'no groups yet',
-                    subtitle: 'join a friend group to be there for each other',
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: AppTheme.lavenderLight,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.flag, color: AppTheme.terracotta),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: LowercaseText(
+                            'red flags mean a friend broke a commitment or asked for support. tap to send encouragement.',
+                            style: TextStyle(color: AppTheme.inkPlumSoft),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  ...groups.map((group) {
+                    return _GroupBreachesSection(
+                      group: group,
+                      currentUserId: user.id,
+                    );
+                  }),
                 ],
               );
-            }
-            return ListView(
-              padding: const EdgeInsets.all(16),
-              children: groups.map((group) {
-                return _GroupBreachesSection(
-                  group: group,
-                  currentUserId: user.id,
-                );
-              }).toList(),
-            );
-          },
-          loading: () => const LoadingView(),
-          error: (e, _) => ListView(
-            children: const [
-              SizedBox(height: 48),
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: ErrorBanner(message: 'could not load alerts'),
-              ),
-            ],
+            },
+            loading: () => const LoadingView(),
+            error: (e, _) => ListView(
+              children: const [
+                SizedBox(height: 48),
+                Padding(
+                  padding: EdgeInsets.all(16),
+                  child: ErrorBanner(message: 'could not load alerts'),
+                ),
+              ],
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -123,19 +145,36 @@ class _GroupBreachesSection extends ConsumerWidget {
                     ),
                     child: ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: CircleAvatar(
-                        backgroundColor: AppTheme.lavenderLight,
-                        child: Icon(
-                          _iconForSignal(breach.signalType),
-                          color: AppTheme.lavenderDeep,
-                        ),
+                      leading: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: AppTheme.lavenderLight,
+                            child: Icon(
+                              _iconForSignal(breach.signalType),
+                              color: AppTheme.lavenderDeep,
+                            ),
+                          ),
+                          if (breach.needsSupport)
+                            const Positioned(
+                              right: -2,
+                              top: -2,
+                              child: Icon(
+                                Icons.flag,
+                                color: AppTheme.terracotta,
+                                size: 16,
+                              ),
+                            ),
+                        ],
                       ),
                       title: Text(
                         breach.userName ?? 'group member',
                         style: TextStyle(
-                          fontWeight: breach.acknowledged
-                              ? FontWeight.normal
-                              : FontWeight.bold,
+                          fontWeight: breach.needsSupport
+                              ? FontWeight.bold
+                              : breach.acknowledged
+                                  ? FontWeight.normal
+                                  : FontWeight.w600,
                         ),
                       ),
                       subtitle: LowercaseText(
@@ -156,7 +195,8 @@ class _GroupBreachesSection extends ConsumerWidget {
             padding: EdgeInsets.all(16),
             child: CircularProgressIndicator(),
           ),
-          error: (e, _) => const ErrorBanner(message: 'could not load breaches'),
+          error: (e, _) =>
+              const ErrorBanner(message: 'could not load breaches'),
         ),
       ],
     );

@@ -12,6 +12,7 @@ class BreachEvent {
     required this.metadata,
     required this.severity,
     required this.createdAt,
+    this.flagged = true,
     this.acknowledged = false,
     this.userName,
   });
@@ -24,8 +25,11 @@ class BreachEvent {
   final Map<String, dynamic> metadata;
   final String severity;
   final DateTime createdAt;
+  final bool flagged;
   final bool acknowledged;
   final String? userName;
+
+  bool get needsSupport => flagged && !acknowledged;
 
   String get summary {
     switch (signalType) {
@@ -53,6 +57,7 @@ class BreachEvent {
       metadata: Map<String, dynamic>.from(data['metadata'] ?? {}),
       severity: data['severity'] as String? ?? 'medium',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      flagged: data['flagged'] as bool? ?? true,
       acknowledged: data['acknowledged'] as bool? ?? false,
       userName: data['userName'] as String?,
     );
@@ -67,8 +72,28 @@ class BreachEvent {
       'metadata': metadata,
       'severity': severity,
       'createdAt': Timestamp.fromDate(createdAt),
+      'flagged': flagged,
       'acknowledged': acknowledged,
       if (userName != null) 'userName': userName,
     };
+  }
+
+  BreachEvent copyWith({
+    bool? flagged,
+    bool? acknowledged,
+  }) {
+    return BreachEvent(
+      id: id,
+      userId: userId,
+      commitmentId: commitmentId,
+      groupId: groupId,
+      signalType: signalType,
+      metadata: metadata,
+      severity: severity,
+      createdAt: createdAt,
+      flagged: flagged ?? this.flagged,
+      acknowledged: acknowledged ?? this.acknowledged,
+      userName: userName,
+    );
   }
 }

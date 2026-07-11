@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'gambling_catalog.dart';
 
 class UrlCheckResult {
   const UrlCheckResult({
@@ -12,16 +12,6 @@ class UrlCheckResult {
 
 /// MVP mock — real implementation would use VPN/DNS on Android.
 class UrlMonitor {
-  static const _gamblingDomains = [
-    'bet365.com',
-    'paddypower.com',
-    'williamhill.com',
-    'ladbrokes.com',
-    'betway.com',
-    'skybet.com',
-    'betfair.com',
-  ];
-
   bool _simulateActive = false;
   String _simulatedUrl = 'https://www.bet365.com';
 
@@ -38,16 +28,14 @@ class UrlMonitor {
     if (!_simulateActive) {
       return const UrlCheckResult(isGamblingUrl: false);
     }
-    final isGambling = _gamblingDomains.any(
-      (d) => _simulatedUrl.toLowerCase().contains(d),
-    );
+    await GamblingCatalog.instance.load();
+    final isGambling =
+        GamblingCatalog.instance.matchesDomain(_simulatedUrl);
     return UrlCheckResult(isGamblingUrl: isGambling, url: _simulatedUrl);
   }
 
   bool isBlockedDomain(String domain) {
-    return _gamblingDomains.any(
-      (d) => domain.toLowerCase().contains(d),
-    );
+    return GamblingCatalog.instance.matchesDomain(domain);
   }
 }
 
@@ -100,9 +88,5 @@ class PaymentMonitor {
       amount: _simulatedAmount,
       merchant: _simulatedMerchant,
     );
-  }
-
-  double randomDemoAmount() {
-    return (Random().nextInt(200) + 10).toDouble();
   }
 }

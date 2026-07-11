@@ -6,6 +6,8 @@ abstract class BreachRepository {
   Stream<List<BreachEvent>> watchUserBreaches(String userId);
   Future<BreachEvent> createBreach(BreachEvent event);
   Future<void> acknowledgeBreach(String eventId);
+  Future<void> resolveBreach(String eventId);
   Future<void> sendSupport(SupportMessage message);
   Stream<List<SupportMessage>> watchSupportForUser(String userId);
+  Stream<List<SupportMessage>> watchSupportForBreach(String breachEventId);
 }

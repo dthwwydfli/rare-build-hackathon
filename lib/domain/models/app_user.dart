@@ -6,6 +6,7 @@ class AppUser {
     required this.displayName,
     required this.email,
     this.fcmToken,
+    this.discoverable = true,
     required this.createdAt,
     this.points = 1000,
     this.currentStreak = 0,
@@ -18,12 +19,15 @@ class AppUser {
   final String displayName;
   final String email;
   final String? fcmToken;
+  final bool discoverable;
   final DateTime createdAt;
   final int points;
   final int currentStreak;
   final int bestStreak;
   final DateTime? lastCleanDate;
   final DateTime? lastBreachDate;
+
+  String get displayNameLower => displayName.toLowerCase();
 
   factory AppUser.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? {};
@@ -32,6 +36,7 @@ class AppUser {
       displayName: data['displayName'] as String? ?? '',
       email: data['email'] as String? ?? '',
       fcmToken: data['fcmToken'] as String?,
+      discoverable: data['discoverable'] as bool? ?? true,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       points: (data['points'] ?? data['eloRating']) as int? ?? 1000,
       currentStreak: data['currentStreak'] as int? ?? 0,
@@ -44,8 +49,10 @@ class AppUser {
   Map<String, dynamic> toFirestore() {
     return {
       'displayName': displayName,
+      'displayNameLower': displayNameLower,
       'email': email,
       if (fcmToken != null) 'fcmToken': fcmToken,
+      'discoverable': discoverable,
       'createdAt': Timestamp.fromDate(createdAt),
       'points': points,
       'currentStreak': currentStreak,
@@ -61,6 +68,7 @@ class AppUser {
     String? displayName,
     String? email,
     String? fcmToken,
+    bool? discoverable,
     int? points,
     int? currentStreak,
     int? bestStreak,
@@ -72,6 +80,7 @@ class AppUser {
       displayName: displayName ?? this.displayName,
       email: email ?? this.email,
       fcmToken: fcmToken ?? this.fcmToken,
+      discoverable: discoverable ?? this.discoverable,
       createdAt: createdAt,
       points: points ?? this.points,
       currentStreak: currentStreak ?? this.currentStreak,

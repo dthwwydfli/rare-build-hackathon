@@ -19,6 +19,7 @@ const _presetMessages = [
   ("You've got this — I'm here for you", SupportMessageType.encouragement),
   ("Want to talk? I'm free right now", SupportMessageType.checkIn),
   ('Call me if you need support', SupportMessageType.callOffer),
+  ('Proud of you for being accountable', SupportMessageType.encouragement),
 ];
 
 class BreachDetailScreen extends ConsumerStatefulWidget {
@@ -77,7 +78,6 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
           await MilestoneTracker.markSeen('first_support');
         }
         if (!mounted) return;
-        // A quiet seal moment before returning — one-shot, calm.
         await showDialog<void>(
           context: context,
           barrierDismissible: true,
@@ -106,120 +106,200 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final breachesAsync = ref.watch(_groupBreachesProvider(widget.groupId));
+    final supportAsync = ref.watch(_breachSupportProvider(widget.eventId));
 
     return Scaffold(
       appBar: AppBar(title: const LowercaseText('send support')),
       body: PaperBackground(
         child: breachesAsync.when(
-        data: (breaches) {
-          BreachEvent? breach;
-          for (final b in breaches) {
-            if (b.id == widget.eventId) {
-              breach = b;
-              break;
+          data: (breaches) {
+            BreachEvent? breach;
+            for (final b in breaches) {
+              if (b.id == widget.eventId) {
+                breach = b;
+                break;
+              }
             }
-          }
-          if (breach == null) {
-            return const Center(child: LowercaseText('breach not found'));
-          }
+            if (breach == null) {
+              return const Center(child: LowercaseText('breach not found'));
+            }
 
-          final breacherStatsAsync =
-              ref.watch(userStatsProvider(breach.userId));
+            final breacherStatsAsync =
+                ref.watch(userStatsProvider(breach.userId));
 
-          return ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              TactileCard(
-                useStitch: true,
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    LowercaseText(
-                      '${breach.userName ?? 'a friend'} hit a rough moment',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    LowercaseText(
-                      '${softSignal(breach.signalType)} · ${_formatTime(breach.createdAt)}',
-                      style: const TextStyle(color: AppTheme.inkPlumSoft),
-                    ),
-                    const SizedBox(height: 12),
-                    const LowercaseText(
-                      'showing up now is what this app is for.',
-                      style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        color: AppTheme.lavenderDeep,
-                        fontWeight: FontWeight.w500,
+            return ListView(
+              padding: const EdgeInsets.all(24),
+              children: [
+                if (breach.needsSupport)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.terracotta.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppTheme.terracotta.withValues(alpha: 0.3),
                       ),
                     ),
-                    breacherStatsAsync.when(
-                      data: (stats) => Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: LowercaseText(
-                          '${stats.bestStreak} days reclaimed so far — that doesn\'t go away.',
-                          style: const TextStyle(
-                            color: AppTheme.sageDeep,
-                            fontWeight: FontWeight.w600,
+                    child: const Row(
+                      children: [
+                        Icon(Icons.flag, color: AppTheme.terracotta),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: LowercaseText(
+                            'flagged — this friend may need your support right now.',
+                            style: TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
-                      ),
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, __) => const SizedBox.shrink(),
+                      ],
                     ),
-                  ],
+                  ),
+                TactileCard(
+                  useStitch: true,
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      LowercaseText(
+                        '${breach.userName ?? 'a friend'} hit a rough moment',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      LowercaseText(
+                        '${softSignal(breach.signalType)} · ${_formatTime(breach.createdAt)}',
+                        style: const TextStyle(color: AppTheme.inkPlumSoft),
+                      ),
+                      const SizedBox(height: 12),
+                      const LowercaseText(
+                        'showing up now is what this app is for.',
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          color: AppTheme.lavenderDeep,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      breacherStatsAsync.when(
+                        data: (stats) => Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: LowercaseText(
+                            '${stats.bestStreak} days reclaimed so far — that doesn\'t go away.',
+                            style: const TextStyle(
+                              color: AppTheme.sageDeep,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, __) => const SizedBox.shrink(),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              const LowercaseText('quick notes',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _presetMessages.map((preset) {
-                  final selected = _messageController.text == preset.$1;
-                  return PatchChip(
-                    label: preset.$1,
-                    selected: selected,
-                    tilted: true,
-                    onTap: () {
-                      setState(() {
-                        _messageController.text = preset.$1;
-                        _selectedType = preset.$2;
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: _messageController,
-                decoration: const InputDecoration(
-                  labelText: 'your message',
-                  hintText: 'write something supportive...',
+                const SizedBox(height: 24),
+                const LowercaseText(
+                  'support from your circle',
+                  style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                maxLines: 3,
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton.icon(
-                onPressed: _sending ? null : () => _sendSupport(breach!),
-                icon: _sending
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.favorite, size: 18),
-                label: const LowercaseText('send support'),
-              ),
-            ],
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) =>
-            const Center(child: ErrorBanner(message: 'could not load breach')),
+                const SizedBox(height: 8),
+                supportAsync.when(
+                  data: (messages) {
+                    if (messages.isEmpty) {
+                      return const LowercaseText(
+                        'no one has responded yet — be the first to reach out.',
+                        style: TextStyle(color: AppTheme.inkPlumSoft),
+                      );
+                    }
+                    return Column(
+                      children: messages.map((m) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: AppCard(
+                            child: ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: const Icon(Icons.favorite,
+                                  color: AppTheme.terracotta),
+                              title: Text(m.message),
+                              subtitle: LowercaseText(
+                                '${m.fromUserName ?? 'a friend'} · ${m.type.label}',
+                                style: const TextStyle(
+                                  color: AppTheme.inkPlumSoft,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                  loading: () => const LinearProgressIndicator(),
+                  error: (_, __) => const SizedBox.shrink(),
+                ),
+                const SizedBox(height: 24),
+                const LowercaseText(
+                  'quick notes',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _presetMessages.map((preset) {
+                    final selected = _messageController.text == preset.$1;
+                    return PatchChip(
+                      label: preset.$1,
+                      selected: selected,
+                      tilted: true,
+                      onTap: () {
+                        setState(() {
+                          _messageController.text = preset.$1;
+                          _selectedType = preset.$2;
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _messageController,
+                  decoration: const InputDecoration(
+                    labelText: 'your message',
+                    hintText: 'write something supportive...',
+                  ),
+                  maxLines: 3,
+                  onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<SupportMessageType>(
+                  initialValue: _selectedType,
+                  decoration:
+                      const InputDecoration(labelText: 'message type'),
+                  items: SupportMessageType.values
+                      .map((t) =>
+                          DropdownMenuItem(value: t, child: Text(t.label)))
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) setState(() => _selectedType = v);
+                  },
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton.icon(
+                  onPressed: _sending ? null : () => _sendSupport(breach!),
+                  icon: _sending
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.favorite, size: 18),
+                  label: const LowercaseText('send support'),
+                ),
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => const Center(
+            child: ErrorBanner(message: 'could not load breach'),
+          ),
         ),
       ),
     );
@@ -236,4 +316,11 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
 final _groupBreachesProvider =
     StreamProvider.family<List<BreachEvent>, String>((ref, groupId) {
   return ref.watch(breachRepositoryProvider).watchGroupBreaches(groupId);
+});
+
+final _breachSupportProvider =
+    StreamProvider.family<List<SupportMessage>, String>((ref, breachEventId) {
+  return ref
+      .watch(breachRepositoryProvider)
+      .watchSupportForBreach(breachEventId);
 });

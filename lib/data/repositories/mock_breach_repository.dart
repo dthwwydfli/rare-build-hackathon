@@ -47,6 +47,8 @@ class MockBreachRepository implements BreachRepository {
       metadata: event.metadata,
       severity: event.severity,
       createdAt: DateTime.now(),
+      flagged: event.flagged,
+      acknowledged: event.acknowledged,
       userName: event.userName,
     );
     _breaches.insert(0, created);
@@ -60,21 +62,18 @@ class MockBreachRepository implements BreachRepository {
 
   @override
   Future<void> acknowledgeBreach(String eventId) async {
+    _updateBreach(eventId, (b) => b.copyWith(acknowledged: true, flagged: false));
+  }
+
+  @override
+  Future<void> resolveBreach(String eventId) async {
+    _updateBreach(eventId, (b) => b.copyWith(flagged: false));
+  }
+
+  void _updateBreach(String eventId, BreachEvent Function(BreachEvent) update) {
     final index = _breaches.indexWhere((b) => b.id == eventId);
     if (index < 0) return;
-    final b = _breaches[index];
-    _breaches[index] = BreachEvent(
-      id: b.id,
-      userId: b.userId,
-      commitmentId: b.commitmentId,
-      groupId: b.groupId,
-      signalType: b.signalType,
-      metadata: b.metadata,
-      severity: b.severity,
-      createdAt: b.createdAt,
-      acknowledged: true,
-      userName: b.userName,
-    );
+    _breaches[index] = update(_breaches[index]);
     _breachController.add(List.from(_breaches));
   }
 
@@ -98,6 +97,13 @@ class MockBreachRepository implements BreachRepository {
   Stream<List<SupportMessage>> watchSupportForUser(String userId) async* {
     await for (final list in _supportStream()) {
       yield list.where((m) => m.toUserId == userId).toList();
+    }
+  }
+
+  @override
+  Stream<List<SupportMessage>> watchSupportForBreach(String breachEventId) async* {
+    await for (final list in _supportStream()) {
+      yield list.where((m) => m.breachEventId == breachEventId).toList();
     }
   }
 

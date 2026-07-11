@@ -51,28 +51,33 @@ class MyBreachesScreen extends ConsumerWidget {
                               color: AppTheme.inkPlumSoft,
                             ),
                             title: LowercaseText(
-                                softSignal(breach.signalType)),
+                              softSignal(breach.signalType),
+                            ),
                             subtitle: LowercaseText(
                               _formatTime(breach.createdAt),
                               style: const TextStyle(
-                                  color: AppTheme.inkPlumSoft),
+                                color: AppTheme.inkPlumSoft,
+                              ),
                             ),
-                            trailing: breach.acknowledged
-                                ? const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      LowercaseText(
-                                        'friends responded',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: AppTheme.lavenderDeep,
-                                        ),
-                                      ),
-                                      SizedBox(width: 6),
-                                      WaxSealCheck(size: 20),
-                                    ],
-                                  )
-                                : null,
+                            trailing: breach.flagged && !breach.acknowledged
+                                ? const Icon(Icons.flag,
+                                    color: AppTheme.terracotta, size: 20)
+                                : breach.acknowledged
+                                    ? const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          LowercaseText(
+                                            'friends responded',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppTheme.lavenderDeep,
+                                            ),
+                                          ),
+                                          SizedBox(width: 6),
+                                          WaxSealCheck(size: 20),
+                                        ],
+                                      )
+                                    : null,
                           ),
                         ),
                       );
