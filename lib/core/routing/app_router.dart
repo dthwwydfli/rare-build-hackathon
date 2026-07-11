@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,6 +11,8 @@ import '../../features/dev/breach_simulator_screen.dart';
 import '../../features/groups/create_group_screen.dart';
 import '../../features/groups/groups_screen.dart';
 import '../../features/groups/join_group_screen.dart';
+import '../../features/gamification/leaderboard_screen.dart';
+import '../../features/gamification/stats_detail_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/settings/permissions_screen.dart';
@@ -82,6 +83,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const GroupsScreen(),
           ),
           GoRoute(
+            path: '/leaderboard',
+            builder: (context, state) => const LeaderboardScreen(),
+          ),
+          GoRoute(
             path: '/support',
             builder: (context, state) => const SupportInboxScreen(),
           ),
@@ -117,6 +122,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           final groupId = state.uri.queryParameters['groupId'] ?? '';
           return BreachDetailScreen(eventId: eventId, groupId: groupId);
         },
+      ),
+      GoRoute(
+        path: '/stats',
+        builder: (context, state) => const StatsDetailScreen(),
       ),
       GoRoute(
         path: '/dev/simulator',
