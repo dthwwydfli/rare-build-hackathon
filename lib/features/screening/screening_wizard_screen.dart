@@ -35,7 +35,9 @@ class _ScreeningWizardScreenState extends ConsumerState<ScreeningWizardScreen> {
   int? _suicide;
   bool _genderFemale = false;
 
-  int get _stepCount => widget.isRescreen ? 5 : 6;
+  static const _instrumentStepCount = 4;
+
+  int get _pageCount => (widget.isRescreen ? 0 : 1) + _instrumentStepCount;
   int get _introOffset => widget.isRescreen ? 0 : 1;
 
   @override
@@ -111,7 +113,7 @@ class _ScreeningWizardScreenState extends ConsumerState<ScreeningWizardScreen> {
   }
 
   void _next() {
-    if (_currentPage < _stepCount - 1) {
+    if (_currentPage < _pageCount - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -123,7 +125,7 @@ class _ScreeningWizardScreenState extends ConsumerState<ScreeningWizardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLast = _currentPage == _stepCount - 1;
+    final isLast = _currentPage == _pageCount - 1;
     final canProceed = _stepComplete(_currentPage) && !_submitting;
 
     return PopScope(
@@ -189,7 +191,7 @@ class _ScreeningWizardScreenState extends ConsumerState<ScreeningWizardScreen> {
                     ],
                   ),
                 ),
-                StitchProgress.dots(count: _stepCount, index: _currentPage),
+                StitchProgress.dots(count: _pageCount, index: _currentPage),
                 Padding(
                   padding: const EdgeInsets.all(24),
                   child: ElevatedButton(
