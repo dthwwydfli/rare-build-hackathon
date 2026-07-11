@@ -65,6 +65,10 @@ class _UrgeLogScreenState extends ConsumerState<UrgeLogScreen> {
         mood: _mood,
       );
 
+      final highRisk = _intensity >= 8 ||
+          _mood == UrgeMood.sad ||
+          _mood == UrgeMood.stressed;
+
       if (!mounted) return;
       await showDialog<void>(
         context: context,
@@ -80,9 +84,24 @@ class _UrgeLogScreenState extends ConsumerState<UrgeLogScreen> {
                 label: Text(prompt.technique),
                 backgroundColor: AppTheme.accent,
               ),
+              if (highRisk) ...[
+                const SizedBox(height: 16),
+                const Text(
+                  'this feels intense — you can talk to someone trained right now.',
+                  style: TextStyle(height: 1.4),
+                ),
+              ],
             ],
           ),
           actions: [
+            if (highRisk)
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.push('/crisis');
+                },
+                child: const Text('Talk to someone now'),
+              ),
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text('Got it'),
