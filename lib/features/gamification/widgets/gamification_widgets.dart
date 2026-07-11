@@ -44,6 +44,7 @@ class GamificationHeroCard extends StatelessWidget {
     this.bestStreak,
     this.groupRank,
     this.groupName,
+    this.compact = false,
   });
 
   final int points;
@@ -51,6 +52,10 @@ class GamificationHeroCard extends StatelessWidget {
   final int? bestStreak;
   final int? groupRank;
   final String? groupName;
+
+  /// When true, shows only a dense streak card — date, points, and tier are
+  /// deferred elsewhere on the home screen.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -68,33 +73,61 @@ class GamificationHeroCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        DaysReclaimedCard(days: streak, bestDays: bestStreak),
-        const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(child: PointsCard(points: points, compact: true)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TierBadge(points: points),
-                  if (groupRank != null && groupName != null) ...[
-                    const SizedBox(height: 8),
-                    LowercaseText(
-                      'with ${groupName!.toLowerCase()} · #$groupRank',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: AppTheme.inkPlumSoft,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
+        DaysReclaimedCard(
+          days: streak,
+          bestDays: compact ? null : bestStreak,
+          dense: compact,
+        ),
+        if (!compact) ...[
+          const SizedBox(height: 12),
+          GamificationPointsRow(
+            points: points,
+            groupRank: groupRank,
+            groupName: groupName,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class GamificationPointsRow extends StatelessWidget {
+  const GamificationPointsRow({
+    super.key,
+    required this.points,
+    this.groupRank,
+    this.groupName,
+  });
+
+  final int points;
+  final int? groupRank;
+  final String? groupName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(child: PointsCard(points: points, compact: true)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TierBadge(points: points),
+              if (groupRank != null && groupName != null) ...[
+                const SizedBox(height: 8),
+                LowercaseText(
+                  'with ${groupName!.toLowerCase()} · #$groupRank',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.inkPlumSoft,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ],
     );

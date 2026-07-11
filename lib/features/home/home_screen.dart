@@ -101,13 +101,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push('/permissions'),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await ref.read(authRepositoryProvider).signOut();
-              if (context.mounted) context.go('/login');
-            },
-          ),
         ],
       ),
       body: PaperBackground(
@@ -129,16 +122,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   bestStreak: stats.bestStreak,
                   groupRank: groupRank,
                   groupName: firstGroup?.name,
+                  compact: true,
                 ),
                 loading: () => const LoadingView(),
                 error: (_, __) => const SizedBox.shrink(),
               ),
+              const SizedBox(height: 12),
+              const _SafetyActionsCard(),
               const SizedBox(height: 16),
               const _PositiveReminderCard(),
               const SizedBox(height: 16),
-              const _CrisisHelpCard(),
-              const SizedBox(height: 16),
-              const _FlagForSupportCard(),
+              statsAsync.when(
+                data: (stats) => GamificationPointsRow(
+                  points: stats.points,
+                  groupRank: groupRank,
+                  groupName: firstGroup?.name,
+                ),
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
               const SizedBox(height: 16),
               const _ProfessionalHelpCard(),
             ].staggered(context),
@@ -201,15 +203,14 @@ class _PositiveReminderCard extends ConsumerWidget {
   }
 }
 
-class _FlagForSupportCard extends ConsumerStatefulWidget {
-  const _FlagForSupportCard();
+class _SafetyActionsCard extends ConsumerStatefulWidget {
+  const _SafetyActionsCard();
 
   @override
-  ConsumerState<_FlagForSupportCard> createState() =>
-      _FlagForSupportCardState();
+  ConsumerState<_SafetyActionsCard> createState() => _SafetyActionsCardState();
 }
 
-class _FlagForSupportCardState extends ConsumerState<_FlagForSupportCard> {
+class _SafetyActionsCardState extends ConsumerState<_SafetyActionsCard> {
   bool _loading = false;
 
   Future<void> _flagForSupport() async {
@@ -241,57 +242,85 @@ class _FlagForSupportCardState extends ConsumerState<_FlagForSupportCard> {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: CircleAvatar(
-          backgroundColor: AppTheme.granola.withValues(alpha: 0.12),
-          child: const Icon(Icons.flag, color: AppTheme.granola),
-        ),
-        title: const LowercaseText('flag for support'),
-        subtitle: const LowercaseText(
-          'struggling right now? alert your friends without waiting for detection.',
-          style: TextStyle(color: AppTheme.inkPlumSoft),
-        ),
-        trailing: _loading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : FilledButton(
-                onPressed: _flagForSupport,
-                style:
-                    FilledButton.styleFrom(backgroundColor: AppTheme.granola),
-                child: const LowercaseText('flag'),
-              ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        children: [
+          _CrisisHelpTile(onHelp: () => context.push('/crisis')),
+          Divider(
+            height: 1,
+            color: AppTheme.stitchBorder.withValues(alpha: 0.6),
+          ),
+          _FlagForSupportTile(loading: _loading, onFlag: _flagForSupport),
+        ],
       ),
     );
   }
 }
 
-class _CrisisHelpCard extends StatelessWidget {
-  const _CrisisHelpCard();
+class _CrisisHelpTile extends StatelessWidget {
+  const _CrisisHelpTile({required this.onHelp});
+
+  final VoidCallback onHelp;
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: CircleAvatar(
-          backgroundColor: AppTheme.granola.withValues(alpha: 0.15),
-          child: const Icon(Icons.emergency_outlined, color: AppTheme.granola),
-        ),
-        title: const LowercaseText('need help right now?'),
-        subtitle: const LowercaseText(
-          'one tap to crisis helplines — Samaritans, GamCare, NHS 111.',
-          style: TextStyle(color: AppTheme.inkPlumSoft),
-        ),
-        trailing: FilledButton(
-          onPressed: () => context.push('/crisis'),
-          style: FilledButton.styleFrom(backgroundColor: AppTheme.granola),
-          child: const LowercaseText('help'),
-        ),
+    return ListTile(
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      leading: CircleAvatar(
+        radius: 18,
+        backgroundColor: AppTheme.granola.withValues(alpha: 0.15),
+        child: const Icon(Icons.emergency_outlined, color: AppTheme.granola),
       ),
+      title: const LowercaseText('need help right now?'),
+      subtitle: const LowercaseText(
+        'one tap to crisis helplines — Samaritans, GamCare, NHS 111.',
+        style: TextStyle(color: AppTheme.inkPlumSoft),
+      ),
+      trailing: FilledButton(
+        onPressed: onHelp,
+        style: FilledButton.styleFrom(backgroundColor: AppTheme.granola),
+        child: const LowercaseText('help'),
+      ),
+    );
+  }
+}
+
+class _FlagForSupportTile extends StatelessWidget {
+  const _FlagForSupportTile({
+    required this.loading,
+    required this.onFlag,
+  });
+
+  final bool loading;
+  final VoidCallback onFlag;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      leading: CircleAvatar(
+        radius: 18,
+        backgroundColor: AppTheme.granola.withValues(alpha: 0.12),
+        child: const Icon(Icons.flag, color: AppTheme.granola),
+      ),
+      title: const LowercaseText('flag for support'),
+      subtitle: const LowercaseText(
+        'struggling right now? alert your friends without waiting for detection.',
+        style: TextStyle(color: AppTheme.inkPlumSoft),
+      ),
+      trailing: loading
+          ? const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : FilledButton(
+              onPressed: onFlag,
+              style: FilledButton.styleFrom(backgroundColor: AppTheme.granola),
+              child: const LowercaseText('flag'),
+            ),
     );
   }
 }

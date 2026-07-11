@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/notifications/notification_service.dart';
+import '../../core/providers/repository_providers.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
@@ -30,6 +32,7 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
   bool _notificationGranted = false;
   bool _usageStatsGranted = false;
   bool _locationPermanentlyDenied = false;
+  bool _notificationPermanentlyDenied = false;
 
   @override
   void initState() {
@@ -45,6 +48,7 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
           location == LocationPermission.whileInUse;
       _locationPermanentlyDenied = location == LocationPermission.deniedForever;
       _notificationGranted = notification.isGranted;
+      _notificationPermanentlyDenied = notification.isPermanentlyDenied;
       _usageStatsGranted = !Platform.isAndroid;
     });
   }
@@ -59,9 +63,20 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
 
   Future<void> _requestNotifications() async {
     await Permission.notification.request();
+    if (!useMockAuth) {
+      await FirebaseMessaging.instance.requestPermission();
+    }
     await _checkPermissions();
-    if (!useMockAuth && mounted) {
+    if (!useMockAuth && mounted && _notificationGranted) {
       await ref.read(notificationServiceProvider).refreshToken();
+    }
+    if (mounted && !_notificationGranted) {
+      showAppSnackBar(
+        context,
+        _notificationPermanentlyDenied
+            ? 'enable notifications in settings to receive alerts'
+            : 'notifications were not enabled',
+      );
     }
   }
 
@@ -122,6 +137,7 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
               title: 'notifications',
               subtitle: 'receive support messages and send alerts to friends',
               granted: _notificationGranted,
+              permanentlyDenied: _notificationPermanentlyDenied,
               onRequest: _requestNotifications,
               onOpenSettings: _openSettings,
             ),
@@ -155,6 +171,16 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
                 onPressed: () => context.go('/home'),
                 child: const LowercaseText('skip for now'),
               ),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: () async {
+                await ref.read(authRepositoryProvider).signOut();
+                if (context.mounted) context.go('/login');
+              },
+              icon: const Icon(Icons.logout, size: 18),
+              label: const LowercaseText('sign out'),
+              style: TextButton.styleFrom(foregroundColor: AppTheme.inkPlumSoft),
+            ),
           ],
         ),
         ),
@@ -188,6 +214,7 @@ class _PermissionTile extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(icon, color: AppTheme.lavenderDeep),
             const SizedBox(width: 16),
@@ -203,15 +230,21 @@ class _PermissionTile extends StatelessWidget {
                 ],
               ),
             ),
-            if (granted)
-              const WaxSealCheck(size: 26)
-            else if (permanentlyDenied)
-              TextButton(
-                onPressed: onOpenSettings,
-                child: const LowercaseText('settings'),
-              )
-            else
-              TextButton(onPressed: onRequest, child: const LowercaseText('enable')),
+            const SizedBox(width: 12),
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: granted
+                  ? const WaxSealCheck(size: 26)
+                  : permanentlyDenied
+                      ? TextButton(
+                          onPressed: onOpenSettings,
+                          child: const LowercaseText('settings'),
+                        )
+                      : TextButton(
+                          onPressed: onRequest,
+                          child: const LowercaseText('enable'),
+                        ),
+            ),
           ],
         ),
       ),
