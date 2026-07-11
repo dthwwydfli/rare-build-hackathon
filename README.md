@@ -59,4 +59,4 @@ For real Firebase, run `flutterfire configure`, set `useMockAuth = false`, then 
 - `breach_events` — detection signals (triggers Cloud Functions)
 - `support_messages` — peer encouragement (triggers support notification)
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for full system design, [docs/INTEGRATION.md](docs/INTEGRATION.md) for the E2E test guide, and [docs/DEMO_CHECKLIST.md](docs/DEMO_CHECKLIST.md) for demo day rehearsal.
+See [docs/FEATURES.md](docs/FEATURES.md) for the full features and tools inventory, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for system design, [docs/INTEGRATION.md](docs/INTEGRATION.md) for the E2E test guide, and [docs/DEMO_CHECKLIST.md](docs/DEMO_CHECKLIST.md) for demo day rehearsal.
