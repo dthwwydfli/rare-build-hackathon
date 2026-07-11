@@ -102,27 +102,28 @@ void main() {
       (tester) async {
     await pumpHome(tester, viewport: const Size(390, 844));
 
-    final help = find.text('help');
+    final getHelp = find.text('get help');
     final flag = find.text('flag');
     final reminder = find.text('positive reminder');
 
-    expect(help, findsOneWidget);
+    expect(getHelp, findsOneWidget);
     expect(flag, findsOneWidget);
     expect(reminder, findsOneWidget);
     expect(find.text('financial recovery'), findsNothing);
+    expect(find.text('need professional help?'), findsNothing);
 
-    final helpY = tester.getTopLeft(help).dy;
+    final getHelpY = tester.getTopLeft(getHelp).dy;
     final flagY = tester.getTopLeft(flag).dy;
     final reminderY = tester.getTopLeft(reminder).dy;
 
-    expect(helpY, lessThan(reminderY));
+    expect(getHelpY, lessThan(reminderY));
     expect(flagY, lessThan(reminderY));
   });
 
   testWidgets('crisis and flag buttons present on iPhone SE', (tester) async {
     await pumpHome(tester, viewport: const Size(375, 667));
 
-    expect(find.text('help'), findsOneWidget);
+    expect(find.text('get help'), findsOneWidget);
     expect(find.text('flag'), findsOneWidget);
   });
 
@@ -130,7 +131,7 @@ void main() {
       (tester) async {
     await pumpHome(tester, viewport: const Size(390, 844));
 
-    expect(isVisibleInListViewport(tester, find.text('help')), isTrue);
+    expect(isVisibleInListViewport(tester, find.text('get help')), isTrue);
     expect(isVisibleInListViewport(tester, find.text('flag')), isTrue);
   });
 
