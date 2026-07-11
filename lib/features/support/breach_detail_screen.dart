@@ -14,6 +14,7 @@ const _presetMessages = [
   ("You've got this — I'm here for you", SupportMessageType.encouragement),
   ("Want to talk? I'm free right now", SupportMessageType.checkIn),
   ('Call me if you need support', SupportMessageType.callOffer),
+  ('Proud of you for being accountable', SupportMessageType.encouragement),
 ];
 
 class BreachDetailScreen extends ConsumerStatefulWidget {
@@ -79,9 +80,10 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final breachesAsync = ref.watch(_groupBreachesProvider(widget.groupId));
+    final supportAsync = ref.watch(_breachSupportProvider(widget.eventId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Send support')),
+      appBar: AppBar(title: const Text('Social support')),
       body: breachesAsync.when(
         data: (breaches) {
           BreachEvent? breach;
@@ -98,6 +100,28 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
           return ListView(
             padding: const EdgeInsets.all(24),
             children: [
+              if (breach.needsSupport)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.danger.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.danger.withValues(alpha: 0.3)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.flag, color: AppTheme.danger),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Flagged — this friend may need your support right now.',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               Card(
                 color: Theme.of(context).colorScheme.errorContainer,
                 child: Padding(
@@ -119,6 +143,37 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Support from your circle',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 8),
+              supportAsync.when(
+                data: (messages) {
+                  if (messages.isEmpty) {
+                    return Text(
+                      'No one has responded yet — be the first to reach out.',
+                      style: TextStyle(color: Colors.grey.shade600),
+                    );
+                  }
+                  return Column(
+                    children: messages.map((m) {
+                      return AppCard(
+                        child: ListTile(
+                          leading: const Icon(Icons.favorite, color: AppTheme.danger),
+                          title: Text(m.message),
+                          subtitle: Text(
+                            '${m.fromUserName ?? 'Friend'} · ${m.type.label}',
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+                loading: () => const LinearProgressIndicator(),
+                error: (_, __) => const SizedBox.shrink(),
               ),
               const SizedBox(height: 24),
               Text('Quick messages', style: Theme.of(context).textTheme.titleSmall),
@@ -149,7 +204,7 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<SupportMessageType>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 decoration: const InputDecoration(labelText: 'Message type'),
                 items: SupportMessageType.values
                     .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
@@ -173,7 +228,9 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: ErrorBanner(message: 'Could not load breach')),
+        error: (e, _) => const Center(
+          child: ErrorBanner(message: 'Could not load breach'),
+        ),
       ),
     );
   }
@@ -189,4 +246,9 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
 final _groupBreachesProvider =
     StreamProvider.family<List<BreachEvent>, String>((ref, groupId) {
   return ref.watch(breachRepositoryProvider).watchGroupBreaches(groupId);
+});
+
+final _breachSupportProvider =
+    StreamProvider.family<List<SupportMessage>, String>((ref, breachEventId) {
+  return ref.watch(breachRepositoryProvider).watchSupportForBreach(breachEventId);
 });

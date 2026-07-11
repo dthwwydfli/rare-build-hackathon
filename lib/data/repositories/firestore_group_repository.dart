@@ -79,4 +79,26 @@ class FirestoreGroupRepository implements GroupRepository {
       createdAt: group.createdAt,
     );
   }
+
+  @override
+  Future<FriendGroup> addMemberToGroup({
+    required String groupId,
+    required String userId,
+  }) async {
+    final doc = await _groups.doc(groupId).get();
+    if (!doc.exists) throw Exception('Group not found');
+    final group = FriendGroup.fromFirestore(doc);
+    if (group.memberIds.contains(userId)) return group;
+
+    final updatedMemberIds = [...group.memberIds, userId];
+    await _groups.doc(groupId).update({'memberIds': updatedMemberIds});
+    return FriendGroup(
+      id: group.id,
+      name: group.name,
+      ownerId: group.ownerId,
+      memberIds: updatedMemberIds,
+      inviteCode: group.inviteCode,
+      createdAt: group.createdAt,
+    );
+  }
 }

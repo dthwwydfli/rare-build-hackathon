@@ -80,4 +80,27 @@ class MockGroupRepository implements GroupRepository {
     _controller.add(List.from(_groups));
     return updated;
   }
+
+  @override
+  Future<FriendGroup> addMemberToGroup({
+    required String groupId,
+    required String userId,
+  }) async {
+    final index = _groups.indexWhere((g) => g.id == groupId);
+    if (index < 0) throw Exception('Group not found');
+    final group = _groups[index];
+    if (group.memberIds.contains(userId)) return group;
+
+    final updated = FriendGroup(
+      id: group.id,
+      name: group.name,
+      ownerId: group.ownerId,
+      memberIds: [...group.memberIds, userId],
+      inviteCode: group.inviteCode,
+      createdAt: group.createdAt,
+    );
+    _groups[index] = updated;
+    _controller.add(List.from(_groups));
+    return updated;
+  }
 }

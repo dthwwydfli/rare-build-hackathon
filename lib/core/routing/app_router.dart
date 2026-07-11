@@ -14,6 +14,7 @@ import '../../features/groups/groups_screen.dart';
 import '../../features/groups/join_group_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
+import '../../features/people/find_people_screen.dart';
 import '../../features/settings/permissions_screen.dart';
 import '../../features/support/breach_detail_screen.dart';
 import '../../features/support/my_breaches_screen.dart';
@@ -101,6 +102,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/groups/new',
         builder: (context, state) => const CreateGroupScreen(),
+      ),
+      GoRoute(
+        path: '/people/find',
+        builder: (context, state) => const FindPeopleScreen(),
       ),
       GoRoute(
         path: '/groups/join',

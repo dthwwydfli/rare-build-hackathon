@@ -11,4 +11,8 @@ abstract class GroupRepository {
     required String userId,
   });
   Future<FriendGroup?> findGroupByInviteCode(String inviteCode);
+  Future<FriendGroup> addMemberToGroup({
+    required String groupId,
+    required String userId,
+  });
 }
