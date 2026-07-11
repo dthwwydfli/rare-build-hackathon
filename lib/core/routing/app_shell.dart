@@ -12,13 +12,14 @@ class AppShell extends ConsumerWidget {
   int _selectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
     if (location.startsWith('/commitments')) return 1;
+    if (location.startsWith('/financial-recovery')) return 2;
     if (location.startsWith('/support-hub') ||
         location.startsWith('/groups') ||
         location.startsWith('/leaderboard')) {
-      return 2;
+      return 3;
     }
     if (location.startsWith('/support') || location.startsWith('/breach')) {
-      return 3;
+      return 4;
     }
     return 0;
   }
@@ -30,8 +31,10 @@ class AppShell extends ConsumerWidget {
       case 1:
         context.go('/commitments');
       case 2:
-        context.go('/support-hub');
+        context.go('/financial-recovery');
       case 3:
+        context.go('/support-hub');
+      case 4:
         context.go('/support');
     }
   }
@@ -63,6 +66,11 @@ class AppShell extends ConsumerWidget {
             icon: Icon(Icons.flag_outlined),
             selectedIcon: Icon(Icons.flag),
             label: 'goals',
+          ),
+          const NavigationDestination(
+            icon: Icon(Icons.savings_outlined),
+            selectedIcon: Icon(Icons.savings),
+            label: 'finance',
           ),
           const NavigationDestination(
             icon: Icon(Icons.favorite_outline),

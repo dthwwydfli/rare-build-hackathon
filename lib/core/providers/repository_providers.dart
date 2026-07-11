@@ -18,7 +18,11 @@ import '../../data/repositories/firestore_urge_repository.dart';
 import '../../data/repositories/mock_urge_repository.dart';
 import '../../data/repositories/firestore_screening_repository.dart';
 import '../../data/repositories/mock_screening_repository.dart';
+import '../../data/repositories/firestore_financial_recovery_repository.dart';
+import '../../data/repositories/mock_financial_recovery_repository.dart';
 import '../../domain/models/app_user.dart';
+import '../../domain/models/access_block_settings.dart';
+import '../../domain/models/financial_recovery_profile.dart';
 import '../../domain/models/friend_group.dart';
 import '../../domain/models/leaderboard_entry.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -31,6 +35,7 @@ import '../../domain/repositories/user_repository.dart';
 import '../../domain/repositories/access_block_repository.dart';
 import '../../domain/repositories/urge_repository.dart';
 import '../../domain/repositories/screening_repository.dart';
+import '../../domain/repositories/financial_recovery_repository.dart';
 
 export '../config/app_config.dart' show useMockAuth;
 
@@ -81,6 +86,24 @@ final urgeRepositoryProvider = Provider<UrgeRepository>((ref) {
 final screeningRepositoryProvider = Provider<ScreeningRepository>((ref) {
   if (useMockAuth) return MockScreeningRepository();
   return FirestoreScreeningRepository();
+});
+
+final financialRecoveryRepositoryProvider =
+    Provider<FinancialRecoveryRepository>((ref) {
+  if (useMockAuth) return MockFinancialRecoveryRepository();
+  return FirestoreFinancialRecoveryRepository();
+});
+
+final blockSettingsProvider =
+    StreamProvider.family<AccessBlockSettings, String>((ref, userId) {
+  return ref.watch(accessBlockRepositoryProvider).watchSettings(userId);
+});
+
+final financialRecoveryProfileProvider =
+    StreamProvider.family<FinancialRecoveryProfile, String>((ref, userId) {
+  return ref
+      .watch(financialRecoveryRepositoryProvider)
+      .watchProfile(userId);
 });
 
 final currentUserProvider = StreamProvider<AppUser?>((ref) {

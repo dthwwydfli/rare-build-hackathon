@@ -22,6 +22,7 @@ import '../../features/support/breach_detail_screen.dart';
 import '../../features/support/my_breaches_screen.dart';
 import '../../features/support/support_hub_screen.dart';
 import '../../features/support/support_inbox_screen.dart';
+import '../../features/financial_recovery/financial_recovery_screen.dart';
 import '../../features/tools/block_access_screen.dart';
 import '../../features/urges/urge_insights_screen.dart';
 import '../../features/urges/urge_log_screen.dart';
@@ -132,6 +133,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/commitments',
             builder: (context, state) => const CommitmentsScreen(),
+          ),
+          GoRoute(
+            path: '/financial-recovery',
+            builder: (context, state) => const FinancialRecoveryScreen(),
           ),
           GoRoute(
             path: '/support-hub',
