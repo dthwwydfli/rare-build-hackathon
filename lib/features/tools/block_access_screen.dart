@@ -74,7 +74,7 @@ class _BlockAccessScreenState extends ConsumerState<BlockAccessScreen> {
             ],
             const SizedBox(height: 24),
             Text(
-              'Cut off access — not willpower',
+              'Cut off access and not willpower',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
@@ -160,7 +160,7 @@ class _BlockAccessScreenState extends ConsumerState<BlockAccessScreen> {
                         ? null
                         : () => _startSpendingDelay(settings),
                     icon: const Icon(Icons.lock_clock),
-                    label: const Text('Start delay now — I feel an urge to spend'),
+                    label: const Text('Start delay now because I feel an urge to spend'),
                   ),
                 ],
               ),
@@ -246,7 +246,7 @@ class _SpendingDelayActiveCard extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Spending locked — $mins minutes remaining',
+              'Spending locked with $mins minutes remaining',
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),

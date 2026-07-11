@@ -11,7 +11,7 @@ class CopingPromptService {
       return const CopingPrompt(
         title: 'Risky moment detected',
         message:
-            'This is a time you have struggled before. Pause for 10 minutes — '
+            'This is a time you have struggled before. Pause for 10 minutes and '
             'the urge will pass. Text a friend or leave the situation.',
         technique: 'Urge surfing',
       );
@@ -38,7 +38,7 @@ class CopingPromptService {
         return const CopingPrompt(
           title: 'Stop the chase',
           message:
-              'Chasing losses makes things worse — that is the addiction talking. '
+              'Chasing losses makes things worse and that is the addiction talking. '
               'The money is gone; protecting what is left is the win.',
           technique: 'Cognitive reframe',
         );
@@ -67,7 +67,7 @@ class CopingPromptService {
         return const CopingPrompt(
           title: 'Stress urge',
           message:
-              'Gambling will not fix the stress — it will add debt. '
+              'Gambling will not fix the stress and it will add debt. '
               'Try 4-7-8 breathing: inhale 4s, hold 7s, exhale 8s.',
           technique: 'Breathing',
         );
@@ -83,7 +83,7 @@ class CopingPromptService {
         return const CopingPrompt(
           title: 'Lonely urge',
           message:
-              'Reach out to one person right now — even a short message counts. '
+              'Reach out to one person right now because even a short message counts. '
               'Connection beats isolation every time.',
           technique: 'Social connection',
         );
@@ -102,7 +102,7 @@ class CopingPromptService {
     if (blocksActive >= blocksTotal) {
       return const CopingPrompt(
         title: 'Barriers in place',
-        message: 'Your access blocks are active. Use them — that is the point.',
+        message: 'Your access blocks are active. Use them because that is the point.',
         technique: 'Harm reduction',
       );
     }

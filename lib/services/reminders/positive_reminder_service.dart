@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Rotating positive encouragement shown on the home screen.
 class PositiveReminderService {
   static const _messages = [
-    'One day at a time — you are stronger than the urge.',
+    'One day at a time and you are stronger than the urge.',
     'Your support circle believes in you. Reach out if you need them.',
     'Every hour without gambling is a win. Keep going.',
     'Cravings pass. You do not have to act on them.',
     'You chose accountability for a reason. That choice still matters.',
     'Small steps add up. Today is another step forward.',
-    'You are not alone — your friends are here for you.',
+    'You are not alone and your friends are here for you.',
     'Progress is not perfect. Showing up still counts.',
   ];
 

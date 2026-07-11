@@ -55,7 +55,7 @@ class UrgePatternAnalyzer {
       insights.add(UrgePatternInsight(
         title: 'Money on hand',
         detail:
-            '$highMoneyUrges urges happened with £50+ available — consider bank blocks.',
+            '$highMoneyUrges urges happened with £50+ available so consider bank blocks.',
         riskLevel: 'high',
       ));
     }
@@ -64,7 +64,7 @@ class UrgePatternAnalyzer {
     insights.add(UrgePatternInsight(
       title: 'Urge control: $resistRate% resisted',
       detail: resistRate >= 70
-          ? 'You are building confidence — CBT shows this matters most.'
+          ? 'You are building confidence and CBT shows this matters most.'
           : 'Logging urges builds control even when you slip. Keep tracking.',
       riskLevel: resistRate >= 70 ? 'low' : 'medium',
     ));

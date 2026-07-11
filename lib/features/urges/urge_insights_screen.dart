@@ -95,7 +95,7 @@ class UrgeInsightsScreen extends ConsumerWidget {
                               ),
                             ),
                             Text(
-                              '${urges.length} logged — confidence builds with each one',
+                              '${urges.length} logged and confidence builds with each one',
                               style: TextStyle(color: Colors.grey.shade700),
                             ),
                           ],
@@ -203,7 +203,7 @@ class _InsightCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = switch (insight.riskLevel) {
       'high' => AppTheme.danger,
-      'medium' => Colors.orange.shade800,
+      'medium' => AppTheme.granolaDark,
       _ => AppTheme.primary,
     };
     return Padding(
