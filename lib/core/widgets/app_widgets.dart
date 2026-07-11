@@ -235,7 +235,7 @@ class RankBadge extends StatelessWidget {
   Color get _color {
     switch (rank) {
       case 1:
-        return AppTheme.terracotta;
+        return AppTheme.granola;
       case 2:
         return AppTheme.lavenderDeep;
       case 3:
@@ -319,10 +319,10 @@ class PointsCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(compact ? 12 : 16),
       decoration: BoxDecoration(
-        color: AppTheme.terracottaWash,
+        color: AppTheme.granolaLight,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.terracotta.withValues(alpha: 0.3),
+          color: AppTheme.granola.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -335,7 +335,7 @@ class PointsCard extends StatelessWidget {
               fontSize: 11,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.6,
-              color: AppTheme.terracottaDeep,
+              color: AppTheme.sageDeep,
             ),
           ),
           Text(
@@ -343,7 +343,7 @@ class PointsCard extends StatelessWidget {
             style: TextStyle(
               fontSize: compact ? 24 : 32,
               fontWeight: FontWeight.bold,
-              color: AppTheme.terracottaDeep,
+              color: AppTheme.sageDeep,
             ),
           ),
           LowercaseText(
@@ -445,7 +445,7 @@ class TierBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Mini ink-stamp look: paper fill, terracotta ring, slight tilt.
+    // Mini ink-stamp look: paper fill, green ring, slight tilt.
     return Transform.rotate(
       angle: -0.035,
       child: Container(
@@ -454,14 +454,14 @@ class TierBadge extends StatelessWidget {
           color: AppTheme.paperSurface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.terracotta.withValues(alpha: 0.7),
+            color: AppTheme.granola.withValues(alpha: 0.7),
             width: 1.5,
           ),
         ),
         child: LowercaseText(
           softTierLabel(points),
           style: const TextStyle(
-            color: AppTheme.terracottaDeep,
+            color: AppTheme.sageDeep,
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.4,

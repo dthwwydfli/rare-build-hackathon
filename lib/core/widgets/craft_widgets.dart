@@ -31,7 +31,7 @@ class StampBadge extends StatelessWidget {
     required this.label,
     this.icon,
     this.size = 56,
-    this.color = AppTheme.terracotta,
+    this.color = AppTheme.granola,
     this.seed,
   });
 
@@ -39,18 +39,18 @@ class StampBadge extends StatelessWidget {
   StampBadge.tier(int points, {super.key, this.size = 56})
       : label = softTierLabel(points),
         icon = Icons.spa_outlined,
-        color = AppTheme.terracotta,
+        color = AppTheme.granola,
         seed = softTierLabel(points);
 
   const StampBadge.active({super.key, this.size = 56})
       : label = 'active',
         icon = Icons.check,
-        color = AppTheme.terracotta,
+        color = AppTheme.granola,
         seed = 'active';
 
   const StampBadge.milestone(this.label, {super.key, this.size = 56})
       : icon = Icons.star_outline,
-        color = AppTheme.terracotta,
+        color = AppTheme.granola,
         seed = null;
 
   final String label;
@@ -321,7 +321,7 @@ class TicketStub extends StatelessWidget {
     return ClipPath(
       clipper: _TicketClipper(),
       child: Container(
-        color: AppTheme.terracottaWash,
+        color: AppTheme.granolaLight,
         padding: const EdgeInsets.symmetric(vertical: 14),
         child: IntrinsicHeight(
           child: Row(
@@ -340,7 +340,7 @@ class TicketStub extends StatelessWidget {
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.6,
-                          color: AppTheme.terracottaDeep,
+                          color: AppTheme.sageDeep,
                         ),
                       ),
                       SizedBox(height: 2),
@@ -360,7 +360,7 @@ class TicketStub extends StatelessWidget {
                 width: 1,
                 child: CustomPaint(
                   painter:
-                      _DashedLinePainter(AppTheme.terracottaDeep, vertical: true),
+                      _DashedLinePainter(AppTheme.sageDeep, vertical: true),
                 ),
               ),
               Expanded(
@@ -387,7 +387,7 @@ class TicketStub extends StatelessWidget {
                                 Clipboard.setData(ClipboardData(text: code!));
                               },
                           icon: const Icon(Icons.copy, size: 20),
-                          color: AppTheme.terracottaDeep,
+                          color: AppTheme.sageDeep,
                           constraints: const BoxConstraints(
                               minWidth: 44, minHeight: 44),
                           tooltip: 'copy',
@@ -396,7 +396,7 @@ class TicketStub extends StatelessWidget {
                           IconButton(
                             onPressed: onShare,
                             icon: const Icon(Icons.ios_share, size: 20),
-                            color: AppTheme.terracottaDeep,
+                            color: AppTheme.sageDeep,
                             constraints: const BoxConstraints(
                                 minWidth: 44, minHeight: 44),
                             tooltip: 'share',
@@ -747,7 +747,7 @@ class DaysReclaimedCard extends StatelessWidget {
                 if (bestDays != null) ...[
                   const SizedBox(height: 4),
                   LowercaseText(
-                    'best: $bestDays days — yours forever',
+                    'best: $bestDays days and yours forever',
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppTheme.inkPlumSoft,

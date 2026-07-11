@@ -12,12 +12,6 @@ class AppTheme {
   static const Color inkPlumSoft = Color(0xFF5F5170); // secondary text, ~7:1
   static const Color lavenderDeep = Color(0xFF6E5A8E); // interactive text, ~5.9:1
 
-  // Warm accent — stamps, milestones, celebration
-  static const Color terracotta = Color(0xFFB85C38);
-  static const Color terracottaDeep = Color(0xFF96431F); // terracotta text, ~7:1
-  static const Color terracottaWash = Color(0xFFF4DFD3); // stamp-pad background
-  static const Color amberGold = Color(0xFFD9A441); // decorative only, never text
-
   // Gamification — granola (decorative only; text uses sageDeep)
   static const Color granola = Color(0xFF8B9A6B);
   static const Color granolaDark = Color(0xFF6B7A52);
@@ -48,7 +42,7 @@ class AppTheme {
         onPrimary: white,
         secondary: granola,
         onSecondary: white,
-        tertiary: terracotta,
+        tertiary: granola,
         surface: surface,
         onSurface: inkPlum,
         error: dangerDeep,
@@ -182,7 +176,7 @@ class AppTheme {
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: terracotta,
+        backgroundColor: sageDeep,
         foregroundColor: white,
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

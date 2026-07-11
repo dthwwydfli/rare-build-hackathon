@@ -63,7 +63,7 @@ class _PaperTexturePainter extends CustomPainter {
     final fiberPaint = Paint()
       ..color = AppTheme.ornamentAccent.withValues(alpha: 0.05);
     final goldPaint = Paint()
-      ..color = AppTheme.amberGold.withValues(alpha: 0.05);
+      ..color = AppTheme.granolaLight.withValues(alpha: 0.05);
     for (var i = 0; i < 120; i++) {
       final dx = rng.nextDouble() * size.width;
       final dy = rng.nextDouble() * size.height;
