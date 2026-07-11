@@ -33,3 +33,4 @@ flutter:
   assets:
     - assets/data/gambling_pois.json
     - assets/data/gambling_apps.json
+    - assets/data/gambling_domains.json

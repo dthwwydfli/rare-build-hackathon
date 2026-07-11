@@ -1,0 +1,17 @@
+[
+  {"name": "Coral Betting - Oxford Street", "lat": 51.5154, "lng": -0.1419, "type": "betting_shop"},
+  {"name": "Ladbrokes - Camden", "lat": 51.5392, "lng": -0.1426, "type": "betting_shop"},
+  {"name": "William Hill - Shoreditch", "lat": 51.5255, "lng": -0.0785, "type": "betting_shop"},
+  {"name": "Bet365 Shop - Manchester", "lat": 53.4808, "lng": -2.2426, "type": "betting_shop"},
+  {"name": "Grosvenor Casino - London", "lat": 51.5074, "lng": -0.1278, "type": "casino"},
+  {"name": "Aspers Casino - Stratford", "lat": 51.5413, "lng": -0.0028, "type": "casino"},
+  {"name": "Genting Casino - Birmingham", "lat": 52.4862, "lng": -1.8904, "type": "casino"},
+  {"name": "Paddy Power - Dublin", "lat": 53.3498, "lng": -6.2603, "type": "betting_shop"},
+  {"name": "Betfred - Leeds", "lat": 53.8008, "lng": -1.5491, "type": "betting_shop"},
+  {"name": "Mecca Bingo - Liverpool", "lat": 53.4084, "lng": -2.9916, "type": "arcade"},
+  {"name": "William Hill - Edinburgh", "lat": 55.9533, "lng": -3.1883, "type": "betting_shop"},
+  {"name": "Coral - Bristol", "lat": 51.4545, "lng": -2.5879, "type": "betting_shop"},
+  {"name": "Ladbrokes - Glasgow", "lat": 55.8642, "lng": -4.2518, "type": "betting_shop"},
+  {"name": "Grosvenor - Reading", "lat": 51.4543, "lng": -0.9781, "type": "casino"},
+  {"name": "BetVictor - Cardiff", "lat": 51.4816, "lng": -3.1791, "type": "betting_shop"}
+]

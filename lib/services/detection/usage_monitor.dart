@@ -1,24 +1,20 @@
-import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-class GamblingApp {
-  const GamblingApp({
-    required this.packageName,
-    required this.displayName,
+import 'gambling_catalog.dart';
+
+class AppLaunchResult {
+  const AppLaunchResult({
+    this.packageName,
+    this.appName,
+    this.lastUsedMs,
   });
 
-  final String packageName;
-  final String displayName;
-
-  factory GamblingApp.fromJson(Map<String, dynamic> json) {
-    return GamblingApp(
-      packageName: json['packageName'] as String,
-      displayName: json['displayName'] as String,
-    );
-  }
+  final String? packageName;
+  final String? appName;
+  final int? lastUsedMs;
 }
 
 class AppUsageResult {
@@ -35,10 +31,29 @@ class AppUsageResult {
 
 abstract class UsageMonitor {
   Future<AppUsageResult> checkActiveApp();
+
+  /// Recent app opens within [windowSeconds] — proxy for logins.
+  Future<List<AppLaunchResult>> checkRecentLaunches({
+    int windowSeconds = 300,
+  });
 }
 
 class AndroidUsageMonitor implements UsageMonitor {
   static const _channel = MethodChannel('com.accountability/usage_stats');
+
+  Future<void> syncPackageList(List<String> packages) async {
+    if (kIsWeb) return;
+    try {
+      if (!Platform.isAndroid) return;
+    } catch (_) {
+      return;
+    }
+    try {
+      await _channel.invokeMethod('setGamblingPackages', packages);
+    } catch (e) {
+      debugPrint('Failed to sync gambling packages: $e');
+    }
+  }
 
   @override
   Future<AppUsageResult> checkActiveApp() async {
@@ -71,11 +86,42 @@ class AndroidUsageMonitor implements UsageMonitor {
       return const AppUsageResult(isGamblingAppActive: false);
     }
   }
+
+  @override
+  Future<List<AppLaunchResult>> checkRecentLaunches({
+    int windowSeconds = 300,
+  }) async {
+    if (kIsWeb) return const [];
+    try {
+      if (!Platform.isAndroid) return const [];
+    } catch (_) {
+      return const [];
+    }
+    try {
+      final result = await _channel.invokeMethod<List<dynamic>>(
+        'getRecentGamblingLaunches',
+        {'windowSeconds': windowSeconds},
+      );
+      if (result == null) return const [];
+      return result.map((item) {
+        final map = Map<String, dynamic>.from(item as Map);
+        return AppLaunchResult(
+          packageName: map['packageName'] as String?,
+          appName: map['appName'] as String?,
+          lastUsedMs: map['lastUsedMs'] as int?,
+        );
+      }).toList();
+    } catch (e) {
+      debugPrint('Recent launches error: $e');
+      return const [];
+    }
+  }
 }
 
 class SimulatedUsageMonitor implements UsageMonitor {
   bool simulateActive = false;
   String simulatedApp = 'Bet365';
+  bool simulateRecentLaunch = false;
 
   @override
   Future<AppUsageResult> checkActiveApp() async {
@@ -88,16 +134,26 @@ class SimulatedUsageMonitor implements UsageMonitor {
       packageName: 'com.bet365',
     );
   }
+
+  @override
+  Future<List<AppLaunchResult>> checkRecentLaunches({
+    int windowSeconds = 300,
+  }) async {
+    if (!simulateRecentLaunch && !simulateActive) return const [];
+    return [
+      AppLaunchResult(
+        packageName: 'com.bet365',
+        appName: simulatedApp,
+        lastUsedMs: DateTime.now().millisecondsSinceEpoch,
+      ),
+    ];
+  }
 }
 
 class UsageMonitorFactory {
-  static Future<List<GamblingApp>> loadGamblingApps() async {
-    final jsonString =
-        await rootBundle.loadString('assets/data/gambling_apps.json');
-    final list = json.decode(jsonString) as List<dynamic>;
-    return list
-        .map((e) => GamblingApp.fromJson(e as Map<String, dynamic>))
-        .toList();
+  static Future<List<GamblingAppEntry>> loadGamblingApps() async {
+    await GamblingCatalog.instance.load();
+    return GamblingCatalog.instance.apps;
   }
 
   static UsageMonitor create() {

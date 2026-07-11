@@ -1,5 +1,6 @@
 package com.example.accountability_app
 
+import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
@@ -12,7 +13,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val channelName = "com.accountability/usage_stats"
 
-    private val gamblingPackages = setOf(
+    private var gamblingPackages = setOf(
         "com.bet365",
         "com.paddypower",
         "com.williamhill",
@@ -43,6 +44,15 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channelName)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
+                    "setGamblingPackages" -> {
+                        val packages = call.arguments as? List<*>
+                        if (packages != null) {
+                            gamblingPackages = packages
+                                .filterIsInstance<String>()
+                                .toSet()
+                        }
+                        result.success(true)
+                    }
                     "getForegroundApp" -> {
                         val foreground = getForegroundPackage()
                         if (foreground == null) {
@@ -57,6 +67,13 @@ class MainActivity : FlutterActivity() {
                                 )
                             )
                         }
+                    }
+                    "getRecentGamblingLaunches" -> {
+                        val windowSeconds =
+                            (call.arguments as? Map<*, *>)?.get("windowSeconds") as? Int
+                                ?: 300
+                        val launches = getRecentGamblingLaunches(windowSeconds)
+                        result.success(launches)
                     }
                     "requestUsagePermission" -> {
                         startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
@@ -88,5 +105,33 @@ class MainActivity : FlutterActivity() {
             }
         }
         return recentPackage
+    }
+
+    private fun getRecentGamblingLaunches(windowSeconds: Int): List<Map<String, Any?>> {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return emptyList()
+        val usageStatsManager =
+            getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val end = System.currentTimeMillis()
+        val begin = end - windowSeconds * 1000L
+        val stats = usageStatsManager.queryUsageStats(
+            UsageStatsManager.INTERVAL_DAILY,
+            begin,
+            end
+        ) ?: return emptyList()
+
+        return stats
+            .filter { gamblingPackages.contains(it.packageName) }
+            .filter { it.lastTimeUsed >= begin }
+            .sortedByDescending { it.lastTimeUsed }
+            .map { stat -> launchMap(stat) }
+    }
+
+    private fun launchMap(stat: UsageStats): Map<String, Any?> {
+        val pkg = stat.packageName
+        return mapOf(
+            "packageName" to pkg,
+            "appName" to (gamblingDisplayNames[pkg] ?: pkg),
+            "lastUsedMs" to stat.lastTimeUsed
+        )
     }
 }
