@@ -7,6 +7,7 @@ class FriendGroup {
     required this.ownerId,
     required this.memberIds,
     required this.inviteCode,
+    this.coverAsset,
     required this.createdAt,
   });
 
@@ -15,9 +16,11 @@ class FriendGroup {
   final String ownerId;
   final List<String> memberIds;
   final String inviteCode;
+  final String? coverAsset;
   final DateTime createdAt;
 
-  factory FriendGroup.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory FriendGroup.fromFirestore(
+      DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? {};
     return FriendGroup(
       id: doc.id,
@@ -25,6 +28,7 @@ class FriendGroup {
       ownerId: data['ownerId'] as String? ?? '',
       memberIds: List<String>.from(data['memberIds'] ?? []),
       inviteCode: data['inviteCode'] as String? ?? '',
+      coverAsset: data['coverAsset'] as String?,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -35,6 +39,7 @@ class FriendGroup {
       'ownerId': ownerId,
       'memberIds': memberIds,
       'inviteCode': inviteCode,
+      if (coverAsset != null) 'coverAsset': coverAsset,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }

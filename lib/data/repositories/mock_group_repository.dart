@@ -28,6 +28,7 @@ class MockGroupRepository implements GroupRepository {
           'mock-user-5',
         ],
         inviteCode: 'RESET7',
+        coverAsset: 'assets/images/community/weekend-reset.png',
         createdAt: now.subtract(const Duration(days: 42)),
       ),
       FriendGroup(
@@ -41,6 +42,7 @@ class MockGroupRepository implements GroupRepository {
           'mock-user-8',
         ],
         inviteCode: 'PAYDAY',
+        coverAsset: 'assets/images/community/payday-plan.png',
         createdAt: now.subtract(const Duration(days: 28)),
       ),
       FriendGroup(
@@ -54,6 +56,7 @@ class MockGroupRepository implements GroupRepository {
           'mock-user-9',
         ],
         inviteCode: 'NOBETS',
+        coverAsset: 'assets/images/community/matchday.png',
         createdAt: now.subtract(const Duration(days: 18)),
       ),
     ]);
@@ -119,6 +122,7 @@ class MockGroupRepository implements GroupRepository {
       ownerId: group.ownerId,
       memberIds: [...group.memberIds, userId],
       inviteCode: group.inviteCode,
+      coverAsset: group.coverAsset,
       createdAt: group.createdAt,
     );
     final index = _groups.indexWhere((g) => g.id == group.id);
@@ -143,6 +147,7 @@ class MockGroupRepository implements GroupRepository {
       ownerId: group.ownerId,
       memberIds: [...group.memberIds, userId],
       inviteCode: group.inviteCode,
+      coverAsset: group.coverAsset,
       createdAt: group.createdAt,
     );
     _groups[index] = updated;

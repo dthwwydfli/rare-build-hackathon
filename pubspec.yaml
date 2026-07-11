@@ -41,3 +41,4 @@ flutter:
     - assets/data/gambling_domains.json
     - assets/data/help_resources.json
     - assets/images/google_signin/g-logo.png
+    - assets/images/community/

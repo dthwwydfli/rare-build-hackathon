@@ -8,6 +8,7 @@ class AppUser {
     this.fcmToken,
     this.discoverable = true,
     this.avatarColor,
+    this.avatarAsset,
     this.bio,
     required this.createdAt,
     this.points = 1000,
@@ -23,6 +24,7 @@ class AppUser {
   final String? fcmToken;
   final bool discoverable;
   final int? avatarColor;
+  final String? avatarAsset;
   final String? bio;
   final DateTime createdAt;
   final int points;
@@ -42,6 +44,7 @@ class AppUser {
       fcmToken: data['fcmToken'] as String?,
       discoverable: data['discoverable'] as bool? ?? true,
       avatarColor: data['avatarColor'] as int?,
+      avatarAsset: data['avatarAsset'] as String?,
       bio: data['bio'] as String?,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       points: (data['points'] ?? data['eloRating']) as int? ?? 1000,
@@ -60,6 +63,7 @@ class AppUser {
       if (fcmToken != null) 'fcmToken': fcmToken,
       'discoverable': discoverable,
       if (avatarColor != null) 'avatarColor': avatarColor,
+      if (avatarAsset != null) 'avatarAsset': avatarAsset,
       if (bio != null) 'bio': bio,
       'createdAt': Timestamp.fromDate(createdAt),
       'points': points,
@@ -78,6 +82,7 @@ class AppUser {
     String? fcmToken,
     bool? discoverable,
     int? avatarColor,
+    String? avatarAsset,
     String? bio,
     int? points,
     int? currentStreak,
@@ -92,6 +97,7 @@ class AppUser {
       fcmToken: fcmToken ?? this.fcmToken,
       discoverable: discoverable ?? this.discoverable,
       avatarColor: avatarColor ?? this.avatarColor,
+      avatarAsset: avatarAsset ?? this.avatarAsset,
       bio: bio ?? this.bio,
       createdAt: createdAt,
       points: points ?? this.points,
