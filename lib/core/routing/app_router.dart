@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -19,6 +18,7 @@ import '../../features/settings/permissions_screen.dart';
 import '../../features/support/breach_detail_screen.dart';
 import '../../features/support/my_breaches_screen.dart';
 import '../../features/support/support_inbox_screen.dart';
+import '../../features/urges/urge_log_screen.dart';
 import '../notifications/notification_service.dart';
 import 'app_shell.dart';
 
@@ -81,6 +81,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/groups',
             builder: (context, state) => const GroupsScreen(),
+          ),
+          GoRoute(
+            path: '/urges',
+            builder: (context, state) => const UrgeLogScreen(),
           ),
           GoRoute(
             path: '/support',

@@ -1,0 +1,101 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+/build/
+coverage/
+
+# Keep application lockfiles committed for reproducible builds.
+!pubspec.lock
+
+# Generated Flutter plugin symlinks and ephemeral platform files
+android/.gradle/
+android/local.properties
+android/**/generated_plugin_registrant.*
+ios/Flutter/ephemeral/
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/Generated.xcconfig
+macos/Flutter/ephemeral/
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+
+# Android / Gradle
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+.gradle/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# iOS / macOS / Xcode
+DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+Pods/
+
+# Firebase / local credentials
+.firebase/
+.runtimeconfig.json
+.env
+.env.*
+!.env.example
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+
+# Cloud Functions
+functions/node_modules/
+functions/lib/
+functions/.runtimeconfig.json
+functions/.env
+functions/.env.*
+!functions/.env.example
+
+# IDEs and editors
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Desktop.ini
+
+# Logs and temp files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tmp
+*.temp
+*.swp
+*.swo
+*~

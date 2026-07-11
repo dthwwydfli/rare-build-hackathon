@@ -4,10 +4,12 @@ import '../../data/repositories/firebase_auth_repository.dart';
 import '../../data/repositories/firestore_breach_repository.dart';
 import '../../data/repositories/firestore_commitment_repository.dart';
 import '../../data/repositories/firestore_group_repository.dart';
+import '../../data/repositories/firestore_urge_repository.dart';
 import '../../data/repositories/mock_auth_repository.dart';
 import '../../data/repositories/mock_breach_repository.dart';
 import '../../data/repositories/mock_commitment_repository.dart';
 import '../../data/repositories/mock_group_repository.dart';
+import '../../data/repositories/mock_urge_repository.dart';
 import '../../data/repositories/firestore_user_repository.dart';
 import '../../data/repositories/mock_user_repository.dart';
 import '../../domain/models/app_user.dart';
@@ -15,6 +17,7 @@ import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/breach_repository.dart';
 import '../../domain/repositories/commitment_repository.dart';
 import '../../domain/repositories/group_repository.dart';
+import '../../domain/repositories/urge_repository.dart';
 import '../../domain/repositories/user_repository.dart';
 
 /// Set to true to run without Firebase credentials (UI-only demo).
@@ -40,6 +43,11 @@ final groupRepositoryProvider = Provider<GroupRepository>((ref) {
 final breachRepositoryProvider = Provider<BreachRepository>((ref) {
   if (useMockAuth) return MockBreachRepository();
   return FirestoreBreachRepository();
+});
+
+final urgeRepositoryProvider = Provider<UrgeRepository>((ref) {
+  if (useMockAuth) return MockUrgeRepository();
+  return FirestoreUrgeRepository();
 });
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {

@@ -50,6 +50,14 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /urge_logs/{urgeId} {
+      allow read: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() &&
+        request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
     match /support_messages/{messageId} {
       allow read: if isSignedIn() &&
         (resource.data.fromUserId == request.auth.uid ||

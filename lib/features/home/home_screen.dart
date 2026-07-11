@@ -66,7 +66,8 @@ class HomeScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: AppTheme.accent,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.secondary.withValues(alpha: 0.3)),
+                      border: Border.all(
+                          color: AppTheme.secondary.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
@@ -91,12 +92,15 @@ class HomeScreen extends ConsumerWidget {
               loading: () => const SizedBox.shrink(),
               error: (_, __) => const SizedBox.shrink(),
             ),
-            Text('Active commitments', style: Theme.of(context).textTheme.titleMedium),
+            Text('Active commitments',
+                style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             commitmentsAsync.when(
-              data: (commitments) => _CommitmentsSummary(commitments: commitments),
+              data: (commitments) =>
+                  _CommitmentsSummary(commitments: commitments),
               loading: () => const LoadingView(),
-              error: (e, _) => ErrorBanner(message: 'Could not load commitments'),
+              error: (e, _) =>
+                  ErrorBanner(message: 'Could not load commitments'),
             ),
             const SizedBox(height: 24),
             Text('Your groups', style: Theme.of(context).textTheme.titleMedium),
@@ -110,7 +114,8 @@ class HomeScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Recent support', style: Theme.of(context).textTheme.titleMedium),
+                Text('Recent support',
+                    style: Theme.of(context).textTheme.titleMedium),
                 TextButton(
                   onPressed: () => context.push('/my-breaches'),
                   child: const Text('My breaches'),
@@ -130,7 +135,8 @@ class HomeScreen extends ConsumerWidget {
                   children: messages.take(3).map((m) {
                     return AppCard(
                       child: ListTile(
-                        leading: const Icon(Icons.favorite, color: AppTheme.danger),
+                        leading:
+                            const Icon(Icons.favorite, color: AppTheme.danger),
                         title: Text(m.message),
                         subtitle: Text(m.fromUserName ?? 'A friend'),
                       ),
@@ -139,7 +145,8 @@ class HomeScreen extends ConsumerWidget {
                 );
               },
               loading: () => const LoadingView(),
-              error: (e, _) => ErrorBanner(message: 'Could not load support messages'),
+              error: (e, _) =>
+                  ErrorBanner(message: 'Could not load support messages'),
             ),
           ],
         ),
@@ -231,12 +238,12 @@ class _FlagForSupportCardState extends ConsumerState<_FlagForSupportCard> {
     setState(() => _loading = true);
     try {
       await ref.read(detectionCoordinatorProvider).emitManualBreach(
-            signalType: BreachSignalType.manual,
-            metadata: {
-              'note': 'Flagged for support — reaching out to my circle',
-              'selfFlagged': true,
-            },
-          );
+        signalType: BreachSignalType.manual,
+        metadata: {
+          'note': 'Flagged for support — reaching out to my circle',
+          'selfFlagged': true,
+        },
+      );
       if (mounted) {
         showAppSnackBar(
           context,
@@ -313,10 +320,24 @@ class _QuickActions extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        _ActionCard(
-          icon: Icons.person_search_outlined,
-          label: 'Find people on the app',
-          onTap: () => context.push('/people/find'),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionCard(
+                icon: Icons.psychology_alt_outlined,
+                label: 'Log urge',
+                onTap: () => context.push('/urges'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ActionCard(
+                icon: Icons.person_search_outlined,
+                label: 'Find people',
+                onTap: () => context.push('/people/find'),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -418,7 +439,8 @@ class _GroupsSummary extends StatelessWidget {
           child: ListTile(
             leading: const Icon(Icons.group),
             title: Text(g.name),
-            subtitle: Text('${g.memberIds.length} members · Code: ${g.inviteCode}'),
+            subtitle:
+                Text('${g.memberIds.length} members · Code: ${g.inviteCode}'),
             onTap: () => context.push('/groups'),
           ),
         );
