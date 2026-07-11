@@ -14,8 +14,10 @@ class NotificationRouter {
         } else {
           context.push('/support');
         }
+        return;
       case 'support_received':
         context.push('/home');
+        return;
       default:
         break;
     }

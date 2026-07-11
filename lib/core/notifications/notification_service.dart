@@ -1,5 +1,4 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,9 +19,6 @@ class NotificationService {
     if (_initialized) return;
     _initialized = true;
 
-    await _messaging.requestPermission();
-    await _registerToken();
-
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
     FirebaseMessaging.onMessageOpenedApp.listen(_handleOpenedMessage);
     FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
@@ -37,14 +33,19 @@ class NotificationService {
     }
   }
 
-  Future<void> _registerToken() async {
+  /// Requests FCM permission and saves the device token to Firestore.
+  /// Call after the user grants notification permission on the permissions screen.
+  Future<void> refreshToken() async {
+    if (useMockAuth) return;
+
+    await _messaging.requestPermission();
     final token = await _messaging.getToken();
     if (token != null) {
       await _authRepository.updateFcmToken(token);
     }
   }
 
-  Future<void> onUserSignedIn() => _registerToken();
+  Future<void> onUserSignedIn() => refreshToken();
 
   void _handleForegroundMessage(RemoteMessage message) {
     final notification = message.notification;
