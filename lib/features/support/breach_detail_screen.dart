@@ -16,7 +16,7 @@ import '../../domain/models/support_message.dart';
 import 'breach_ui_helpers.dart';
 
 const _presetMessages = [
-  ("You've got this — I'm here for you", SupportMessageType.encouragement),
+  ("You've got this and I'm here for you", SupportMessageType.encouragement),
   ("Want to talk? I'm free right now", SupportMessageType.checkIn),
   ('Call me if you need support', SupportMessageType.callOffer),
   ('Proud of you for being accountable', SupportMessageType.encouragement),
@@ -91,7 +91,7 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
           },
         );
         if (!mounted) return;
-        showAppSnackBar(context, '+5 — thanks for showing up');
+        showAppSnackBar(context, '+5 and thanks for showing up');
         context.pop();
       }
     } catch (e) {
@@ -135,19 +135,19 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.terracotta.withValues(alpha: 0.08),
+                      color: AppTheme.granola.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppTheme.terracotta.withValues(alpha: 0.3),
+                        color: AppTheme.granola.withValues(alpha: 0.3),
                       ),
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.flag, color: AppTheme.terracotta),
+                        Icon(Icons.flag, color: AppTheme.granola),
                         SizedBox(width: 12),
                         Expanded(
                           child: LowercaseText(
-                            'flagged — this friend may need your support right now.',
+                            'flagged and this friend may need your support right now.',
                             style: TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
@@ -182,7 +182,7 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
                         data: (stats) => Padding(
                           padding: const EdgeInsets.only(top: 12),
                           child: LowercaseText(
-                            '${stats.bestStreak} days reclaimed so far — that doesn\'t go away.',
+                            '${stats.bestStreak} days reclaimed so far and that doesn\'t go away.',
                             style: const TextStyle(
                               color: AppTheme.sageDeep,
                               fontWeight: FontWeight.w600,
@@ -205,7 +205,7 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
                   data: (messages) {
                     if (messages.isEmpty) {
                       return const LowercaseText(
-                        'no one has responded yet — be the first to reach out.',
+                        'no one has responded yet so be the first to reach out.',
                         style: TextStyle(color: AppTheme.inkPlumSoft),
                       );
                     }
@@ -217,7 +217,7 @@ class _BreachDetailScreenState extends ConsumerState<BreachDetailScreen> {
                             child: ListTile(
                               contentPadding: EdgeInsets.zero,
                               leading: const Icon(Icons.favorite,
-                                  color: AppTheme.terracotta),
+                                  color: AppTheme.granola),
                               title: Text(m.message),
                               subtitle: LowercaseText(
                                 '${m.fromUserName ?? 'a friend'} · ${m.type.label}',

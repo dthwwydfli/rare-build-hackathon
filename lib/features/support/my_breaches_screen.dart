@@ -27,7 +27,7 @@ class MyBreachesScreen extends ConsumerWidget {
           data: (breaches) {
             if (breaches.isEmpty) {
               return const EmptyState(
-                title: 'nothing here — keep going',
+                title: 'nothing here so keep going',
                 subtitle: 'if a rough moment happens, it shows up here '
                     'so your friends can catch you',
               );
@@ -60,7 +60,7 @@ class MyBreachesScreen extends ConsumerWidget {
                             ),
                             trailing: breach.flagged && !breach.acknowledged
                                 ? const Icon(Icons.flag,
-                                    color: AppTheme.terracotta, size: 20)
+                                    color: AppTheme.granola, size: 20)
                                 : breach.acknowledged
                                     ? const Row(
                                         mainAxisSize: MainAxisSize.min,

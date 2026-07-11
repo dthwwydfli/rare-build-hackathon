@@ -54,7 +54,7 @@ class SupportInboxScreen extends ConsumerWidget {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.flag, color: AppTheme.terracotta),
+                        const Icon(Icons.flag, color: AppTheme.granola),
                         const SizedBox(width: 12),
                         Expanded(
                           child: LowercaseText(
@@ -146,7 +146,7 @@ class _GroupBreachesSection extends ConsumerWidget {
               return const Padding(
                 padding: EdgeInsets.only(bottom: 16),
                 child: LowercaseText(
-                  'all quiet — everyone\'s doing okay',
+                  'all quiet and everyone\'s doing okay',
                   style: TextStyle(color: AppTheme.inkPlumSoft),
                 ),
               );
@@ -177,7 +177,7 @@ class _GroupBreachesSection extends ConsumerWidget {
                               top: -2,
                               child: Icon(
                                 Icons.flag,
-                                color: AppTheme.terracotta,
+                                color: AppTheme.granola,
                                 size: 16,
                               ),
                             ),
@@ -200,7 +200,7 @@ class _GroupBreachesSection extends ConsumerWidget {
                       trailing: breach.acknowledged
                           ? const WaxSealCheck(size: 22)
                           : const Icon(Icons.fiber_manual_record,
-                              color: AppTheme.terracotta, size: 12),
+                              color: AppTheme.granola, size: 12),
                     ),
                   ),
                 );
