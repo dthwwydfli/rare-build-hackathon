@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_text.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../domain/models/commitment.dart';
 import '../../domain/models/enums.dart';
@@ -92,7 +93,7 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
               ),
             );
         if (mounted) {
-          showAppSnackBar(context, 'Commitment updated');
+          showAppSnackBar(context, 'goal updated');
           context.pop();
         }
       } else {
@@ -108,13 +109,13 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
               ),
             );
         if (mounted) {
-          showAppSnackBar(context, 'Commitment created — detection is now active');
+          showAppSnackBar(context, 'goal created — detection is now active');
           context.pop();
         }
       }
     } catch (e) {
       if (mounted) {
-        showAppSnackBar(context, 'Could not save commitment. Please try again.');
+        showAppSnackBar(context, 'could not save goal. please try again.');
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -137,7 +138,7 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isEditing ? 'Edit commitment' : 'New commitment'),
+        title: LowercaseText(widget.isEditing ? 'edit goal' : 'new goal'),
       ),
       body: Form(
         key: _formKey,
@@ -147,18 +148,18 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
             TextFormField(
               controller: _titleController,
               decoration: const InputDecoration(
-                labelText: 'Commitment title',
-                hintText: 'No betting shops or gambling apps',
+                labelText: 'title',
+                hintText: 'no betting shops or gambling apps',
               ),
               validator: (v) =>
-                  v == null || v.isEmpty ? 'Enter a title' : null,
+                  v == null || v.isEmpty ? 'enter a title' : null,
             ),
             const SizedBox(height: 24),
-            Text('Type', style: Theme.of(context).textTheme.titleSmall),
+            const LowercaseText('type', style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             SegmentedButton<CommitmentType>(
               segments: CommitmentType.values
-                  .map((t) => ButtonSegment(value: t, label: Text(t.label)))
+                  .map((t) => ButtonSegment(value: t, label: LowercaseText(t.label)))
                   .toList(),
               selected: {_type},
               onSelectionChanged: widget.isEditing
@@ -167,7 +168,7 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
             ),
             const SizedBox(height: 24),
             if (_type == CommitmentType.location) ...[
-              Text('Geofence radius: ${_geofenceRadius}m'),
+              LowercaseText('geofence radius: ${_geofenceRadius}m'),
               Slider(
                 value: _geofenceRadius.toDouble(),
                 min: 100,
@@ -181,14 +182,14 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
               TextFormField(
                 controller: _appsController,
                 decoration: const InputDecoration(
-                  labelText: 'Blocked apps (comma-separated)',
+                  labelText: 'blocked apps (comma-separated)',
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _domainsController,
                 decoration: const InputDecoration(
-                  labelText: 'Blocked domains (comma-separated)',
+                  labelText: 'blocked domains (comma-separated)',
                 ),
               ),
             ],
@@ -196,14 +197,14 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
               TextFormField(
                 controller: _maxSpendController,
                 decoration: const InputDecoration(
-                  labelText: 'Max spend alert threshold (£)',
+                  labelText: 'max spend alert threshold (£)',
                 ),
                 keyboardType: TextInputType.number,
                 validator: (v) {
                   if (v == null || v.isEmpty) return null;
                   final amount = double.tryParse(v);
                   if (amount == null || amount <= 0) {
-                    return 'Enter a positive number';
+                    return 'enter a positive number';
                   }
                   return null;
                 },
@@ -218,7 +219,7 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(widget.isEditing ? 'Update commitment' : 'Save commitment'),
+                  : LowercaseText(widget.isEditing ? 'update goal' : 'save goal'),
             ),
           ],
         ),
