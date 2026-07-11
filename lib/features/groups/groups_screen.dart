@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/providers/repository_providers.dart';
+import '../../core/theme/app_text.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../domain/models/friend_group.dart';
 
@@ -18,23 +21,23 @@ class GroupsScreen extends ConsumerWidget {
     final groupsAsync = ref.watch(_groupsProvider(user.id));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Friend groups')),
+      appBar: AppBar(title: const LowercaseText('groups')),
       body: groupsAsync.when(
         data: (groups) {
           if (groups.isEmpty) {
             return EmptyState(
-              title: 'No groups yet',
-              subtitle: 'Create a group and invite friends with a code',
+              title: 'no groups yet',
+              subtitle: 'create a group and invite friends with a code',
               action: Column(
                 children: [
                   ElevatedButton(
                     onPressed: () => context.push('/groups/new'),
-                    child: const Text('Create group'),
+                    child: const LowercaseText('create group'),
                   ),
                   const SizedBox(height: 8),
                   OutlinedButton(
                     onPressed: () => context.push('/groups/join'),
-                    child: const Text('Join with code'),
+                    child: const LowercaseText('join with code'),
                   ),
                 ],
               ),
@@ -45,6 +48,11 @@ class GroupsScreen extends ConsumerWidget {
             itemCount: groups.length,
             itemBuilder: (context, index) {
               final group = groups[index];
+              final rankAsync = ref.watch(groupLeaderboardProvider(group.id));
+              final rank = rankAsync.valueOrNull
+                  ?.where((e) => e.userId == user.id)
+                  .map((e) => e.rank)
+                  .firstOrNull;
               return AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +60,9 @@ class GroupsScreen extends ConsumerWidget {
                     ListTile(
                       leading: const Icon(Icons.group),
                       title: Text(group.name),
-                      subtitle: Text('${group.memberIds.length} members'),
+                      subtitle: LowercaseText(
+                        '${group.memberIds.length} members${rank != null ? ' · your rank #$rank' : ''}',
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -62,12 +72,12 @@ class GroupsScreen extends ConsumerWidget {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primaryContainer,
+                                color: AppTheme.lavenderLight,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                'Invite code: ${group.inviteCode}',
-                                style: const TextStyle(
+                                'invite code: ${group.inviteCode}',
+                                style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 2,
                                 ),
@@ -80,18 +90,18 @@ class GroupsScreen extends ConsumerWidget {
                               Clipboard.setData(
                                 ClipboardData(text: group.inviteCode),
                               );
-                              showAppSnackBar(context, 'Code copied');
+                              showAppSnackBar(context, 'code copied');
                             },
                           ),
                           IconButton(
                             icon: const Icon(Icons.share_outlined),
                             onPressed: () {
                               final shareText =
-                                  'Join my accountability group "${group.name}" with code: ${group.inviteCode}';
+                                  'Join my lavender group "${group.name}" with code: ${group.inviteCode}';
                               Clipboard.setData(ClipboardData(text: shareText));
                               showAppSnackBar(
                                 context,
-                                'Invite message copied — paste in Messages or WhatsApp',
+                                'invite message copied — paste in messages or whatsapp',
                               );
                             },
                           ),
@@ -105,8 +115,8 @@ class GroupsScreen extends ConsumerWidget {
           );
         },
         loading: () => const LoadingView(),
-        error: (e, _) => Center(
-          child: ErrorBanner(message: 'Could not load groups'),
+        error: (e, _) => const Center(
+          child: ErrorBanner(message: 'could not load groups'),
         ),
       ),
       floatingActionButton: Column(
@@ -133,3 +143,11 @@ final _groupsProvider =
     StreamProvider.family<List<FriendGroup>, String>((ref, userId) {
   return ref.watch(groupRepositoryProvider).watchUserGroups(userId);
 });
+
+extension _FirstOrNull<E> on Iterable<E> {
+  E? get firstOrNull {
+    final it = iterator;
+    if (!it.moveNext()) return null;
+    return it.current;
+  }
+}
