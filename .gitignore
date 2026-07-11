@@ -250,3 +250,18 @@ GoogleService-Info.plist
 google-services.json
 # Plugins (already resolved through pubspec.yaml)
 .flutter-plugins
+.flutter-plugins-dependencies
+
+# Node / Firebase functions
+node_modules/
+functions/node_modules/
+
+# IDE
+.idea/
+
+# Python cache (design skill scripts)
+__pycache__/
+*.pyc
+
+# Flutter logs
+flutter_*.log
