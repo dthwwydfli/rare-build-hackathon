@@ -59,7 +59,7 @@ extension BreachSimulationPresetX on BreachSimulationPreset {
 
   String get description => switch (this) {
         BreachSimulationPreset.physicalShop =>
-          'Simulates GPS proximity to a Coral betting shop',
+          'Simulates GPS proximity to a Paddy Power betting shop',
         BreachSimulationPreset.appForeground =>
           'Simulates Bet365 in the foreground (Android UsageStats)',
         BreachSimulationPreset.appRecentLogin =>
@@ -158,7 +158,7 @@ class BreachSimulator {
     switch (preset) {
       case BreachSimulationPreset.physicalShop:
         final poi = catalog.pois.firstWhere(
-          (p) => p.name.contains('Coral'),
+          (p) => p.name.toLowerCase().contains('paddy power'),
           orElse: () => catalog.pois.first,
         );
         _coordinator.physicalDetector.simulateVenueVisit(poi, distanceM: 85);

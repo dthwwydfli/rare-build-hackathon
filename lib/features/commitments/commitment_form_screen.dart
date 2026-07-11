@@ -28,10 +28,8 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   CommitmentType _type = CommitmentType.location;
-  final _domainsController =
-      TextEditingController(text: 'bet365.com, paddypower.com');
-  final _appsController =
-      TextEditingController(text: 'Bet365, William Hill');
+  final _domainsController = TextEditingController();
+  final _appsController = TextEditingController();
   final _maxSpendController = TextEditingController();
   int _geofenceRadius = 200;
   bool _loading = false;
@@ -226,6 +224,24 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
                         onTap: () => setState(
                             () => _type = CommitmentType.values[i]),
                       ),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                        alignment: Alignment.topCenter,
+                        child: _type == CommitmentType.values[i]
+                            ? _InlineTypeConfig(
+                                child: _TypeSpecificFields(
+                                  type: CommitmentType.values[i],
+                                  geofenceRadius: _geofenceRadius,
+                                  onGeofenceChanged: (v) =>
+                                      setState(() => _geofenceRadius = v),
+                                  appsController: _appsController,
+                                  domainsController: _domainsController,
+                                  maxSpendController: _maxSpendController,
+                                ),
+                              )
+                            : const SizedBox(width: double.infinity),
+                      ),
                     ],
                     if (widget.isEditing) ...[
                       const SizedBox(height: 8),
@@ -238,20 +254,6 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 24),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: _TypeSpecificFields(
-                        key: ValueKey(_type),
-                        type: _type,
-                        geofenceRadius: _geofenceRadius,
-                        onGeofenceChanged: (v) =>
-                            setState(() => _geofenceRadius = v),
-                        appsController: _appsController,
-                        domainsController: _domainsController,
-                        maxSpendController: _maxSpendController,
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -280,9 +282,33 @@ class _CommitmentFormScreenState extends ConsumerState<CommitmentFormScreen> {
   }
 }
 
+class _InlineTypeConfig extends StatelessWidget {
+  const _InlineTypeConfig({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, left: 12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppTheme.lavenderLight.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(8),
+          border: const Border(
+            left: BorderSide(color: AppTheme.lavenderDeep, width: 3),
+          ),
+        ),
+        child: child,
+      ),
+    );
+  }
+}
+
 class _TypeSpecificFields extends StatelessWidget {
   const _TypeSpecificFields({
-    super.key,
     required this.type,
     required this.geofenceRadius,
     required this.onGeofenceChanged,
@@ -370,8 +396,11 @@ class _TypeSpecificFields extends StatelessWidget {
               controller: appsController,
               maxLines: 3,
               decoration: const InputDecoration(
-                labelText: 'blocked apps',
-                hintText: 'Bet365, William Hill',
+                labelText: 'extra apps to block',
+                hintText: 'e.g. a niche app name',
+                helperText:
+                    'we already watch common gambling apps — add any others here',
+                helperMaxLines: 2,
               ),
             ),
             const SizedBox(height: 16),
@@ -379,8 +408,11 @@ class _TypeSpecificFields extends StatelessWidget {
               controller: domainsController,
               maxLines: 3,
               decoration: const InputDecoration(
-                labelText: 'blocked domains',
-                hintText: 'bet365.com, paddypower.com',
+                labelText: 'extra websites to block',
+                hintText: 'e.g. example.com',
+                helperText:
+                    'we already watch major betting sites — add any others here',
+                helperMaxLines: 2,
               ),
             ),
           ],

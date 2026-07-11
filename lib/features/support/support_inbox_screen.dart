@@ -10,6 +10,7 @@ import '../../core/widgets/craft_widgets.dart';
 import '../../core/widgets/tactile_widgets.dart';
 import '../../domain/models/breach_event.dart';
 import '../../domain/models/friend_group.dart';
+import '../demo/demo_breach_alert.dart';
 import 'breach_ui_helpers.dart';
 
 class SupportInboxScreen extends ConsumerWidget {
@@ -33,9 +34,11 @@ class SupportInboxScreen extends ConsumerWidget {
             data: (groups) {
               if (groups.isEmpty) {
                 return ListView(
-                  children: const [
-                    SizedBox(height: 120),
-                    EmptyState(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    if (useMockAuth) const _DemoPaddyPowerButton(),
+                    const SizedBox(height: 120),
+                    const EmptyState(
                       title: 'no groups yet',
                       subtitle: 'join a friend group to be there for each other',
                     ),
@@ -45,6 +48,8 @@ class SupportInboxScreen extends ConsumerWidget {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  if (useMockAuth) const _DemoPaddyPowerButton(),
+                  if (useMockAuth) const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 16),
@@ -112,6 +117,35 @@ final unreadAlertsCountProvider = Provider<int>((ref) {
   }
   return count;
 });
+
+class _DemoPaddyPowerButton extends StatelessWidget {
+  const _DemoPaddyPowerButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const CircleAvatar(
+          backgroundColor: AppTheme.lavenderLight,
+          child: Icon(
+            Icons.notifications_active_outlined,
+            color: AppTheme.lavenderDeep,
+          ),
+        ),
+        title: const LowercaseText('demo: paddy power alert'),
+        subtitle: const LowercaseText(
+          'preview the notification you\'d get when entering paddy power.',
+          style: TextStyle(color: AppTheme.inkPlumSoft),
+        ),
+        trailing: FilledButton(
+          onPressed: () => showDemoPaddyPowerAlert(context),
+          child: const LowercaseText('show'),
+        ),
+      ),
+    );
+  }
+}
 
 class _GroupBreachesSection extends ConsumerWidget {
   const _GroupBreachesSection({
